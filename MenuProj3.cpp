@@ -15,30 +15,32 @@ public:
     MenuItem entree[2];
     MenuItem sushi[4];
     MenuItem pizza[4];
-    Menu() {
-        appetizer[] = {{
+    Menu(): 
+        appetizer {
             {"1. Fruit Salad                ", 4.50},
             {"2. Popcorn Chicken            ", 4.00},
             {"3. Sweet Potato Fries         ", 2.00},
             {"4. Hors d'oeuvres             ", 3.00}
-        }};
-        entree[] = {
+        },
+        entree {
             {"1. Caesar Salad               ", 7.00},
             {"2. Shrimp & Broccoli Stir Fry ", 10.00}
-        };
-        sushi[] = {
+        },
+        sushi {
             { "1. California Roll Platter    ", 18.00 },
             { "2. Eel Roll Platter           ", 23.00 },
             { "3. Shrimp Tempura Roll Platter", 20.00 },
             { "4. Salmon Roll Platter        ", 19.00 },
-        };
-        pizza[] = {
+        },
+        pizza {
             { "1. Pepperoni Pizza            ", 12.50 },
             { "2. Mushroom Pizza             ", 11.75 },
             { "3. Broccoli Pizza             ", 11.00 },
             { "4. Bacon Pizza                ", 12.00 },
-        };
+        }
+    {
     }
+
     void displayMainMenu()
     {
         cout << "Choose from:\n1 - Appetizer\n2 - Main Course\n3 - Sushi\n4 - Pizza\n9 - End Order" << endl;
