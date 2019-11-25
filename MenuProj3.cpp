@@ -41,26 +41,15 @@ public:
     {
     }
 
-    void displayMainMenu()
-    {
+    void displayMainMenu() {
         cout << "Choose from:\n1 - Appetizer\n2 - Main Course\n3 - Sushi\n4 - Pizza\n9 - End Order" << endl;
     }
-    void displayAppetizerMenu() {
-        for(int i=0; i<sizeof(appetizer)/sizeof(appetizer[0]); ++i)
-            cout << i+1 << ". " << appetizer[i].item << "\t" << appetizer[i].cost << endl;
+
+    void displayMenu(MenuItem items[]) {
+        for(int i=0; i<sizeof(items)/sizeof(items[0]); ++i)
+            cout << i+1 << ". " << items[i].item << "\t" << items[i].cost << endl;
     }
-    void displayEntreeMenu() {
-        for(int i=0; i<sizeof(entree)/sizeof(entree[0]); ++i)
-            cout << i+1 << ". " << entree[i].item << "\t" << entree[i].cost << endl;
-    }
-    void displaySushiMenu() {
-        for(int i=0; i<sizeof(sushi)/sizeof(sushi[0]); ++i)
-            cout << i+1 << ". " << sushi[i].item << "\t" << sushi[i].cost << endl;
-    }
-    void displayPizzaMenu() {
-        for(int i=0; i<sizeof(pizza)/sizeof(pizza[0]); ++i)
-            cout << i+1 << ". " << pizza[i].item << "\t" << pizza[i].cost << endl;
-    }
+
     void pickItem(MenuItem items[]) {
         int aI, aC;
         cout << "Please choose an item.\n";
@@ -72,6 +61,7 @@ public:
         order += ss.str();
         total += items[aI - 1].cost * aC;
     }
+
     void printOrder() {
         cout << "Your order:\n\n" << order << endl;
         cout << "Total:                       \t$" << total << endl;
@@ -91,19 +81,19 @@ int main() {
         cin >> choice;
         switch(choice) {
             case 1:
-                menu.displayAppetizerMenu();
+                menu.displayMenu(menu.appetizer);
                 menu.pickItem(menu.appetizer);
                 break;
             case 2: 
-                menu.displayEntreeMenu();
+                menu.displayMenu(menu.entree);
                 menu.pickItem(menu.entree);
                 break;
             case 3: 
-                menu.displaySushiMenu();
+                menu.displayMenu(menu.sushi);
                 menu.pickItem(menu.sushi);
                 break;
             case 4: 
-                menu.displayPizzaMenu();
+                menu.displayMenu(menu.pizza);
                 menu.pickItem(menu.pizza);
                 break;
             default: break;
