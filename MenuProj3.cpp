@@ -17,26 +17,26 @@ public:
     MenuItem pizza[4];
     Menu(): 
         appetizer {
-            {"1. Fruit Salad                ", 4.50},
-            {"2. Popcorn Chicken            ", 4.00},
-            {"3. Sweet Potato Fries         ", 2.00},
-            {"4. Hors d'oeuvres             ", 3.00}
+            {"Fruit Salad                ", 4.50},
+            {"Popcorn Chicken            ", 4.00},
+            {"Sweet Potato Fries         ", 2.00},
+            {"Hors d'oeuvres             ", 3.00}
         },
         entree {
-            {"1. Caesar Salad               ", 7.00},
-            {"2. Shrimp & Broccoli Stir Fry ", 10.00}
+            {"Caesar Salad               ", 7.00},
+            {"Shrimp & Broccoli Stir Fry ", 10.00}
         },
         sushi {
-            { "1. California Roll Platter    ", 18.00 },
-            { "2. Eel Roll Platter           ", 23.00 },
-            { "3. Shrimp Tempura Roll Platter", 20.00 },
-            { "4. Salmon Roll Platter        ", 19.00 },
+            { "California Roll Platter    ", 18.00 },
+            { "Eel Roll Platter           ", 23.00 },
+            { "Shrimp Tempura Roll Platter", 20.00 },
+            { "Salmon Roll Platter        ", 19.00 },
         },
         pizza {
-            { "1. Pepperoni Pizza            ", 12.50 },
-            { "2. Mushroom Pizza             ", 11.75 },
-            { "3. Broccoli Pizza             ", 11.00 },
-            { "4. Bacon Pizza                ", 12.00 },
+            { "Pepperoni Pizza            ", 12.50 },
+            { "Mushroom Pizza             ", 11.75 },
+            { "Broccoli Pizza             ", 11.00 },
+            { "Bacon Pizza                ", 12.00 },
         }
     {
     }
@@ -47,19 +47,19 @@ public:
     }
     void displayAppetizerMenu() {
         for(int i=0; i<sizeof(appetizer)/sizeof(appetizer[0]); ++i)
-            cout << appetizer[i].item << "\t" << appetizer[i].cost << endl;
+            cout << i+1 << ". " << appetizer[i].item << "\t" << appetizer[i].cost << endl;
     }
     void displayEntreeMenu() {
         for(int i=0; i<sizeof(entree)/sizeof(entree[0]); ++i)
-            cout << entree[i].item << "\t" << entree[i].cost << endl;
+            cout << i+1 << ". " << entree[i].item << "\t" << entree[i].cost << endl;
     }
     void displaySushiMenu() {
         for(int i=0; i<sizeof(sushi)/sizeof(sushi[0]); ++i)
-            cout << sushi[i].item << "\t" << sushi[i].cost << endl;
+            cout << i+1 << ". " << sushi[i].item << "\t" << sushi[i].cost << endl;
     }
     void displayPizzaMenu() {
         for(int i=0; i<sizeof(pizza)/sizeof(pizza[0]); ++i)
-            cout << pizza[i].item << "\t" << pizza[i].cost << endl;
+            cout << i+1 << ". " << pizza[i].item << "\t" << pizza[i].cost << endl;
     }
     void pickItem(MenuItem items[]) {
         int aI, aC;
