@@ -45,8 +45,8 @@ public:
         cout << "Choose from:\n1 - Appetizer\n2 - Main Course\n3 - Sushi\n4 - Pizza\n9 - End Order" << endl;
     }
 
-    void displayMenu(MenuItem items[]) {
-        for(int i=0; i<sizeof(items)/sizeof(items[0]); ++i)
+    void displayMenu(MenuItem items[], int size) {
+        for(int i=0; i<size; ++i)
             cout << i+1 << ". " << items[i].item << "\t" << items[i].cost << endl;
     }
 
@@ -81,19 +81,19 @@ int main() {
         cin >> choice;
         switch(choice) {
             case 1:
-                menu.displayMenu(menu.appetizer);
+                menu.displayMenu(menu.appetizer, 4);
                 menu.pickItem(menu.appetizer);
                 break;
             case 2: 
-                menu.displayMenu(menu.entree);
+                menu.displayMenu(menu.entree, 2);
                 menu.pickItem(menu.entree);
                 break;
             case 3: 
-                menu.displayMenu(menu.sushi);
+                menu.displayMenu(menu.sushi, 4);
                 menu.pickItem(menu.sushi);
                 break;
             case 4: 
-                menu.displayMenu(menu.pizza);
+                menu.displayMenu(menu.pizza, 4);
                 menu.pickItem(menu.pizza);
                 break;
             default: break;
