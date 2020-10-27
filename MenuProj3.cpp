@@ -42,10 +42,12 @@ public:
     }
 
     void displayMainMenu() {
+        system("clear");
         cout << "Choose from:\n1 - Appetizer\n2 - Main Course\n3 - Sushi\n4 - Pizza\n9 - End Order" << endl;
     }
 
     void displayMenu(MenuItem items[], int size) {
+        system("clear");
         for(int i=0; i<size; ++i)
             cout << i+1 << ". " << items[i].item << "\t" << items[i].cost << endl;
     }
@@ -63,6 +65,7 @@ public:
     }
 
     void printOrder() {
+        system("clear");
         cout << "Your order:\n\n" << order << endl;
         cout << "Total:                       \t$" << total << endl;
         cout << "Tax:                         \t$" << ((int)(total * 1.0875 * 100)) / 100.0 << endl;
@@ -73,6 +76,7 @@ private:
 };
 
 int main() {
+    system("clear");
     cout << "Welcome to our Restaurant!\n";
     Menu menu;
     int choice = 0;
