@@ -4,6 +4,8 @@
 
 using namespace std;
 
+int i = 0;
+string empty_list = "()";
 
 bool isDigit(char c) {
     return (c <= '9' && c >= '0');
