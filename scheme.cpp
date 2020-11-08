@@ -5,7 +5,10 @@
 using namespace std;
 
 int i = 0;
-string empty_list = "()";
+
+Expression *empty_list;
+Expression *quote_symbol;
+Expression *symbol_table;
 
 bool isDigit(char c) {
     return (c <= '9' && c >= '0');
@@ -18,9 +21,22 @@ bool isDelimiter(char c) {
            c == '\0' || c == '\n';
 }
 
+bool isInitial(char c) {
+    return ( c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z') || c == '*' || c == '/' ||
+             c == '>' || c == '<' || c == '=' || c == '?' || c == '!';
+}
+
+bool isSymbol(string &str) {
+    char c; int i=0;
+    while (isInitial(c = str[i])) {
+        i++;
+    }
+    return i == str.length();
+}
+
 void eatWhiteSpace(string &line) {
     char c;
-    while (!line.empty()) {
+    while (i < line.length()) {
         c = line[i];
         if (c == ' ') {
             ++i;
@@ -114,12 +130,36 @@ Expression* cdr(Expression* expr) {
 void setcdr(Expression *expr, Expression* value) {
     expr->list->cdr = value;
 }
-
 Expression* cons(Expression *car, Expression *cdr) {
-    Expression* expr = new Expression();
-    expr->list->car = car;
-    expr->list->cdr = cdr;
-    return expr;
+    Expression::List *myList = new Expression::List();
+    myList->car = car;
+    myList->cdr = cdr;
+    Expression* consObj = new Expression(myList);
+    return consObj;
+}
+
+Expression* makeSymbol(string value) {
+    Expression *element;
+    Expression *symbol;
+    /* search for they symbol in the symbol table */
+    element = symbol_table;
+    while (element->list != nullptr) {
+        if (car(element)->atom.atomValue_ == value) {
+            return car(element);
+        }
+        element = cdr(element);
+    };
+    
+    /* create the symbol and add it to the symbol table */
+    symbol = new Expression(Atom(value));
+    symbol_table = cons(symbol, symbol_table);
+    return symbol;
+}
+
+void init() {
+    empty_list = new Expression();
+    symbol_table = empty_list;
+    quote_symbol = makeSymbol("quote");
 }
 
 // READ
@@ -133,10 +173,9 @@ Expression* readPair(string line) {
     Expression *expr;
     
     eatWhiteSpace(line);
-    
-    c = line[++i];
+    c = line[i];
     if (c == ')') { /* read the empty list */
-        return new Expression(Atom(empty_list));
+        return empty_list;
     }
 
     car_obj = readIn(line);
@@ -154,12 +193,18 @@ Expression* readPair(string line) {
         if (c != ')') {
             fprintf(stderr, "where was the trailing right paren?\n"); exit(1);
         }
-        return expr->cons(car_obj, cdr_obj);
+        expr = cons(car_obj, cdr_obj);
+        return expr;
     }
     else { /* read list */
         --i;
-        cdr_obj = readPair(line);        
-        return expr->cons(car_obj, cdr_obj);
+        if ((c = line[i]) != ')') {
+            cdr_obj = readPair(line);
+        } else {
+            cdr_obj = empty_list;
+        }
+        expr = cons(car_obj, cdr_obj);
+        return expr;
     }
 }
 
@@ -174,7 +219,7 @@ Expression* readIn(string& line) {
     if (line.empty()) { return new Expression(Atom()); }
 
     c = line[i];
-    if (c == '#') {
+    if (c == '#') { /* read boolean/char */
         c = line[++i];
         if (c == 't') {
             eatAtom(line);
@@ -189,7 +234,7 @@ Expression* readIn(string& line) {
             exit(1);
         }
     }
-    else if ((c == '-' && isDigit(line[i+1]) || isDigit(c))) {
+    else if ((c == '-' && isDigit(line[i+1]) || isDigit(c))) { /* read number */
         if (c == '-') {
             sign = -1;
             i++;
@@ -200,7 +245,17 @@ Expression* readIn(string& line) {
         n *= sign;
         return new Expression(Atom(n));
     }
-    else if (c == '"') {
+    else if (isInitial(c) || ((c == '+' || c == '-') && isDelimiter(c=line[i+1]))) { /* read symbol */
+        while (isInitial(c) || isDigit(c) || c == '+' || c == '-') {
+            str += c;
+            c = line[++i];
+        }
+        if (isDelimiter(c)) {
+            return makeSymbol(str);
+        }
+        else { fprintf(stderr, "symbol not followed by delimiter. Found '%c'\n", c); exit(1); }
+    }
+    else if (c == '"') { /* read string */
         i++;
         while (((c = line[i++]) != '"')) {
             if (c == '\\') {
@@ -211,10 +266,14 @@ Expression* readIn(string& line) {
         if (c == EOF) { fprintf(stderr, "non-terminated string literal\n"); exit(1); }
         return new Expression(Atom(str));
     }
-    else if (c == '(') {
+    else if (c == '(') { /* read pair/list */
+        i++;
         return readPair(line);
     }
-    else {
+    else if (c == '\'') { /* read quoted expression */
+        return cons(quote_symbol, cons(readIn(line), empty_list));
+    }
+    else { /* bad input */
         fprintf(stderr, "bad input. Unexpected '%c'\n", c);
         exit(1);
     }
@@ -233,23 +292,18 @@ Expression* eval(Expression *input) {
 void write(Expression *expr);
 
 void writeList(Expression *list) {
-    Expression *car_obj;
-    Expression *cdr_obj;
-    
-    car_obj = car(list);
-    cdr_obj = cdr(list);
+    Expression *car_obj = car(list);
+    Expression *cdr_obj = cdr(list);
 
     write(car_obj);
-    if (cdr_obj != nullptr) {
-        if (cdr(cdr_obj) == nullptr) {
-            printf(" ");
-            writeList(cdr_obj);
-        }
-        else if (cdr_obj->atom.atomType_ == EMPTY_LIST) { return; }
-        else {
-            printf(" . ");
-            write(cdr_obj);
-        }
+
+    if (cdr_obj->exprType_ == LIST && cdr_obj != empty_list) {
+        printf(" ");
+        writeList(cdr_obj);
+    } else {
+        if (cdr_obj == empty_list) { return; }
+        printf(" . ");
+        write(cdr_obj);
     }
 }
 
@@ -257,16 +311,19 @@ void write(Expression *expr) {
     int i=0;
     char c;
     string str;
-    if (expr->list != nullptr) {
+    if (expr->exprType_ == LIST) {
         printf("(");
-        writeList(expr);
+        if (expr->list != nullptr) { writeList(expr); }
         printf(")");
-    } else if (expr->atom.atomType_ != UNK) {
+    } else if (expr->exprType_ == ATOM) {
         switch (expr->atom.atomType_) {
-            case EMPTY_LIST:
+            /* case EMPTY_LIST:
+                cout << expr->atom.atomValue_;
+                break; */
+            case BOOL:
                 cout << expr->atom.atomValue_;
                 break;
-            case BOOL:
+            case SYMBOL:
                 cout << expr->atom.atomValue_;
                 break;
             case NUM:
@@ -310,9 +367,7 @@ void write(Expression *expr) {
                 fprintf(stderr, "cannot write unknown type\n");
                 exit(1);
         }
-        delete expr;
     } else {
-        delete expr;
         fprintf(stderr, "expression object is empty\n");
         exit(1);
     }
@@ -322,6 +377,8 @@ int main() {
     cout << "Scheme in C++\n";
 
     string line;
+
+    init();
 
     while (1) {
         cout << "> ";
