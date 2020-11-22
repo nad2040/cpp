@@ -7,12 +7,158 @@ using namespace std;
 int i = 0;
 
 Expression *empty_list;
+Expression *_false;
+Expression *_true;
 Expression *quote_symbol;
 Expression *symbol_table;
+Expression *define_symbol;
+Expression *set_symbol;
+Expression *ok_symbol;
+Expression *if_symbol;
+Expression *empty_env;
+Expression *global_env;
 
 bool isDigit(char c) {
     return (c <= '9' && c >= '0');
 }
+
+bool isTrue(Expression *expr) { return expr == _true; }
+bool isFalse(Expression *expr) { return expr == _false; }
+
+bool isEmptyList(Expression *expr) {
+    return isList(expr) && (expr->list == nullptr);
+}
+
+Expression* makeSymbol(string value) {
+    Expression *element;
+    Expression *symbol;
+    /* search for they symbol in the symbol table */
+    element = symbol_table;
+    while (element->list != nullptr) {
+        if (car(element)->atom.atomValue_ == value) {
+            return car(element);
+        }
+        element = cdr(element);
+    };
+    
+    /* create the symbol and add it to the symbol table */
+    symbol = new Expression(Atom(value));
+    symbol_table = cons(symbol, symbol_table);
+    return symbol;
+}
+
+Expression *enclosingEnvironment(Expression *env) {
+    return cdr(env);
+}
+Expression *firstFrame(Expression *env) {
+    return car(env);
+}
+Expression *makeFrame(Expression *variables, Expression *values) {
+    return cons(variables, values);
+}
+Expression *frameVar(Expression *frame) {
+    return car(frame);
+}
+Expression *frameValues(Expression *frame) {
+    return cdr(frame);
+}
+
+void addBindingToFrame(Expression *var, Expression *val, Expression *frame) {
+    setcar(frame, cons(var, car(frame)));
+    setcdr(frame, cons(val, cdr(frame)));
+}
+Expression *extendEnv(Expression *vars, Expression *vals, Expression *base_env) {
+    return cons(makeFrame(vars, vals), base_env);
+}
+
+Expression* lookupVarValue(Expression *var, Expression *env) {
+    Expression *frame;
+    Expression *vars;
+    Expression *vals;
+    while (!isEmptyList(env)) {
+        frame = firstFrame(env);
+        vars = frameVar(frame);
+        vals = frameValues(frame);
+        while (!isEmptyList(vars)) {
+            if (var == car(vars)) {
+                return car(vals);
+            }
+            vars = cdr(vars);
+            vals = cdr(vals);
+        }
+        env = enclosingEnvironment(env);
+    }
+    fprintf(stderr, "unbound variable\n");
+    exit(1);
+}
+void setVarValue(Expression *var, Expression *val, Expression *env) {
+    Expression *frame;
+    Expression *vars;
+    Expression *vals;
+
+    while (!isEmptyList(env)) {
+        frame = firstFrame(env);
+        vars = frameVar(frame);
+        vals = frameValues(frame);
+        while (!isEmptyList(vars)) {
+            if (var == car(vars)) {
+                setcar(vals, val);
+                return;
+            }
+            vars = cdr(vars);
+            vals = cdr(vals);
+        }
+        env = enclosingEnvironment(env);
+    }
+    fprintf(stderr, "unbound variable\n");
+    exit(1);
+}
+
+void defVar(Expression *var, Expression *val, Expression *env) {
+    Expression *frame;
+    Expression *vars;
+    Expression *vals;
+    
+    frame = firstFrame(env);    
+    vars = frameVar(frame);
+    vals = frameValues(frame);
+
+    while (!isEmptyList(vars)) {
+        if (var == car(vars)) {
+            setcar(vals, val);
+            return;
+        }
+        vars = cdr(vars);
+        vals = cdr(vals);
+    }
+    addBindingToFrame(var, val, frame);
+}
+
+Expression* setupEnv() {
+    Expression *initial_env;
+
+    initial_env = extendEnv(empty_list, empty_list, empty_env);
+    return initial_env;
+}
+
+void init() {
+
+    empty_list = new Expression();
+    _false = new Expression(Atom(false));
+    _true = new Expression(Atom(true));
+
+    symbol_table = empty_list;
+    quote_symbol = makeSymbol("quote");
+    define_symbol = makeSymbol("define");
+    set_symbol = makeSymbol("set!");
+    ok_symbol = makeSymbol("ok");
+    if_symbol = makeSymbol("if");
+
+    empty_env = empty_list;
+    global_env = setupEnv();
+}
+
+// *******************READ*******************
 
 bool isDelimiter(char c) {
     return c == ' ' || c == EOF ||
@@ -21,31 +167,17 @@ bool isDelimiter(char c) {
            c == '\0' || c == '\n';
 }
 
-bool isInitial(char c) {
-    return ( c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z') || c == '*' || c == '/' ||
-             c == '>' || c == '<' || c == '=' || c == '?' || c == '!';
-}
-
-bool isSymbol(string &str) {
-    char c; int i=0;
-    while (isInitial(c = str[i])) {
-        i++;
-    }
-    return i == str.length();
-}
-
 void eatWhiteSpace(string &line) {
     char c;
-    while (i < line.length()) {
-        c = line[i];
-        if (c == ' ') {
-            ++i;
+    while ((c = line[i++]) != '\0') {
+        if (c == ' ' || c == '\n' || c == '\t') {
             continue;
         }
         else if (c == ';') {
-            while ((c = line[i++]) != EOF && c != '\n');
+            while ((c = line[i++]) != '\0' && c != '\n');
             continue;
         }
+        --i;
         break;
     }
 }
@@ -59,11 +191,6 @@ void eatString(string &line, string check) {
         }
     }
     ++i;
-}
-
-void eatAtom(string &line) {
-    char c;
-    while (!line.empty() && !isDelimiter(c = line[i++]));
 }
 
 void peekDelimiter(string &line) {
@@ -98,72 +225,6 @@ Expression* readCharacter(string &line) {
     }
 }
 
-bool stringContains(string &line,char c) {
-    for (int in=0; in<line.size(); ++in) {
-        return line[in] == c;
-    } return false;
-}
-
-string getInput() {
-    string line = "", temp = "";
-    bool flag = false;
-    while (flag == false) {
-        getline(cin, temp);
-        for (int in=0; in<temp.size(); ++in) {
-            if (temp[in] == 5) flag = true;
-        }
-        line += temp + '\n';
-    }
-    line.pop_back();line.pop_back();
-    return line;
-}
-
-Expression* car(Expression* expr) {
-    return expr->list->car;
-}
-void setcar(Expression *expr, Expression* value) {
-    expr->list->car = value;
-}
-Expression* cdr(Expression* expr) {
-    return expr->list->cdr;
-}
-void setcdr(Expression *expr, Expression* value) {
-    expr->list->cdr = value;
-}
-Expression* cons(Expression *car, Expression *cdr) {
-    Expression::List *myList = new Expression::List();
-    myList->car = car;
-    myList->cdr = cdr;
-    Expression* consObj = new Expression(myList);
-    return consObj;
-}
-
-Expression* makeSymbol(string value) {
-    Expression *element;
-    Expression *symbol;
-    /* search for they symbol in the symbol table */
-    element = symbol_table;
-    while (element->list != nullptr) {
-        if (car(element)->atom.atomValue_ == value) {
-            return car(element);
-        }
-        element = cdr(element);
-    };
-    
-    /* create the symbol and add it to the symbol table */
-    symbol = new Expression(Atom(value));
-    symbol_table = cons(symbol, symbol_table);
-    return symbol;
-}
-
-void init() {
-    empty_list = new Expression();
-    symbol_table = empty_list;
-    quote_symbol = makeSymbol("quote");
-}
-
-// READ
-
 Expression* readIn(string& line);
 
 Expression* readPair(string line) {
@@ -175,6 +236,7 @@ Expression* readPair(string line) {
     eatWhiteSpace(line);
     c = line[i];
     if (c == ')') { /* read the empty list */
+        i++;
         return empty_list;
     }
 
@@ -194,15 +256,12 @@ Expression* readPair(string line) {
             fprintf(stderr, "where was the trailing right paren?\n"); exit(1);
         }
         expr = cons(car_obj, cdr_obj);
+        i++;
         return expr;
     }
     else { /* read list */
         --i;
-        if ((c = line[i]) != ')') {
-            cdr_obj = readPair(line);
-        } else {
-            cdr_obj = empty_list;
-        }
+        cdr_obj = readPair(line);
         expr = cons(car_obj, cdr_obj);
         return expr;
     }
@@ -222,11 +281,11 @@ Expression* readIn(string& line) {
     if (c == '#') { /* read boolean/char */
         c = line[++i];
         if (c == 't') {
-            eatAtom(line);
-            return new Expression(Atom(true));
+            i++;
+            return _true;
         } else if (c == 'f') {
-            eatAtom(line);
-            return new Expression(Atom(false));
+            i++;
+            return _false;
         } else if (c == '\\') {
             return readCharacter(line);
         } else {
@@ -264,13 +323,14 @@ Expression* readIn(string& line) {
             str += c;
         }
         if (c == EOF) { fprintf(stderr, "non-terminated string literal\n"); exit(1); }
-        return new Expression(Atom(str));
+        return new Expression(Atom('"' + str));
     }
     else if (c == '(') { /* read pair/list */
         i++;
         return readPair(line);
     }
     else if (c == '\'') { /* read quoted expression */
+        i++;
         return cons(quote_symbol, cons(readIn(line), empty_list));
     }
     else { /* bad input */
@@ -281,13 +341,96 @@ Expression* readIn(string& line) {
     exit(1);
 }
 
-// EVALUATE
+// *****************EVALUATE*****************
 
-Expression* eval(Expression *input) {
-    return input;
+bool isSelfEval(Expression *expr) {
+    return isBool(expr) || isNum(expr) ||
+           isChar(expr) || isString(expr);
 }
 
-// WRITE
+bool isVar(Expression *expr) {
+    return isSymbol(expr);
+}
+
+bool isTaggedList(Expression *expr, Expression *tag) {
+    Expression *_car;
+
+    if (isList(expr)) {
+        _car = car(expr);
+        return isSymbol(_car) && (_car == tag);
+    }
+    return false;
+}
+
+bool isQuoted(Expression *expr) {
+    return isTaggedList(expr, quote_symbol);
+}
+Expression* textOfQuote(Expression *expr) {
+    return cadr(expr);
+}
+
+bool isAssign(Expression *expr) {
+    return isTaggedList(expr,set_symbol);
+}
+Expression* assignmentVar(Expression *expr) {
+    return cadr(expr);
+}
+Expression* assignmentValue(Expression *expr) {
+    return caddr(expr);
+}
+
+bool isDefine(Expression *expr) {
+    return isTaggedList(expr,define_symbol);
+}
+Expression* definitionVar(Expression *expr) {
+    return cadr(expr);
+}
+Expression* definitionValue(Expression *expr) {
+    return caddr(expr);
+}
+
+bool isIf(Expression *expr) {
+    return isTaggedList(expr,if_symbol);
+}
+Expression *ifPredicate(Expression *expr) {
+    return cadr(expr);
+}
+Expression *ifConsequent(Expression *expr) {
+    return caddr(expr);
+}
+Expression *ifAlternative(Expression *expr) {
+    if (isEmptyList(cdddr(expr))) {
+        return _false;
+    }
+    else {
+        return cadddr(expr);
+    }
+}
+
+Expression* eval(Expression *expr, Expression *env);
+
+Expression* evalAssignment(Expression *expr, Expression *env) {
+    setVarValue(assignmentVar(expr), eval(assignmentValue(expr), env), env);
+    return ok_symbol;
+}
+Expression* evalDefinition(Expression *expr, Expression *env) {    
+    defVar(definitionVar(expr), eval(definitionValue(expr), env), env);
+    return ok_symbol;
+}
+
+Expression* eval(Expression *expr, Expression *env) {
+tailcall:
+    if (isSelfEval(expr)) return expr;
+    else if (isVar(expr)) return lookupVarValue(expr, env);
+    else if (isQuoted(expr)) return textOfQuote(expr);
+    else if (isAssign(expr)) return evalAssignment(expr, env);
+    else if (isDefine(expr)) return evalDefinition(expr, env);
+    else if (isIf(expr)) { expr = isTrue(eval(ifPredicate(expr), env)) ? ifConsequent(expr) : ifAlternative(expr); goto tailcall; }
+    else { fprintf(stderr, "cannot eval unknown expression type\n"); exit(1); }
+    fprintf(stderr, "eval illegal state\n"); exit(1);
+}
+
+// *******************WRITE******************
 
 void write(Expression *expr);
 
@@ -311,15 +454,12 @@ void write(Expression *expr) {
     int i=0;
     char c;
     string str;
-    if (expr->exprType_ == LIST) {
+    if (isList(expr)) {
         printf("(");
         if (expr->list != nullptr) { writeList(expr); }
         printf(")");
-    } else if (expr->exprType_ == ATOM) {
+    } else if (isAtom(expr)) {
         switch (expr->atom.atomType_) {
-            /* case EMPTY_LIST:
-                cout << expr->atom.atomValue_;
-                break; */
             case BOOL:
                 cout << expr->atom.atomValue_;
                 break;
@@ -368,22 +508,40 @@ void write(Expression *expr) {
                 exit(1);
         }
     } else {
-        fprintf(stderr, "expression object is empty\n");
+        fprintf(stderr, "expression Expression is empty\n");
         exit(1);
     }
+}
+
+// *******************LOOP*******************
+
+string getInput() {
+    string line = "", temp = "";
+    bool flag = false;
+    while (flag == false) {
+        getline(cin, temp);
+        for (int in=0; in<temp.size(); ++in) {
+            if (temp[in] == 5) flag = true;
+        }
+        line += temp + '\n';
+    }
+    line.pop_back(); line.pop_back();
+    return line;
 }
 
 int main() {
     cout << "Scheme in C++\n";
 
     string line;
-
+    
     init();
 
     while (1) {
         cout << "> ";
         line = getInput();
-        write(eval(readIn(line)));
+        write(eval(readIn(line), global_env));
+        //cout << '\n'; write(global_env);
+        //cout << '\n'; write(symbol_table);
         cout << '\n';
         i=0;
     }
