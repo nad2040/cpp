@@ -2,53 +2,68 @@
 using namespace std;
 
 bool isInitial(char c) {
-    return ( c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z') || c == '*' || c == '/' ||
-             c == '>' || c == '<' || c == '=' || c == '?' || c == '!';
+    return isalpha(c) || c == '*' || c == '/' || c == '>' || c == '<' || c == '=' || c == '?' || c == '!';
 }
 bool isSym(string &str) {
     char c; int i=0;
-    while (isInitial(c = str[i])) {
+    while (isInitial(c = str[i]) || c == '+' || c == '-') {
         i++;
     }
     return i == str.length();
 }
 
-enum AtomType {UNK, BOOL, SYMBOL, NUM, CHAR, STR};
+class Expression;
+
+enum AtomType {UNK, BOOL, SYMBOL, NUM, CHAR, STR, PRIM_PROC, COMP_PROC};
 class Atom {
 public:
+    struct Compound {
+        Expression *params;
+        Expression *body;
+        Expression *env;
+        Compound() : params(nullptr), body(nullptr), env(nullptr) {}
+        Compound(Expression* p, Expression* b, Expression* e) : params(p), body(b), env(e) {}
+    };
+
     string atomValue_;
     AtomType atomType_;
+    Expression* (*fn)(Expression* args);
+    Compound compound_proc;
 
-    string getValue() {
-        return atomValue_;
-    }
-
-    Atom() : atomType_(UNK), atomValue_("") {}
-    Atom(int num) {
-        atomType_ = NUM;
-        atomValue_ = to_string(num);
-    }
-    Atom(string str) {
+    Atom() : atomType_(UNK), atomValue_(""), fn(nullptr), compound_proc() {}
+    Atom(int num) : atomType_(NUM), atomValue_(to_string(num)), fn(nullptr), compound_proc() {}
+    Atom(string str) : fn(nullptr), compound_proc() {
         if (str[0] == '"') { atomType_ = STR; str.erase(0,1); atomValue_ = str; }
         else if (isSym(str)) { atomType_ = SYMBOL; atomValue_ = str; }
         else { atomType_ = UNK; atomValue_ = str; }
     }
-    Atom(bool b) {
-        atomValue_ = (b == true) ? "#t" : "#f";
-        atomType_ = BOOL;
-    }
-    Atom(char c) {
-        if (c == ' ' || c == '\n') {
+    Atom(bool b) : atomType_(BOOL), atomValue_((b == true) ? "#t" : "#f"), fn(nullptr), compound_proc() {}
+    Atom(char c) : fn(nullptr), compound_proc() {
+        if (c == ' ' || c == '\n' || isalpha(c) || isdigit(c)) {
             atomType_ = CHAR;
             atomValue_ = c;
-        } else if ((c >= 'a' && c <= 'z') ||
-                   (c >= 'A' && c <= 'Z') ||
-                   (c >= '0' && c <= '9')) {
-            atomType_ = CHAR;
-            atomValue_ += c;
         }
         else atomType_ = UNK;
     }
+    Atom(Expression* (*fnptr)(Expression* args)) : atomType_(PRIM_PROC), atomValue_("#<procedure>"), fn(fnptr), compound_proc() {}
+    Atom(Expression* _params, Expression* _body, Expression* _env) : atomType_(COMP_PROC), atomValue_("#<procedure>"), fn(nullptr), compound_proc(_params,_body,_env) {}
+
+    string getValue() { return atomValue_; }
+    int getInt() {
+        switch (atomType_) {
+            case NUM:
+                return stoi(atomValue_);
+            case BOOL:
+                return (atomValue_ == "#t") ? 1 : 0;
+            default:
+                return 0;
+        }
+        return stoi(atomValue_);
+    }
+    bool getBool() {
+        return atomValue_[1] == 't';
+    }
+
 };
 
 enum ExpressionType {ATOM, LIST};
@@ -84,14 +99,6 @@ public:
     }
 };
 
-bool isList(Expression *expr) { return expr->exprType_ == LIST; }
-bool isAtom(Expression *expr) { return expr->exprType_ == ATOM; }
-bool isBool(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == BOOL; }
-bool isNum(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == NUM; }
-bool isChar(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == CHAR; }
-bool isString(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == STR; }
-bool isSymbol(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == SYMBOL; }
-
 Expression* car(Expression* expr) {
     return expr->list->car;
 }
@@ -111,6 +118,14 @@ Expression* cons(Expression *car, Expression *cdr) {
     Expression* consObj = new Expression(myList);
     return consObj;
 }
+bool isList(Expression *expr) { return expr->exprType_ == LIST; }
+bool isAtom(Expression *expr) { return expr->exprType_ == ATOM; }
+bool isBool(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == BOOL; }
+bool isNum(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == NUM; }
+bool isChar(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == CHAR; }
+bool isString(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == STR; }
+bool isSymbol(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == SYMBOL; }
+bool isPrimProc(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == PRIM_PROC; }
 
 #define caar(obj)   car(car(obj))
 #define cadr(obj)   car(cdr(obj))
