@@ -16,6 +16,7 @@ Expression *set_symbol;
 Expression *ok_symbol;
 Expression *if_symbol;
 Expression *lambda_symbol;
+Expression *begin_symbol;
 Expression *empty_env;
 Expression *global_env;
 
@@ -59,7 +60,7 @@ Expression* isIntegerProc(Expression *args) { return isNum(car(args)) ? _true : 
 Expression* isCharProc(Expression *args) { return isChar(car(args)) ? _true : _false; }
 Expression* isStringProc(Expression *args) { return isString(car(args)) ? _true : _false; }
 Expression* isPairProc(Expression *args) { return isList(car(args)) ? _true : _false; }
-Expression* isProcedureProc(Expression *args) { return isPrimProc(car(args)) ? _true : _false; }
+Expression* isProcedureProc(Expression *args) { Expression* a = car(args); return (isPrimProc(a) || isCompProc(a)) ? _true : _false; }
 
 Expression* charToIntProc(Expression *args) { return new Expression(Atom((int) car(args)->atom.atomValue_.at(0))); }
 Expression* intToCharProc(Expression *args) { return new Expression(Atom((char) stoi(car(args)->atom.atomValue_))); }
@@ -251,6 +252,7 @@ void init() {
     ok_symbol = makeSymbol("ok");
     if_symbol = makeSymbol("if");
     lambda_symbol = makeSymbol("lambda");
+    begin_symbol = makeSymbol("begin");
 
     empty_env = empty_list;
     global_env = setupEnv();
@@ -500,13 +502,27 @@ Expression* assignmentVar(Expression *expr) { return cadr(expr); }
 Expression* assignmentValue(Expression *expr) { return caddr(expr); }
 
 bool isDefine(Expression *expr) { return isTaggedList(expr,define_symbol); }
-Expression* definitionVar(Expression *expr) { return cadr(expr); }
-Expression* definitionValue(Expression *expr) { return caddr(expr); }
+Expression* definitionVar(Expression *expr) { if (isSymbol(cadr(expr))) return cadr(expr); else return caadr(expr); }
+Expression* makeLambda(Expression *params, Expression *body);
+Expression* definitionValue(Expression *expr) { if (isSymbol(cadr(expr))) return caddr(expr); else return makeLambda(cdadr(expr), cddr(expr)); }
 
 bool isIf(Expression *expr) { return isTaggedList(expr,if_symbol); }
 Expression* ifPredicate(Expression *expr) { return cadr(expr); }
 Expression* ifConsequent(Expression *expr) { return caddr(expr); }
 Expression* ifAlternative(Expression *expr) { return (isEmptyList(cdddr(expr))) ? _false : cadddr(expr); }
+
+Expression* makeLambda(Expression *params, Expression *body) { return cons(lambda_symbol, cons(params, body)); };
+bool isLambda(Expression *expr) { return isTaggedList(expr, lambda_symbol); }
+Expression* lambdaParams(Expression *expr) { return cadr(expr); }
+Expression* lambdaBody(Expression *expr) { return cddr(expr); }
+
+Expression* makeBegin(Expression *expr) { return cons(begin_symbol, expr); }
+bool isBegin(Expression *expr) { return isTaggedList(expr, begin_symbol); }
+Expression* beginActions(Expression *expr) { return cdr(expr); }
+
+bool isLastExpr(Expression *seq) { return isEmptyList(cdr(seq)); }
+Expression* firstExpr(Expression *seq) { return car(seq); }
+Expression* restExprs(Expression *seq) { return cdr(seq); }
 
 bool isApplication(Expression *expr) { return isList(expr); }
 Expression* operation(Expression *expr) { return car(expr); }
@@ -541,10 +557,22 @@ tailcall:
     else if (isAssign(expr)) return evalAssignment(expr, env);
     else if (isDefine(expr)) return evalDefinition(expr, env);
     else if (isIf(expr)) { expr = isFalse(eval(ifPredicate(expr), env)) ? ifAlternative(expr) : ifConsequent(expr); goto tailcall; }
+    else if (isLambda(expr)) { return new Expression(Atom(lambdaParams(expr), lambdaBody(expr), env)); }
+    else if (isBegin(expr)) {
+        expr = beginActions(expr);
+        while (!isLastExpr(expr)) { eval(firstExpr(expr), env); expr = restExprs(expr); }
+        expr = firstExpr(expr);
+        goto tailcall;
+    }
     else if (isApplication(expr)) {
         proc = eval(operation(expr), env);
         args = listOfValues(operands(expr), env);
-        return (proc->atom.fn)(args);
+        if (isPrimProc(proc)) return (proc->atom.fn)(args);
+        else if (isCompProc(proc)) {
+            env = extendEnv(proc->atom.compound_proc.params, args, proc->atom.compound_proc.env);
+            expr = makeBegin(proc->atom.compound_proc.body);
+            goto tailcall;
+        } else { fprintf(stderr, "unknown procedure type\n"); exit(1); }
     }
     else { fprintf(stderr, "cannot eval unknown expression type\n"); exit(1); }
     fprintf(stderr, "eval illegal state\n"); exit(1);
@@ -624,6 +652,7 @@ void write(Expression *expr) {
                 cout << '"';
                 break;
             case PRIM_PROC:
+            case COMP_PROC:
                 cout << expr->atom.atomValue_;
                 break;
             default:
@@ -640,27 +669,32 @@ void write(Expression *expr) {
 
 string getInput() {
     string line = "", temp = "";
-    bool flag = false;
-    while (flag == false) {
+    int left = 0, right = 0, i = 2;
+    while (true) {
         getline(cin, temp);
         for (int in=0; in<temp.size(); ++in) {
-            if (temp[in] == 5) flag = true;
+            if (temp[in] == '(') ++left;
+            if (temp[in] == ')') ++right;
+            if (temp[in] == 5) { line += temp; goto end; }
         }
         line += temp + '\n';
+        //cout << line;
+        cout << i++ << " | ";
+        for (int j = 0; j < left-right; ++j) cout << "   ";
     }
-    line.pop_back(); line.pop_back();
+    end:
+    line.pop_back();
     return line;
 }
 
 int main() {
-    cout << "Scheme in C++\n";
+    cout << "===== Scheme in C++ =====\n";
 
     string line;
-    
     init();
 
     while (1) {
-        cout << "> ";
+        cout << " -> ";
         line = getInput();
         write(eval(readIn(line), global_env));
         cout << '\n';

@@ -126,6 +126,7 @@ bool isChar(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == C
 bool isString(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == STR; }
 bool isSymbol(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == SYMBOL; }
 bool isPrimProc(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == PRIM_PROC; }
+bool isCompProc(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == COMP_PROC; }
 
 #define caar(obj)   car(car(obj))
 #define cadr(obj)   car(cdr(obj))
