@@ -1,19 +1,11 @@
+#pragma once
 #include <string>
-using namespace std;
+#include <iostream>
 
-bool isInitial(char c) {
-    return isalpha(c) || c == '*' || c == '/' || c == '>' || c == '<' || c == '=' || c == '?' || c == '!';
-}
-bool isSym(string &str) {
-    char c; int i=0;
-    while (isInitial(c = str[i]) || c == '+' || c == '-') {
-        i++;
-    }
-    return i == str.length();
-}
+bool isInitial(char c); 
+bool isSym(std::string &str); 
 
 class Expression;
-
 enum AtomType {UNK, BOOL, SYMBOL, NUM, CHAR, STR, PRIM_PROC, COMP_PROC};
 class Atom {
 public:
@@ -25,14 +17,14 @@ public:
         Compound(Expression* p, Expression* b, Expression* e) : params(p), body(b), env(e) {}
     };
 
-    string atomValue_;
+    std::string atomValue_;
     AtomType atomType_;
     Expression* (*fn)(Expression* args);
     Compound compound_proc;
 
     Atom() : atomType_(UNK), atomValue_(""), fn(nullptr), compound_proc() {}
-    Atom(int num) : atomType_(NUM), atomValue_(to_string(num)), fn(nullptr), compound_proc() {}
-    Atom(string str) : fn(nullptr), compound_proc() {
+    Atom(int num) : atomType_(NUM), atomValue_(std::to_string(num)), fn(nullptr), compound_proc() {}
+    Atom(std::string str) : fn(nullptr), compound_proc() {
         if (str[0] == '"') { atomType_ = STR; str.erase(0,1); atomValue_ = str; }
         else if (isSym(str)) { atomType_ = SYMBOL; atomValue_ = str; }
         else { atomType_ = UNK; atomValue_ = str; }
@@ -48,7 +40,7 @@ public:
     Atom(Expression* (*fnptr)(Expression* args)) : atomType_(PRIM_PROC), atomValue_("#<procedure>"), fn(fnptr), compound_proc() {}
     Atom(Expression* _params, Expression* _body, Expression* _env) : atomType_(COMP_PROC), atomValue_("#<procedure>"), fn(nullptr), compound_proc(_params,_body,_env) {}
 
-    string getValue() { return atomValue_; }
+    std::string getValue() { return atomValue_; }
     int getInt() {
         switch (atomType_) {
             case NUM:
@@ -84,49 +76,36 @@ public:
 
     void display(int ind) {
         if (exprType_ == ATOM) {
-            for (int i=0; i<ind; i++) cout << "    ";
-            cout << atom.getValue() << '\n';
+            for (int i=0; i<ind; i++) std::cout << "    ";
+            std::cout << atom.getValue() << '\n';
         }
         else {
             if (list != nullptr) {
                 this->list->car->display(ind+1);
                 this->list->cdr->display(ind);
             } else {
-                for (int i=0; i<ind; i++) cout << "    ";
-                cout << "()\n";
+                for (int i=0; i<ind; i++) std::cout << "    ";
+                std::cout << "()\n";
             }
         }
     }
 };
 
-Expression* car(Expression* expr) {
-    return expr->list->car;
-}
-void setcar(Expression *expr, Expression* value) {
-    expr->list->car = value;
-}
-Expression* cdr(Expression* expr) {
-    return expr->list->cdr;
-}
-void setcdr(Expression *expr, Expression* value) {
-    expr->list->cdr = value;
-}
-Expression* cons(Expression *car, Expression *cdr) {
-    Expression::List *myList = new Expression::List();
-    myList->car = car;
-    myList->cdr = cdr;
-    Expression* consObj = new Expression(myList);
-    return consObj;
-}
-bool isList(Expression *expr) { return expr->exprType_ == LIST; }
-bool isAtom(Expression *expr) { return expr->exprType_ == ATOM; }
-bool isBool(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == BOOL; }
-bool isNum(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == NUM; }
-bool isChar(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == CHAR; }
-bool isString(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == STR; }
-bool isSymbol(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == SYMBOL; }
-bool isPrimProc(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == PRIM_PROC; }
-bool isCompProc(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == COMP_PROC; }
+Expression* car(Expression* expr); 
+void setcar(Expression *expr, Expression* value); 
+Expression* cdr(Expression* expr); 
+void setcdr(Expression *expr, Expression* value); 
+Expression* cons(Expression *car, Expression *cdr); 
+bool isList(Expression *expr); 
+bool isAtom(Expression *expr); 
+bool isBool(Expression *expr); 
+bool isNum(Expression *expr); 
+bool isChar(Expression *expr); 
+bool isString(Expression *expr); 
+bool isSymbol(Expression *expr); 
+bool isPrimProc(Expression *expr); 
+bool isCompProc(Expression *expr); 
+
 
 #define caar(obj)   car(car(obj))
 #define cadr(obj)   car(cdr(obj))
@@ -156,3 +135,9 @@ bool isCompProc(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ 
 #define cddadr(obj) cdr(cdr(car(cdr(obj))))
 #define cdddar(obj) cdr(cdr(cdr(car(obj))))
 #define cddddr(obj) cdr(cdr(cdr(cdr(obj))))
+
+bool isTrue(Expression *expr); 
+bool isFalse(Expression *expr); 
+bool isEmptyList(Expression *expr); 
+
+
