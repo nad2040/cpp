@@ -1,7 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-//#include "Sxpressions.h"
 #include "primitive_proc.h"
 
 using namespace std;
@@ -17,10 +16,13 @@ Expression *ok_symbol;
 Expression *if_symbol;
 Expression *lambda_symbol;
 Expression *begin_symbol;
+Expression *cond_symbol;
+Expression *else_symbol;
+Expression *let_symbol;
 Expression *empty_env;
 Expression *global_env;
 
-int i = 0;
+int i;
 
 bool isDigit(char c) {
     return (c <= '9' && c >= '0');
@@ -155,6 +157,9 @@ void init() {
     if_symbol = makeSymbol("if");
     lambda_symbol = makeSymbol("lambda");
     begin_symbol = makeSymbol("begin");
+    cond_symbol = makeSymbol("cond");
+    else_symbol = makeSymbol("else");
+    let_symbol = makeSymbol("let");
 
     empty_env = empty_list;
     global_env = setupEnv();
@@ -408,6 +413,9 @@ Expression* definitionVar(Expression *expr) { if (isSymbol(cadr(expr))) return c
 Expression* makeLambda(Expression *params, Expression *body);
 Expression* definitionValue(Expression *expr) { if (isSymbol(cadr(expr))) return caddr(expr); else return makeLambda(cdadr(expr), cddr(expr)); }
 
+Expression* makeIf(Expression *predicate, Expression *consequent, Expression *alternative) {
+    return cons(if_symbol, cons(predicate, cons(consequent, cons(alternative, empty_list))));
+}
 bool isIf(Expression *expr) { return isTaggedList(expr,if_symbol); }
 Expression* ifPredicate(Expression *expr) { return cadr(expr); }
 Expression* ifConsequent(Expression *expr) { return caddr(expr); }
@@ -426,12 +434,53 @@ bool isLastExpr(Expression *seq) { return isEmptyList(cdr(seq)); }
 Expression* firstExpr(Expression *seq) { return car(seq); }
 Expression* restExprs(Expression *seq) { return cdr(seq); }
 
+bool isCond(Expression *expr) { return isTaggedList(expr, cond_symbol); }
+Expression* condClauses(Expression *expr) { return cdr(expr); }
+Expression* condPredicate(Expression *clause) { return car(clause); }
+Expression* condActions(Expression *clause) { return cdr(clause); }
+bool isCondElseClause(Expression *clause) { return condPredicate(clause) == else_symbol; }
+Expression* seqToExpr(Expression *seq) {
+    if (isEmptyList(seq)) return seq;
+    else if (isLastExpr(seq)) return firstExpr(seq);
+    else return makeBegin(seq);
+}
+Expression* expandClauses(Expression *clauses) {
+    Expression *first, *rest;
+    if (isEmptyList(clauses)) return _false;
+    else {
+        first = car(clauses);
+        rest = cdr(clauses);
+        if (isCondElseClause(first)) {
+            if (isEmptyList(rest)) return seqToExpr(condActions(first));
+            else { fprintf(stderr, "else clause isn't last cond->if"); exit(1); }
+        }
+        else { return makeIf(condPredicate(first), seqToExpr(condActions(first)), expandClauses(rest)); }
+    }
+}
+Expression* condToIf(Expression *expr) { return expandClauses(condClauses(expr)); }
+
+Expression* makeApplication(Expression *operation, Expression *operands) { return cons(operation, operands); }
 bool isApplication(Expression *expr) { return isList(expr); }
 Expression* operation(Expression *expr) { return car(expr); }
 Expression* operands(Expression *expr) { return cdr(expr); }
 bool noOperands(Expression *ops) { return isEmptyList(ops); }
 Expression* firstOperand(Expression *ops) { return car(ops); }
 Expression* otherOperands(Expression *ops) { return cdr(ops); }
+
+bool isLet(Expression *expr) { return isTaggedList(expr, let_symbol); }
+Expression* letBindings(Expression *expr) { return cadr(expr); }
+Expression* letBody(Expression *expr) { return cddr(expr); }
+Expression* bindingParam(Expression *binding) { return car(binding); }
+Expression* bindingArg(Expression *binding) { return cadr(binding); }
+Expression* bindingsParams(Expression *bindings) {
+    return isEmptyList(bindings) ? empty_list : cons(bindingParam(car(bindings)), bindingsParams(cdr(bindings)));
+}
+Expression* bindingsArgs(Expression *bindings) {
+    return isEmptyList(bindings) ? empty_list : cons(bindingArg(car(bindings)), bindingsArgs(cdr(bindings)));
+}
+Expression* letParams(Expression *expr) { return bindingsParams(letBindings(expr)); }
+Expression* letArgs(Expression *expr) { return bindingsArgs(letBindings(expr)); }
+Expression* letToApplication(Expression *expr) { return makeApplication(makeLambda(letParams(expr), letBody(expr)), letArgs(expr)); }
 
 Expression* eval(Expression *expr, Expression *env);
 
@@ -463,9 +512,10 @@ tailcall:
     else if (isBegin(expr)) {
         expr = beginActions(expr);
         while (!isLastExpr(expr)) { eval(firstExpr(expr), env); expr = restExprs(expr); }
-        expr = firstExpr(expr);
-        goto tailcall;
+        expr = firstExpr(expr); goto tailcall;
     }
+    else if (isCond(expr)) { expr = condToIf(expr); goto tailcall; }
+    else if (isLet(expr)) { expr = letToApplication(expr); goto tailcall; }
     else if (isApplication(expr)) {
         proc = eval(operation(expr), env);
         args = listOfValues(operands(expr), env);
@@ -565,7 +615,6 @@ void write(Expression *expr) {
         fprintf(stderr, "expression Expression is empty\n");
         exit(1);
     }
-    cout << '\n';
 }
 
 // *******************LOOP*******************
@@ -581,37 +630,56 @@ string getInput() {
             if (temp[in] == 5) { line += temp; goto end; }
         }
         line += temp + '\n';
-        cout << i++ << " | ";
-        for (int j = 0; j < left-right; ++j) cout << "   ";
+        cout << "  ";
+        for (int j = 0; j < left-right; ++j) cout << "    ";
     }
     end:
     line.pop_back();
     return line;
 }
 
-void fileInput(string file, char d) {
+int parenCount(string line) {
+    int left = 0, right = 0;
+    for (int i=0; i<line.size(); ++i) {
+        if (line[i] == '(') ++left;
+        if (line[i] == ')') ++right;
+    }
+    return left - right;
+}
+
+void fileInput(string file, bool showImportText) {
     ifstream f(file);
-    string line;
-    while (getline(f, line, d)) {
-        cout << "> " << line << '\n';
-        write(eval(readIn(line),global_env));
+    string line, temp = "";
+    char c;
+    while (f.get(c) && isspace(c));
+    while (getline(f,line)) {
+        line = c + line;
+        while (parenCount(line) > 0) { getline(f,temp); line += '\n' + temp; }
         i=0;
+        Expression *evaluated = eval(readIn(line),global_env);
+        if (showImportText) { cout << "> " << line << '\n'; write(evaluated); cout << '\n'; }
+        while (f.get(c) && isspace(c));
     }
 }
 
 int main() {
-    //system("clear");
-    cout << "===== Scheme in C++ =====\n";
+    system("clear");
+    cout << "=== Scheme in C++ === ^C to quit\n";
     string line;
     init();
 
-    // while (1) {
-    //     cout << " -> ";
-    //     line = getInput();
-    //     write(eval(readIn(line), global_env));
-    //     i=0;
-    // }
+    //fileInput("scm_files/a.scm", true);
+    //fileInput("scm_files/testing_input.scm", false);
+
+    while (1) {
+        i = 0;
+        cout << "> ";
+        line = getInput();
+        write(eval(readIn(line), global_env));
+        cout << '\n';
+        // write(global_env); cout << '\n';
+    }
 
     // Test Cases
-    // fileInput("scm_files/testing_input.txt", '\n');
+    // fileInput("scm_files/testing_input.txt", true);
 }

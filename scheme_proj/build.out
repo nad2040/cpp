@@ -1,0 +1,84 @@
+primitive_proc.cpp:6:76: error: use of undeclared identifier '_true'; did you mean 'true'?
+Expression* isNullProc(Expression *args) { return isEmptyList(car(args)) ? _true : _false; }
+                                                                           ^~~~~
+                                                                           true
+primitive_proc.cpp:6:84: error: use of undeclared identifier '_false'; did you mean 'false'?
+Expression* isNullProc(Expression *args) { return isEmptyList(car(args)) ? _true : _false; }
+                                                                                   ^~~~~~
+                                                                                   false
+primitive_proc.cpp:6:51: error: cannot initialize return object of type 'Expression *' with an rvalue of type 'bool'
+Expression* isNullProc(Expression *args) { return isEmptyList(car(args)) ? _true : _false; }
+                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+primitive_proc.cpp:7:71: error: use of undeclared identifier '_true'; did you mean 'true'?
+Expression* isBoolProc(Expression *args) { return isBool(car(args)) ? _true : _false; }
+                                                                      ^~~~~
+                                                                      true
+primitive_proc.cpp:7:79: error: use of undeclared identifier '_false'; did you mean 'false'?
+Expression* isBoolProc(Expression *args) { return isBool(car(args)) ? _true : _false; }
+                                                                              ^~~~~~
+                                                                              false
+primitive_proc.cpp:7:51: error: cannot initialize return object of type 'Expression *' with an rvalue of type 'bool'
+Expression* isBoolProc(Expression *args) { return isBool(car(args)) ? _true : _false; }
+                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+primitive_proc.cpp:8:75: error: use of undeclared identifier '_true'; did you mean 'true'?
+Expression* isSymbolProc(Expression *args) { return isSymbol(car(args)) ? _true : _false; }
+                                                                          ^~~~~
+                                                                          true
+primitive_proc.cpp:8:83: error: use of undeclared identifier '_false'; did you mean 'false'?
+Expression* isSymbolProc(Expression *args) { return isSymbol(car(args)) ? _true : _false; }
+                                                                                  ^~~~~~
+                                                                                  false
+primitive_proc.cpp:8:53: error: cannot initialize return object of type 'Expression *' with an rvalue of type 'bool'
+Expression* isSymbolProc(Expression *args) { return isSymbol(car(args)) ? _true : _false; }
+                                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+primitive_proc.cpp:9:73: error: use of undeclared identifier '_true'; did you mean 'true'?
+Expression* isIntegerProc(Expression *args) { return isNum(car(args)) ? _true : _false; }
+                                                                        ^~~~~
+                                                                        true
+primitive_proc.cpp:9:81: error: use of undeclared identifier '_false'; did you mean 'false'?
+Expression* isIntegerProc(Expression *args) { return isNum(car(args)) ? _true : _false; }
+                                                                                ^~~~~~
+                                                                                false
+primitive_proc.cpp:9:54: error: cannot initialize return object of type 'Expression *' with an rvalue of type 'bool'
+Expression* isIntegerProc(Expression *args) { return isNum(car(args)) ? _true : _false; }
+                                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+primitive_proc.cpp:10:71: error: use of undeclared identifier '_true'; did you mean 'true'?
+Expression* isCharProc(Expression *args) { return isChar(car(args)) ? _true : _false; }
+                                                                      ^~~~~
+                                                                      true
+primitive_proc.cpp:10:79: error: use of undeclared identifier '_false'; did you mean 'false'?
+Expression* isCharProc(Expression *args) { return isChar(car(args)) ? _true : _false; }
+                                                                              ^~~~~~
+                                                                              false
+primitive_proc.cpp:10:51: error: cannot initialize return object of type 'Expression *' with an rvalue of type 'bool'
+Expression* isCharProc(Expression *args) { return isChar(car(args)) ? _true : _false; }
+                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+primitive_proc.cpp:11:75: error: use of undeclared identifier '_true'; did you mean 'true'?
+Expression* isStringProc(Expression *args) { return isString(car(args)) ? _true : _false; }
+                                                                          ^~~~~
+                                                                          true
+primitive_proc.cpp:11:83: error: use of undeclared identifier '_false'; did you mean 'false'?
+Expression* isStringProc(Expression *args) { return isString(car(args)) ? _true : _false; }
+                                                                                  ^~~~~~
+                                                                                  false
+primitive_proc.cpp:11:53: error: cannot initialize return object of type 'Expression *' with an rvalue of type 'bool'
+Expression* isStringProc(Expression *args) { return isString(car(args)) ? _true : _false; }
+                                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+primitive_proc.cpp:12:71: error: use of undeclared identifier '_true'; did you mean 'true'?
+Expression* isPairProc(Expression *args) { return isList(car(args)) ? _true : _false; }
+                                                                      ^~~~~
+                                                                      true
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.
+Sxpressions.cpp:50:48: error: use of undeclared identifier '_true'; did you mean 'true'?
+bool isTrue(Expression *expr) { return expr == _true; }
+                                               ^~~~~
+                                               true
+Sxpressions.cpp:50:45: error: comparison between pointer and integer ('Expression *' and 'bool')
+bool isTrue(Expression *expr) { return expr == _true; }
+                                       ~~~~ ^  ~~~~~
+Sxpressions.cpp:51:49: error: use of undeclared identifier '_false'; did you mean 'false'?
+bool isFalse(Expression *expr) { return expr == _false; }
+                                                ^~~~~~
+                                                false
+3 errors generated.

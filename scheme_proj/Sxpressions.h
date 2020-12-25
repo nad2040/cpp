@@ -74,7 +74,7 @@ public:
     Expression(Atom atom_) : atom(atom_), list(nullptr), exprType_(ATOM) {}
     Expression(List* list_) : atom(), list(list_), exprType_(LIST) {}
 
-    void display(int ind) {
+    /* void display(int ind) {
         if (exprType_ == ATOM) {
             for (int i=0; i<ind; i++) std::cout << "    ";
             std::cout << atom.getValue() << '\n';
@@ -88,7 +88,7 @@ public:
                 std::cout << "()\n";
             }
         }
-    }
+    }*/
 };
 
 Expression* car(Expression* expr); 
@@ -106,6 +106,9 @@ bool isSymbol(Expression *expr);
 bool isPrimProc(Expression *expr); 
 bool isCompProc(Expression *expr); 
 
+bool isTrue(Expression *expr); 
+bool isFalse(Expression *expr); 
+bool isEmptyList(Expression *expr); 
 
 #define caar(obj)   car(car(obj))
 #define cadr(obj)   car(cdr(obj))
@@ -135,9 +138,3 @@ bool isCompProc(Expression *expr);
 #define cddadr(obj) cdr(cdr(car(cdr(obj))))
 #define cdddar(obj) cdr(cdr(cdr(car(obj))))
 #define cddddr(obj) cdr(cdr(cdr(cdr(obj))))
-
-bool isTrue(Expression *expr); 
-bool isFalse(Expression *expr); 
-bool isEmptyList(Expression *expr); 
-
-
