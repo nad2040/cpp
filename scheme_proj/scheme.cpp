@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include "primitive_proc.h"
+#include "env.h"
 
 using namespace std;
 
@@ -21,12 +22,6 @@ Expression *else_symbol;
 Expression *let_symbol;
 Expression *empty_env;
 Expression *global_env;
-
-int i;
-
-bool isDigit(char c) {
-    return (c <= '9' && c >= '0');
-}
 
 Expression* makeSymbol(string value) {
     Expression *element;
@@ -49,100 +44,6 @@ Expression* makeSymbol(string value) {
 void write(Expression*);
 
 Expression* makePrimProc(Expression *(*fn)(Expression *args)) { return new Expression(Atom(fn)); }
-
-Expression* enclosingEnvironment(Expression *env) {
-    return cdr(env);
-}
-Expression* firstFrame(Expression *env) {
-    return car(env);
-}
-Expression* makeFrame(Expression *variables, Expression *values) {
-    return cons(variables, values);
-}
-Expression* frameVar(Expression *frame) {
-    return car(frame);
-}
-Expression* frameValues(Expression *frame) {
-    return cdr(frame);
-}
-
-void addBindingToFrame(Expression *var, Expression *val, Expression *frame) {
-    setcar(frame, cons(var, car(frame)));
-    setcdr(frame, cons(val, cdr(frame)));
-}
-Expression* extendEnv(Expression *vars, Expression *vals, Expression *base_env) {
-    return cons(makeFrame(vars, vals), base_env);
-}
-
-Expression* lookupVarValue(Expression *var, Expression *env) {
-    Expression *frame;
-    Expression *vars;
-    Expression *vals;
-
-    while (!isEmptyList(env)) {
-        frame = firstFrame(env);
-        vars = frameVar(frame);
-        vals = frameValues(frame);
-        while (!isEmptyList(vars)) {
-            if (var == car(vars)) {
-                return car(vals);
-            }
-            vars = cdr(vars);
-            vals = cdr(vals);
-        }
-        env = enclosingEnvironment(env);
-    }
-    fprintf(stderr, "unbound variable\n");
-    exit(1);
-}
-void setVarValue(Expression *var, Expression *val, Expression *env) {
-    Expression *frame;
-    Expression *vars;
-    Expression *vals;
-
-    while (!isEmptyList(env)) {
-        frame = firstFrame(env);
-        vars = frameVar(frame);
-        vals = frameValues(frame);
-        while (!isEmptyList(vars)) {
-            if (var == car(vars)) {
-                setcar(vals, val);
-                return;
-            }
-            vars = cdr(vars);
-            vals = cdr(vals);
-        }
-        env = enclosingEnvironment(env);
-    }
-    fprintf(stderr, "unbound variable\n");
-    exit(1);
-}
-void defVar(Expression *var, Expression *val, Expression *env) {
-    Expression *frame;
-    Expression *vars;
-    Expression *vals;
-    
-    frame = firstFrame(env);    
-    vars = frameVar(frame);
-    vals = frameValues(frame);
-
-    while (!isEmptyList(vars)) {
-        if (var == car(vars)) {
-            setcar(vals, val);
-            return;
-        }
-        vars = cdr(vars);
-        vals = cdr(vals);
-    }
-    addBindingToFrame(var, val, frame);
-}
-
-Expression* setupEnv() {
-    Expression *initial_env;
-
-    initial_env = extendEnv(empty_list, empty_list, empty_env);
-    return initial_env;
-}
 
 void init() {
     empty_list = new Expression();
@@ -202,6 +103,7 @@ void init() {
 }
 
 // *******************READ*******************
+int i;
 
 bool isDelimiter(char c) {
     return isspace(c) || c == EOF ||
@@ -334,19 +236,19 @@ Expression* readIn(string& line) {
             exit(1);
         }
     }
-    else if ((c == '-' && isDigit(line[i+1]) || isDigit(c))) { /* read number */
+    else if ((c == '-' && isdigit(line[i+1]) || isdigit(c))) { /* read number */
         if (c == '-') {
             sign = -1;
             i++;
         }
-        while (isDigit(c = line[i++])) {
+        while (isdigit(c = line[i++])) {
             n = n*10 + (c - '0');
         } --i;
         n *= sign;
         return new Expression(Atom(n));
     }
     else if (isInitial(c) || ((c == '+' || c == '-') && isDelimiter(line[i+1]))) { /* read symbol */
-        while (isInitial(c) || isDigit(c) || c == '+' || c == '-') {
+        while (isInitial(c) || isdigit(c) || c == '+' || c == '-') {
             str += c;
             c = line[++i];
         }
@@ -669,7 +571,7 @@ int main() {
     init();
 
     //fileInput("scm_files/a.scm", true);
-    //fileInput("scm_files/testing_input.scm", false);
+    fileInput("scm_files/testing_input.scm", true);
 
     while (1) {
         i = 0;
