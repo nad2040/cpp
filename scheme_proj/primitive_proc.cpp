@@ -1,5 +1,4 @@
 #include <iostream>
-#include <fstream>
 #include <string>
 #include "primitive_proc.h"
 
@@ -16,15 +15,15 @@ Expression* isStringProc(Expression *args) { return isString(car(args)) ? _true 
 Expression* isPairProc(Expression *args) { return isList(car(args)) ? _true : _false; }
 Expression* isProcedureProc(Expression *args) { Expression* a = car(args); return (isPrimProc(a) || isCompProc(a)) ? _true : _false; }
 
-Expression* charToIntProc(Expression *args) { return new Expression(Atom((int) car(args)->atom.atomValue_.at(0))); }
-Expression* intToCharProc(Expression *args) { return new Expression(Atom((char) stoi(car(args)->atom.atomValue_))); }
+Expression* charToIntProc(Expression *args) { return new Expression(Atom((long) car(args)->atom.atomValue_.at(0))); }
+Expression* intToCharProc(Expression *args) { return new Expression(Atom((char) stol(car(args)->atom.atomValue_))); }
 Expression* numToStrProc(Expression *args) { return new Expression(Atom('"' + car(args)->atom.atomValue_)); }
-Expression* strToNumProc(Expression *args) { return new Expression(Atom(stoi(car(args)->atom.atomValue_))); }
+Expression* strToNumProc(Expression *args) { return new Expression(Atom(stol(car(args)->atom.atomValue_))); }
 Expression* symbolToStrProc(Expression *args) { return new Expression(Atom('"' + car(args)->atom.atomValue_)); }
 Expression* strToSymbolProc(Expression *args) { return new Expression(Atom(car(args)->atom.atomValue_)); }
 
 Expression* addProc(Expression *args) {
-    int result = 0;
+    long result = 0;
     while (!isEmptyList(args)) {
         if (!isNum(car(args))) { fprintf(stderr, "incorrect type in addition\n"); exit(1); }
         result += car(args)->atom.getInt();
@@ -34,7 +33,7 @@ Expression* addProc(Expression *args) {
 }
 
 Expression* subProc(Expression *args) {
-    int result;
+    long result;
     result = car(args)->atom.getInt();
     while (!isEmptyList(args = cdr(args))) {
         if (!isNum(car(args))) { fprintf(stderr, "incorrect type in subtraction\n"); exit(1); }
@@ -44,7 +43,7 @@ Expression* subProc(Expression *args) {
 }
 
 Expression* multProc(Expression *args) {
-    int result = 1;
+    long result = 1;
     while (!isEmptyList(args)) {
         result *= car(args)->atom.getInt();
         args = cdr(args);

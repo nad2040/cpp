@@ -3,6 +3,8 @@
 #include <string>
 #include "primitive_proc.h"
 #include "env.h"
+#include "eval.h"
+#include "write.h"
 
 using namespace std;
 
@@ -20,6 +22,8 @@ Expression *begin_symbol;
 Expression *cond_symbol;
 Expression *else_symbol;
 Expression *let_symbol;
+Expression *and_symbol;
+Expression *or_symbol;
 Expression *empty_env;
 Expression *global_env;
 
@@ -61,6 +65,8 @@ void init() {
     cond_symbol = makeSymbol("cond");
     else_symbol = makeSymbol("else");
     let_symbol = makeSymbol("let");
+    and_symbol = makeSymbol("and");
+    or_symbol = makeSymbol("or");
 
     empty_env = empty_list;
     global_env = setupEnv();
@@ -211,7 +217,7 @@ Expression* readPair(string line) {
 }
 
 Expression* readIn(string& line) {
-    int n = 0;
+    long n = 0;
     short sign = 1;
     char c;
     string str;
@@ -282,241 +288,6 @@ Expression* readIn(string& line) {
     }
     fprintf(stderr, "read illegal state\n");
     exit(1);
-}
-
-// *****************EVALUATE*****************
-
-bool isSelfEval(Expression *expr) {
-    return isBool(expr) || isNum(expr) ||
-           isChar(expr) || isString(expr);
-}
-
-bool isVar(Expression *expr) { return isSymbol(expr); }
-
-bool isTaggedList(Expression *expr, Expression *tag) {
-    Expression *_car;
-
-    if (isList(expr)) {
-        _car = car(expr);
-        return isSymbol(_car) && (_car == tag);
-    }
-    return false;
-}
-
-bool isQuoted(Expression *expr) { return isTaggedList(expr, quote_symbol); }
-Expression* textOfQuote(Expression *expr) { return cadr(expr); }
-
-bool isAssign(Expression *expr) { return isTaggedList(expr,set_symbol); }
-Expression* assignmentVar(Expression *expr) { return cadr(expr); }
-Expression* assignmentValue(Expression *expr) { return caddr(expr); }
-
-bool isDefine(Expression *expr) { return isTaggedList(expr,define_symbol); }
-Expression* definitionVar(Expression *expr) { if (isSymbol(cadr(expr))) return cadr(expr); else return caadr(expr); }
-Expression* makeLambda(Expression *params, Expression *body);
-Expression* definitionValue(Expression *expr) { if (isSymbol(cadr(expr))) return caddr(expr); else return makeLambda(cdadr(expr), cddr(expr)); }
-
-Expression* makeIf(Expression *predicate, Expression *consequent, Expression *alternative) {
-    return cons(if_symbol, cons(predicate, cons(consequent, cons(alternative, empty_list))));
-}
-bool isIf(Expression *expr) { return isTaggedList(expr,if_symbol); }
-Expression* ifPredicate(Expression *expr) { return cadr(expr); }
-Expression* ifConsequent(Expression *expr) { return caddr(expr); }
-Expression* ifAlternative(Expression *expr) { return (isEmptyList(cdddr(expr))) ? _false : cadddr(expr); }
-
-Expression* makeLambda(Expression *params, Expression *body) { return cons(lambda_symbol, cons(params, body)); };
-bool isLambda(Expression *expr) { return isTaggedList(expr, lambda_symbol); }
-Expression* lambdaParams(Expression *expr) { return cadr(expr); }
-Expression* lambdaBody(Expression *expr) { return cddr(expr); }
-
-Expression* makeBegin(Expression *expr) { return cons(begin_symbol, expr); }
-bool isBegin(Expression *expr) { return isTaggedList(expr, begin_symbol); }
-Expression* beginActions(Expression *expr) { return cdr(expr); }
-
-bool isLastExpr(Expression *seq) { return isEmptyList(cdr(seq)); }
-Expression* firstExpr(Expression *seq) { return car(seq); }
-Expression* restExprs(Expression *seq) { return cdr(seq); }
-
-bool isCond(Expression *expr) { return isTaggedList(expr, cond_symbol); }
-Expression* condClauses(Expression *expr) { return cdr(expr); }
-Expression* condPredicate(Expression *clause) { return car(clause); }
-Expression* condActions(Expression *clause) { return cdr(clause); }
-bool isCondElseClause(Expression *clause) { return condPredicate(clause) == else_symbol; }
-Expression* seqToExpr(Expression *seq) {
-    if (isEmptyList(seq)) return seq;
-    else if (isLastExpr(seq)) return firstExpr(seq);
-    else return makeBegin(seq);
-}
-Expression* expandClauses(Expression *clauses) {
-    Expression *first, *rest;
-    if (isEmptyList(clauses)) return _false;
-    else {
-        first = car(clauses);
-        rest = cdr(clauses);
-        if (isCondElseClause(first)) {
-            if (isEmptyList(rest)) return seqToExpr(condActions(first));
-            else { fprintf(stderr, "else clause isn't last cond->if"); exit(1); }
-        }
-        else { return makeIf(condPredicate(first), seqToExpr(condActions(first)), expandClauses(rest)); }
-    }
-}
-Expression* condToIf(Expression *expr) { return expandClauses(condClauses(expr)); }
-
-Expression* makeApplication(Expression *operation, Expression *operands) { return cons(operation, operands); }
-bool isApplication(Expression *expr) { return isList(expr); }
-Expression* operation(Expression *expr) { return car(expr); }
-Expression* operands(Expression *expr) { return cdr(expr); }
-bool noOperands(Expression *ops) { return isEmptyList(ops); }
-Expression* firstOperand(Expression *ops) { return car(ops); }
-Expression* otherOperands(Expression *ops) { return cdr(ops); }
-
-bool isLet(Expression *expr) { return isTaggedList(expr, let_symbol); }
-Expression* letBindings(Expression *expr) { return cadr(expr); }
-Expression* letBody(Expression *expr) { return cddr(expr); }
-Expression* bindingParam(Expression *binding) { return car(binding); }
-Expression* bindingArg(Expression *binding) { return cadr(binding); }
-Expression* bindingsParams(Expression *bindings) {
-    return isEmptyList(bindings) ? empty_list : cons(bindingParam(car(bindings)), bindingsParams(cdr(bindings)));
-}
-Expression* bindingsArgs(Expression *bindings) {
-    return isEmptyList(bindings) ? empty_list : cons(bindingArg(car(bindings)), bindingsArgs(cdr(bindings)));
-}
-Expression* letParams(Expression *expr) { return bindingsParams(letBindings(expr)); }
-Expression* letArgs(Expression *expr) { return bindingsArgs(letBindings(expr)); }
-Expression* letToApplication(Expression *expr) { return makeApplication(makeLambda(letParams(expr), letBody(expr)), letArgs(expr)); }
-
-Expression* eval(Expression *expr, Expression *env);
-
-Expression* listOfValues(Expression *expr, Expression *env) {
-    return (noOperands(expr)) ? empty_list :
-            cons(eval(firstOperand(expr), env), listOfValues(otherOperands(expr), env));
-}
-
-Expression* evalAssignment(Expression *expr, Expression *env) {
-    setVarValue(assignmentVar(expr), eval(assignmentValue(expr), env), env);
-    return ok_symbol;
-}
-Expression* evalDefinition(Expression *expr, Expression *env) {    
-    defVar(definitionVar(expr), eval(definitionValue(expr), env), env);
-    return ok_symbol;
-}
-
-Expression* eval(Expression *expr, Expression *env) {
-    Expression *proc, *args;
-
-tailcall:
-    if (isSelfEval(expr)) return expr;
-    else if (isVar(expr)) return lookupVarValue(expr, env);
-    else if (isQuoted(expr)) return textOfQuote(expr);
-    else if (isAssign(expr)) return evalAssignment(expr, env);
-    else if (isDefine(expr)) return evalDefinition(expr, env);
-    else if (isIf(expr)) { expr = isFalse(eval(ifPredicate(expr), env)) ? ifAlternative(expr) : ifConsequent(expr); goto tailcall; }
-    else if (isLambda(expr)) { return new Expression(Atom(lambdaParams(expr), lambdaBody(expr), env)); }
-    else if (isBegin(expr)) {
-        expr = beginActions(expr);
-        while (!isLastExpr(expr)) { eval(firstExpr(expr), env); expr = restExprs(expr); }
-        expr = firstExpr(expr); goto tailcall;
-    }
-    else if (isCond(expr)) { expr = condToIf(expr); goto tailcall; }
-    else if (isLet(expr)) { expr = letToApplication(expr); goto tailcall; }
-    else if (isApplication(expr)) {
-        proc = eval(operation(expr), env);
-        args = listOfValues(operands(expr), env);
-        if (isPrimProc(proc)) return (proc->atom.fn)(args);
-        else if (isCompProc(proc)) {
-            env = extendEnv(proc->atom.compound_proc.params, args, proc->atom.compound_proc.env);
-            expr = makeBegin(proc->atom.compound_proc.body);
-            goto tailcall;
-        } else { fprintf(stderr, "unknown procedure type\n"); exit(1); }
-    }
-    else { fprintf(stderr, "cannot eval unknown expression type\n"); exit(1); }
-    fprintf(stderr, "eval illegal state\n"); exit(1);
-}
-
-// *******************WRITE******************
-
-void write(Expression *expr);
-
-void writeList(Expression *list) {
-    Expression *car_obj = car(list);
-    Expression *cdr_obj = cdr(list);
-
-    write(car_obj);
-
-    if (cdr_obj->exprType_ == LIST && cdr_obj != empty_list) {
-        printf(" ");
-        writeList(cdr_obj);
-    } else {
-        if (cdr_obj == empty_list) { return; }
-        printf(" . ");
-        write(cdr_obj);
-    }
-}
-
-void write(Expression *expr) {
-    int i=0;
-    char c;
-    string str;
-    if (isList(expr)) {
-        printf("(");
-        if (expr->list != nullptr) { writeList(expr); }
-        printf(")");
-    } else if (isAtom(expr)) {
-        switch (expr->atom.atomType_) {
-            case BOOL:
-                cout << expr->atom.atomValue_;
-                break;
-            case SYMBOL:
-                cout << expr->atom.atomValue_;
-                break;
-            case NUM:
-                cout << expr->atom.atomValue_;
-                break;
-            case CHAR:
-                c = expr->atom.atomValue_[0];
-                printf("#\\");
-                switch (c) {
-                    case '\n':
-                        printf("newline");
-                        break;
-                    case ' ':
-                        printf("space");
-                        break;
-                    default:
-                        cout << c;
-                }
-                break;
-            case STR:
-                str = expr->atom.atomValue_;
-                cout << '"';
-                while ((c = str[i++]) != '\0') {
-                    switch (c) {
-                        case '\n':
-                            printf("\\n");
-                            break;
-                        case '\\':
-                            printf("\\\\");
-                            break;
-                        case '"':
-                            printf("\\\"");
-                            break;
-                        default:
-                            cout << c;
-                    }
-                }
-                cout << '"';
-                break;
-            case PRIM_PROC:
-            case COMP_PROC:
-                cout << expr->atom.atomValue_;
-                break;
-            default:
-                fprintf(stderr, "cannot write unknown type\n");
-                exit(1);
-        }
-    } else {
-        fprintf(stderr, "expression Expression is empty\n");
-        exit(1);
-    }
 }
 
 // *******************LOOP*******************

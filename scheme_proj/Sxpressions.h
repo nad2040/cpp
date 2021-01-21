@@ -23,7 +23,7 @@ public:
     Compound compound_proc;
 
     Atom() : atomType_(UNK), atomValue_(""), fn(nullptr), compound_proc() {}
-    Atom(int num) : atomType_(NUM), atomValue_(std::to_string(num)), fn(nullptr), compound_proc() {}
+    Atom(long num) : atomType_(NUM), atomValue_(std::to_string(num)), fn(nullptr), compound_proc() {}
     Atom(std::string str) : fn(nullptr), compound_proc() {
         if (str[0] == '"') { atomType_ = STR; str.erase(0,1); atomValue_ = str; }
         else if (isSym(str)) { atomType_ = SYMBOL; atomValue_ = str; }
@@ -41,10 +41,10 @@ public:
     Atom(Expression* _params, Expression* _body, Expression* _env) : atomType_(COMP_PROC), atomValue_("#<procedure>"), fn(nullptr), compound_proc(_params,_body,_env) {}
 
     std::string getValue() { return atomValue_; }
-    int getInt() {
+    long getInt() {
         switch (atomType_) {
             case NUM:
-                return stoi(atomValue_);
+                return stol(atomValue_);
             case BOOL:
                 return (atomValue_ == "#t") ? 1 : 0;
             default:

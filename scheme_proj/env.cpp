@@ -99,4 +99,3 @@ Expression* setupEnv() {
     initial_env = extendEnv(empty_list, empty_list, empty_env);
     return initial_env;
 }
- 

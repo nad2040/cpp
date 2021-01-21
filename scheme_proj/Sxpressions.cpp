@@ -1,9 +1,5 @@
 #include <string>
-#include <iostream>
-
 #include "Sxpressions.h"
-
-using namespace std;
 
 extern Expression *_false;
 extern Expression *_true;
@@ -12,7 +8,7 @@ bool isInitial(char c) {
     return isalpha(c) || c == '*' || c == '/' || c == '>' || c == '<' || c == '=' || c == '?' || c == '!';
 }
 
-bool isSym(string &str) {
+bool isSym(std::string &str) {
     char c; int i=0;
     while (isInitial(c = str[i]) || c == '+' || c == '-') {
         i++;
@@ -49,11 +45,9 @@ bool isSymbol(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ ==
 bool isPrimProc(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == PRIM_PROC; }
 bool isCompProc(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == COMP_PROC; }
 
-
-bool isTrue(Expression *expr) { return expr == _true; }
 bool isFalse(Expression *expr) { return expr == _false; }
+bool isTrue(Expression *expr) { return !isFalse(expr); }
 
 bool isEmptyList(Expression *expr) {
     return isList(expr) && (expr->list == nullptr);
 }
-
