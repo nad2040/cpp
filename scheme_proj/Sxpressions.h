@@ -55,7 +55,6 @@ public:
     bool getBool() {
         return atomValue_[1] == 't';
     }
-
 };
 
 enum ExpressionType {ATOM, LIST};
@@ -109,6 +108,9 @@ bool isCompProc(Expression *expr);
 bool isTrue(Expression *expr); 
 bool isFalse(Expression *expr); 
 bool isEmptyList(Expression *expr); 
+
+Expression* makeSymbol(std::string value);
+Expression* makePrimProc(Expression *(*fn)(Expression *args));
 
 #define caar(obj)   car(car(obj))
 #define cadr(obj)   car(cdr(obj))

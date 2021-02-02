@@ -3,6 +3,7 @@
 
 extern Expression *_false;
 extern Expression *_true;
+extern Expression *symbol_table;
 
 bool isInitial(char c) {
     return isalpha(c) || c == '*' || c == '/' || c == '>' || c == '<' || c == '=' || c == '?' || c == '!';
@@ -51,3 +52,22 @@ bool isTrue(Expression *expr) { return !isFalse(expr); }
 bool isEmptyList(Expression *expr) {
     return isList(expr) && (expr->list == nullptr);
 }
+
+Expression* makeSymbol(std::string value) {
+    Expression *element;
+    Expression *symbol;
+    /* search for they symbol in the symbol table */
+    element = symbol_table;
+    while (element->list != nullptr) {
+        if (car(element)->atom.atomValue_ == value) {
+            return car(element);
+        }
+        element = cdr(element);
+    };
+    
+    /* create the symbol and add it to the symbol table */
+    symbol = new Expression(Atom(value));
+    symbol_table = cons(symbol, symbol_table);
+    return symbol;
+}
+Expression* makePrimProc(Expression *(*fn)(Expression *args)) { return new Expression(Atom(fn)); }
