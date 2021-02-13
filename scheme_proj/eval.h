@@ -72,6 +72,10 @@ Expression* andTests(Expression *expr);
 bool isOr(Expression *expr); 
 Expression* orTests(Expression *expr); 
 
+Expression* applyOperator(Expression *args);
+Expression* prepApplyOperands(Expression *args);
+Expression* applyOperands(Expression *args);
+
 Expression* eval(Expression *expr, Expression *env);
 
 Expression* listOfValues(Expression *expr, Expression *env); 

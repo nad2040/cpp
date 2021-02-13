@@ -35,3 +35,5 @@ Expression* setcdrProc(Expression *args);
 Expression* listProc(Expression *args); 
 
 Expression* isEqProc(Expression *args); 
+
+Expression* applyProc(Expression *args);

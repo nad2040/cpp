@@ -105,3 +105,8 @@ Expression* isEqProc(Expression *args) {
     else if (expr1->atom.atomValue_ == expr2->atom.atomValue_) return _true;
     else return (expr1 == expr2) ? _true : _false;
 }
+
+Expression* applyProc(Expression *args) {
+    fprintf(stderr, "illegal state: The body of the apply primitive procedure should not execute.\n");
+    exit(1);
+}

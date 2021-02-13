@@ -84,6 +84,8 @@ void init() {
     createProcedure("list",listProc);
 
     createProcedure("eq?",isEqProc);
+
+    createProcedure("apply",applyProc);
 }
 
 // *******************LOOP*******************
@@ -132,7 +134,7 @@ void fileInput(string file, bool showImportText) {
 }
 
 int main() {
-    system("clear");
+    //system("clear");
     cout << "=== Scheme in C++ === ^C to quit\n";
     string line;
     init();
@@ -147,5 +149,4 @@ int main() {
         write(eval(r.readIn(), global_env));
         cout << '\n';
     }
-
 }

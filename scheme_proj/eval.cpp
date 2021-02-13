@@ -1,4 +1,5 @@
 #include "eval.h"
+#include "primitive_proc.h"
 
 extern Expression *empty_list;
 extern Expression *_false;
@@ -119,6 +120,13 @@ Expression* andTests(Expression *expr) { return cdr(expr); }
 bool isOr(Expression *expr) { return isTaggedList(expr, or_symbol); }
 Expression* orTests(Expression *expr) { return cdr(expr); }
 
+Expression* applyOperator(Expression *args) { return car(args); }
+Expression* prepApplyOperands(Expression *args) {
+    if (isEmptyList(cdr(args))) return car(args);
+    else return cons(car(args), prepApplyOperands(cdr(args)));
+}
+Expression* applyOperands(Expression *args) { return prepApplyOperands(cdr(args)); }
+
 Expression* eval(Expression *expr, Expression *env);
 
 Expression* listOfValues(Expression *expr, Expression *env) {
@@ -178,6 +186,12 @@ tailcall:
     else if (isApplication(expr)) {
         proc = eval(operation(expr), env);
         args = listOfValues(operands(expr), env);
+
+        if (isPrimProc(proc) && proc->atom.fn == applyProc) {
+            proc = applyOperator(args);
+            args = applyOperands(args);
+        }
+
         if (isPrimProc(proc)) return (proc->atom.fn)(args);
         else if (isCompProc(proc)) {
             env = extendEnv(proc->atom.compound_proc.params, args, proc->atom.compound_proc.env);
