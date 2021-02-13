@@ -54,3 +54,9 @@ add
 (and 1 2 #f 3)
 
 (or #f #f 3 #f)
+
+(define env (environment))
+
+(eval '(define z 25) env)
+
+(eval 'z env)

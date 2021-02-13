@@ -76,11 +76,12 @@ Expression* applyOperator(Expression *args);
 Expression* prepApplyOperands(Expression *args);
 Expression* applyOperands(Expression *args);
 
+Expression* evalExpr(Expression *args);
+Expression* evalEnv(Expression *args);
+
 Expression* eval(Expression *expr, Expression *env);
 
 Expression* listOfValues(Expression *expr, Expression *env); 
 
 Expression* evalAssignment(Expression *expr, Expression *env); 
 Expression* evalDefinition(Expression *expr, Expression *env); 
-
-Expression* eval(Expression *expr, Expression *env); 

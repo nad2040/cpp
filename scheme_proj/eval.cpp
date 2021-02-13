@@ -26,7 +26,6 @@ bool isVar(Expression *expr) { return isSymbol(expr); }
 
 bool isTaggedList(Expression *expr, Expression *tag) {
     Expression *_car;
-
     if (isList(expr)) {
         _car = car(expr);
         return isSymbol(_car) && (_car == tag);
@@ -127,7 +126,10 @@ Expression* prepApplyOperands(Expression *args) {
 }
 Expression* applyOperands(Expression *args) { return prepApplyOperands(cdr(args)); }
 
-Expression* eval(Expression *expr, Expression *env);
+Expression* evalExpr(Expression *args) { return car(args); }
+Expression* evalEnv(Expression *args) { return cadr(args); }
+
+// eval dependent
 
 Expression* listOfValues(Expression *expr, Expression *env) {
     return (noOperands(expr)) ? empty_list :
@@ -187,6 +189,11 @@ tailcall:
         proc = eval(operation(expr), env);
         args = listOfValues(operands(expr), env);
 
+        if (isPrimProc(proc) && proc->atom.fn == evalProc) {
+            expr = evalExpr(args);
+            env = evalEnv(args);
+            goto tailcall;
+        }
         if (isPrimProc(proc) && proc->atom.fn == applyProc) {
             proc = applyOperator(args);
             args = applyOperands(args);

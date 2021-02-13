@@ -1,10 +1,12 @@
 #include <iostream>
 #include <string>
 #include "primitive_proc.h"
+#include "env.h"
 
 extern Expression *_false;
 extern Expression *_true;
 extern Expression *ok_symbol;
+extern Expression *global_env;
 
 Expression* isNullProc(Expression *args) { return isEmptyList(car(args)) ? _true : _false; }
 Expression* isBoolProc(Expression *args) { return isBool(car(args)) ? _true : _false; }
@@ -108,5 +110,13 @@ Expression* isEqProc(Expression *args) {
 
 Expression* applyProc(Expression *args) {
     fprintf(stderr, "illegal state: The body of the apply primitive procedure should not execute.\n");
+    exit(1);
+}
+
+Expression* interactionEnvProc(Expression *args) { return global_env; }
+Expression* nullEnvProc(Expression *args) { return setupEnv(); }
+Expression* envProc(Expression *args) { return makeEnv(); }
+Expression* evalProc(Expression *args) {
+    fprintf(stderr, "illegal state: The body of the eval primitive procedure should not execute.\n");
     exit(1);
 }

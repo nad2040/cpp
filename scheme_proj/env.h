@@ -18,3 +18,5 @@ void setVarValue(Expression *var, Expression *val, Expression *env);
 void defVar(Expression *var, Expression *val, Expression *env); 
 
 Expression* setupEnv(); 
+void populateEnv(Expression* env);
+Expression* makeEnv();

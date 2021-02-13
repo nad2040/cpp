@@ -48,44 +48,8 @@ void init() {
     or_symbol = makeSymbol("or");
 
     empty_env = empty_list;
-    global_env = setupEnv();
+    global_env = makeEnv();
 
-    #define createProcedure(scheme_name, name) defVar(makeSymbol(scheme_name),makePrimProc(name),global_env);
-    createProcedure("null?",isNullProc);
-    createProcedure("boolean?",isBoolProc);
-    createProcedure("symbol?",isSymbolProc);
-    createProcedure("integer?",isIntegerProc);
-    createProcedure("char?",isCharProc);
-    createProcedure("string?",isStringProc);
-    createProcedure("pair?",isPairProc);
-    createProcedure("procedure?",isProcedureProc);
-
-    createProcedure("char->integer",charToIntProc);
-    createProcedure("integer->char",intToCharProc);
-    createProcedure("number->string",numToStrProc);
-    createProcedure("string->number",strToNumProc);
-    createProcedure("symbol->string",symbolToStrProc);
-    createProcedure("string->symbol",strToSymbolProc);
-
-    createProcedure("+",addProc);
-    createProcedure("-",subProc);
-    createProcedure("*",multProc);
-    createProcedure("quotient",quotientProc);
-    createProcedure("remainder",remainderProc);
-    createProcedure("=",isNumberEqualProc);
-    createProcedure("<",isLessThanProc);
-    createProcedure(">",isGreaterThanProc);
-
-    createProcedure("cons",consProc);
-    createProcedure("car",carProc);
-    createProcedure("cdr",cdrProc);
-    createProcedure("set-car!",setcarProc);
-    createProcedure("set-cdr!",setcdrProc);
-    createProcedure("list",listProc);
-
-    createProcedure("eq?",isEqProc);
-
-    createProcedure("apply",applyProc);
 }
 
 // *******************LOOP*******************

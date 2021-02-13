@@ -1,4 +1,5 @@
 #include "env.h"
+#include "primitive_proc.h"
 
 extern Expression *empty_list;
 extern Expression *empty_env;
@@ -98,4 +99,56 @@ Expression* setupEnv() {
 
     initial_env = extendEnv(empty_list, empty_list, empty_env);
     return initial_env;
+}
+
+void populateEnv(Expression* env) {
+#define addSchemeProc(scheme_name, name) defVar(makeSymbol(scheme_name),makePrimProc(name), env);
+    addSchemeProc("null?",isNullProc);
+    addSchemeProc("boolean?",isBoolProc);
+    addSchemeProc("symbol?",isSymbolProc);
+    addSchemeProc("integer?",isIntegerProc);
+    addSchemeProc("char?",isCharProc);
+    addSchemeProc("string?",isStringProc);
+    addSchemeProc("pair?",isPairProc);
+    addSchemeProc("procedure?",isProcedureProc);
+
+    addSchemeProc("char->integer",charToIntProc);
+    addSchemeProc("integer->char",intToCharProc);
+    addSchemeProc("number->string",numToStrProc);
+    addSchemeProc("string->number",strToNumProc);
+    addSchemeProc("symbol->string",symbolToStrProc);
+    addSchemeProc("string->symbol",strToSymbolProc);
+
+    addSchemeProc("+",addProc);
+    addSchemeProc("-",subProc);
+    addSchemeProc("*",multProc);
+    addSchemeProc("quotient",quotientProc);
+    addSchemeProc("remainder",remainderProc);
+    addSchemeProc("=",isNumberEqualProc);
+    addSchemeProc("<",isLessThanProc);
+    addSchemeProc(">",isGreaterThanProc);
+
+    addSchemeProc("cons",consProc);
+    addSchemeProc("car",carProc);
+    addSchemeProc("cdr",cdrProc);
+    addSchemeProc("set-car!",setcarProc);
+    addSchemeProc("set-cdr!",setcdrProc);
+    addSchemeProc("list",listProc);
+
+    addSchemeProc("eq?",isEqProc);
+
+    addSchemeProc("apply",applyProc);
+
+    addSchemeProc("interaction-environment",interactionEnvProc);
+    addSchemeProc("null-environment", nullEnvProc);
+    addSchemeProc("environment", envProc);
+    addSchemeProc("eval", evalProc);
+}
+
+Expression* makeEnv() {
+    Expression* env;
+
+    env = setupEnv();
+    populateEnv(env);
+    return env;
 }
