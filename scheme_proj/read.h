@@ -1,17 +1,30 @@
 #pragma once
 #include <string>
+#include <iostream>
+#include <fstream>
 #include "Sxpressions.h"
 
+extern std::ifstream nullIn;
+extern std::ifstream _ifs;
+
 bool isDelimiter(char c);
+int parenCount(std::string line);
 
 class Reader {
-private:
+public:
     int i;
     std::string line;
+    std::ifstream* in;
 
-public:
-    Reader() : i(0), line("") {}
-    Reader(std::string& str) : i(0), line(str) {}
+    Reader() : i(0), line(""), in(&nullIn) {}
+    Reader(std::ifstream& ifs) : i(0), line(""), in(&ifs) {}
+    Reader(std::string filename) : i(0), line("") {
+        _ifs.open(filename, std::ifstream::in);
+        in = &_ifs;
+    }
+
+    void getInput();
+    void fileInput();
 
     void eatWhiteSpace();
     void eatString(std::string check);
@@ -19,4 +32,9 @@ public:
     Expression* readCharacter();
     Expression* readIn();
     Expression* readPair();
+
+    void fillBuff() {
+        if (in == &nullIn) getInput();
+        else fileInput();
+    }
 };

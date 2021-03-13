@@ -84,7 +84,7 @@ Expression* expandClauses(Expression *clauses) {
         rest = cdr(clauses);
         if (isCondElseClause(first)) {
             if (isEmptyList(rest)) return seqToExpr(condActions(first));
-            else { fprintf(stderr, "else clause isn't last cond->if"); exit(1); }
+            else { std::cerr << "else clause isn't last cond->if"; exit(1); }
         }
         else { return makeIf(condPredicate(first), seqToExpr(condActions(first)), expandClauses(rest)); }
     }
@@ -204,8 +204,8 @@ tailcall:
             env = extendEnv(proc->atom.compound_proc.params, args, proc->atom.compound_proc.env);
             expr = makeBegin(proc->atom.compound_proc.body);
             goto tailcall;
-        } else { fprintf(stderr, "unknown procedure type\n"); exit(1); }
+        } else { std::cerr << "unknown procedure type\n"; exit(1); }
     }
-    else { fprintf(stderr, "cannot eval unknown expression type\n"); exit(1); }
-    fprintf(stderr, "eval illegal state\n"); exit(1);
+    else { std::cerr << "cannot eval unknown expression type\n"; exit(1); }
+    std::cerr << "eval illegal state\n"; exit(1);
 }

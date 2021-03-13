@@ -1,5 +1,6 @@
 #include "env.h"
 #include "primitive_proc.h"
+#include <iostream>
 
 extern Expression *empty_list;
 extern Expression *empty_env;
@@ -47,7 +48,7 @@ Expression* lookupVarValue(Expression *var, Expression *env) {
         }
         env = enclosingEnvironment(env);
     }
-    fprintf(stderr, "unbound variable\n");
+    std::cerr << "unbound variable, " << var->atom.atomValue_ << "\n";
     exit(1);
 }
 
@@ -70,7 +71,7 @@ void setVarValue(Expression *var, Expression *val, Expression *env) {
         }
         env = enclosingEnvironment(env);
     }
-    fprintf(stderr, "unbound variable\n");
+    std::cerr << "unbound variable, " << var->atom.atomValue_ << "\n";
     exit(1);
 }
 
@@ -103,46 +104,62 @@ Expression* setupEnv() {
 
 void populateEnv(Expression* env) {
 #define addSchemeProc(scheme_name, name) defVar(makeSymbol(scheme_name),makePrimProc(name), env);
-    addSchemeProc("null?",isNullProc);
-    addSchemeProc("boolean?",isBoolProc);
-    addSchemeProc("symbol?",isSymbolProc);
-    addSchemeProc("integer?",isIntegerProc);
-    addSchemeProc("char?",isCharProc);
-    addSchemeProc("string?",isStringProc);
-    addSchemeProc("pair?",isPairProc);
-    addSchemeProc("procedure?",isProcedureProc);
+    addSchemeProc("null?", isNullProc);
+    addSchemeProc("boolean?", isBoolProc);
+    addSchemeProc("symbol?", isSymbolProc);
+    addSchemeProc("integer?", isIntegerProc);
+    addSchemeProc("char?", isCharProc);
+    addSchemeProc("string?", isStringProc);
+    addSchemeProc("pair?", isPairProc);
+    addSchemeProc("procedure?", isProcedureProc);
 
-    addSchemeProc("char->integer",charToIntProc);
-    addSchemeProc("integer->char",intToCharProc);
-    addSchemeProc("number->string",numToStrProc);
-    addSchemeProc("string->number",strToNumProc);
-    addSchemeProc("symbol->string",symbolToStrProc);
-    addSchemeProc("string->symbol",strToSymbolProc);
+    addSchemeProc("char->integer", charToIntProc);
+    addSchemeProc("integer->char", intToCharProc);
+    addSchemeProc("number->string", numToStrProc);
+    addSchemeProc("string->number", strToNumProc);
+    addSchemeProc("symbol->string", symbolToStrProc);
+    addSchemeProc("string->symbol", strToSymbolProc);
 
-    addSchemeProc("+",addProc);
-    addSchemeProc("-",subProc);
-    addSchemeProc("*",multProc);
-    addSchemeProc("quotient",quotientProc);
-    addSchemeProc("remainder",remainderProc);
-    addSchemeProc("=",isNumberEqualProc);
-    addSchemeProc("<",isLessThanProc);
-    addSchemeProc(">",isGreaterThanProc);
+    addSchemeProc("+", addProc);
+    addSchemeProc("-", subProc);
+    addSchemeProc("*", multProc);
+    addSchemeProc("quotient", quotientProc);
+    addSchemeProc("remainder", remainderProc);
+    addSchemeProc("=", isNumberEqualProc);
+    addSchemeProc("<", isLessThanProc);
+    addSchemeProc(">", isGreaterThanProc);
 
-    addSchemeProc("cons",consProc);
-    addSchemeProc("car",carProc);
-    addSchemeProc("cdr",cdrProc);
-    addSchemeProc("set-car!",setcarProc);
-    addSchemeProc("set-cdr!",setcdrProc);
-    addSchemeProc("list",listProc);
+    addSchemeProc("cons", consProc);
+    addSchemeProc("car", carProc);
+    addSchemeProc("cdr", cdrProc);
+    addSchemeProc("set-car!", setcarProc);
+    addSchemeProc("set-cdr!", setcdrProc);
+    addSchemeProc("list", listProc);
 
-    addSchemeProc("eq?",isEqProc);
+    addSchemeProc("eq?", isEqProc);
 
-    addSchemeProc("apply",applyProc);
+    addSchemeProc("apply", applyProc);
 
-    addSchemeProc("interaction-environment",interactionEnvProc);
+    addSchemeProc("interaction-environment", interactionEnvProc);
     addSchemeProc("null-environment", nullEnvProc);
     addSchemeProc("environment", envProc);
     addSchemeProc("eval", evalProc);
+
+    addSchemeProc("load", loadProc);
+    addSchemeProc("open-input-port", openInputPortProc);
+    addSchemeProc("close-input-port", closeInputPortProc);
+    addSchemeProc("input-port?", isInputPortProc);
+    addSchemeProc("read", readProc);
+    addSchemeProc("read-char", readCharProc);
+    addSchemeProc("peek-char", peekCharProc);
+    addSchemeProc("eof-object?", isEOFObjProc);
+    addSchemeProc("open-output-port", openOutputPortProc);
+    addSchemeProc("close-output-port", closeOutputPortProc);
+    addSchemeProc("output-port?", isOutputPortProc);
+    addSchemeProc("write-char", writeCharProc);
+    addSchemeProc("write", writeProc);
+
+    addSchemeProc("error", errorProc);
 }
 
 Expression* makeEnv() {

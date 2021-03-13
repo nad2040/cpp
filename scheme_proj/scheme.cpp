@@ -25,6 +25,7 @@ Expression *else_symbol;
 Expression *let_symbol;
 Expression *and_symbol;
 Expression *or_symbol;
+Expression *eof_object;
 Expression *empty_env;
 Expression *global_env;
 
@@ -47,6 +48,8 @@ void init() {
     and_symbol = makeSymbol("and");
     or_symbol = makeSymbol("or");
 
+    eof_object = makeEOF();
+
     empty_env = empty_list;
     global_env = makeEnv();
 
@@ -54,63 +57,36 @@ void init() {
 
 // *******************LOOP*******************
 
-string getInput() {
-    string line = "", temp = "";
-    int left = 0, right = 0, i = 2;
-    while (true) {
-        getline(cin, temp);
-        for (int in=0; in<temp.size(); ++in) {
-            if (temp[in] == '(') ++left;
-            if (temp[in] == ')') ++right;
-            if (temp[in] == 5) { line += temp; goto end; }
-        }
-        line += temp + '\n';
-        cout << "  ";
-        for (int j = 0; j < left-right; ++j) cout << "    ";
-    }
-    end:
-    line.pop_back();
-    return line;
-}
-
-int parenCount(string line) {
-    int left = 0, right = 0;
-    for (int i=0; i<line.size(); ++i) {
-        if (line[i] == '(') ++left;
-        if (line[i] == ')') ++right;
-    }
-    return left - right;
-}
-
-void fileInput(string file, bool showImportText) {
-    ifstream f(file);
-    string line, temp = "";
-    char c;
-    while (f.get(c) && isspace(c));
-    while (getline(f,line)) {
-        line = c + line;
-        while (parenCount(line) > 0) { getline(f,temp); line += '\n' + temp; }
-        Reader r = Reader(line);
-        Expression *evaluated = eval(r.readIn(),global_env);
-        if (showImportText) { cout << "> " << line << '\n'; write(evaluated); cout << '\n'; }
-        while (f.get(c) && isspace(c));
-    }
-}
+ifstream _ifs;
+ofstream _ofs;
+ifstream _ifs_2; // for scheme input filestream
+ofstream _ofs_2; // for scheme output filestream
+ifstream nullIn("null");
+ofstream nullOut("null");
 
 int main() {
-    //system("clear");
+    Expression *expr;
+
     cout << "=== Scheme in C++ === ^C to quit\n";
-    string line;
+
     init();
 
-    //fileInput("scm_files/a.scm", true);
-    fileInput("scm_files/testing_input.scm", true);
-
-    while (1) {
+    //ifstream ifs("scm_files/testing_input.scm");
+    //ofstream ofs("a.txt");
+    Reader r = Reader();
+    Writer w = Writer();
+    
+    while (true) {
         cout << "> ";
-        line = getInput();
-        Reader r = Reader(line);
-        write(eval(r.readIn(), global_env));
-        cout << '\n';
+        r.fillBuff();
+        expr = r.readIn();
+        if (expr == nullptr) break;
+        // Uncomment to see input from file
+        // w.write(expr);
+        // *w.out << '\n';
+        w.write(eval(expr, global_env));
+        *w.out << '\n';
     }
+    cout << "Goodbye\n";
+    return 0;
 }

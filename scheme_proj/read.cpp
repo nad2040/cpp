@@ -11,7 +11,49 @@ bool isDelimiter(char c) {
     return isspace(c) || c == EOF ||
            c == '('   || c == ')' ||
            c == '"'   || c == ';' ||
-           c == '\0';
+           c == '\004';
+}
+
+int parenCount(string line) {
+    int left = 0, right = 0;
+    for (int i=0; i<line.size(); ++i) {
+        if (line[i] == '(') ++left;
+        if (line[i] == ')') ++right;
+    }
+    return left - right;
+}
+void Reader::getInput() {
+    string l = "", temp = "";
+    int left = 0, right = 0;
+    while (true) {
+        getline(cin, temp);
+        for (int in=0; in<temp.size(); ++in) {
+            if (temp[in] == '(') ++left;
+            if (temp[in] == ')') ++right;
+            if (temp[in] == 5) { l += temp; goto end; }
+        }
+        l += temp + '\n';
+        cout << "  ";
+        for (int j = 0; j < left-right; ++j) cout << "  ";
+    }
+    end:
+    l.pop_back();
+    line = l;
+    i = 0;
+}
+void Reader::fileInput() {
+    string l = "", temp = "";
+    char c;
+    while (in->get(c) && isspace(c));
+    getline(*in,l);
+    l = c + l;
+    while (parenCount(l) > 0) {
+        getline(*in,temp);
+        l += '\n' + temp;
+    }
+    l += '\n';
+    line = l;
+    i = 0;
 }
 
 void Reader::eatWhiteSpace() {
@@ -30,23 +72,21 @@ void Reader::eatString(string check) {
     int c=0;
     while (c<check.length()) {
         if (line[i++] != check[c++]) {
-            fprintf(stderr, "unexpected character '%c'\n", line[i]);
-            exit(1);
+            cerr <<  "unexpected character '" << line[i] << "'\n"; exit(1);
         }
     }
     ++i;
 }
 void Reader::peekDelimiter() {
     if (!isDelimiter(line[++i])) {
-        fprintf(stderr, "character not followed by delimiter\n");
-        exit(1);
+        cerr <<  "character not followed by delimiter\n"; exit(1);
     }
 }
 Expression* Reader::readCharacter() {
     char c;
     switch (c = line[++i]) {
         case '\0':
-            fprintf(stderr, "incomplete character literal\n");
+            cerr <<  "incomplete character literal\n";
             exit(1);
         case 's':
             if (line[++i] == 'p') {
@@ -73,7 +113,7 @@ Expression* Reader::readPair() {
     
     eatWhiteSpace();
     c = line[i];
-    if (c == ')') { /* read the empty list */
+    if (c == ')') { // read the empty list
         i++;
         return empty_list;
     }
@@ -82,22 +122,22 @@ Expression* Reader::readPair() {
 
     eatWhiteSpace();
     c = line[i++];   
-    if (c == '.') { /* read improper list */
+    if (c == '.') { // read improper list
         c = line[i++];
         if (!isDelimiter(c)) {
-            fprintf(stderr, "dot not followed by delimiter\n"); exit(1);
+            cerr <<  "dot not followed by delimiter\n"; exit(1);
         }
         cdr_obj = readIn();
         eatWhiteSpace();
         c = line[i];
         if (c != ')') {
-            fprintf(stderr, "where was the trailing right paren?\n"); exit(1);
+            cerr <<  "where was the trailing right paren?\n"; exit(1);
         }
         expr = cons(car_obj, cdr_obj);
         i++;
         return expr;
     }
-    else { /* read list */
+    else { // read list
         --i;
         cdr_obj = readPair();
         expr = cons(car_obj, cdr_obj);
@@ -115,7 +155,7 @@ Expression* Reader::readIn() {
     if (line.empty()) { return new Expression(Atom()); }
 
     c = line[i];
-    if (c == '#') { /* read boolean/char */
+    if (c == '#') { // read boolean/char
         c = line[++i];
         if (c == 't') {
             i++;
@@ -126,11 +166,11 @@ Expression* Reader::readIn() {
         } else if (c == '\\') {
             return readCharacter();
         } else {
-            fprintf(stderr, "unknown bool or char literal\n");
+            cerr <<  "unknown bool or char literal\n";
             exit(1);
         }
     }
-    else if ((c == '-' && isdigit(line[i+1]) || isdigit(c))) { /* read number */
+    else if ((c == '-' && isdigit(line[i+1]) || isdigit(c))) { // read number
         if (c == '-') {
             sign = -1;
             i++;
@@ -141,7 +181,7 @@ Expression* Reader::readIn() {
         n *= sign;
         return new Expression(Atom(n));
     }
-    else if (isInitial(c) || ((c == '+' || c == '-') && isDelimiter(line[i+1]))) { /* read symbol */
+    else if (isInitial(c) || ((c == '+' || c == '-') && isDelimiter(line[i+1]))) { // read symbol
         while (isInitial(c) || isdigit(c) || c == '+' || c == '-') {
             str += c;
             c = line[++i];
@@ -149,9 +189,9 @@ Expression* Reader::readIn() {
         if (isDelimiter(c)) {
             return makeSymbol(str);
         }
-        else { fprintf(stderr, "symbol not followed by delimiter. Found '%c'\n", c); exit(1); }
+        else { cerr <<  "symbol not followed by delimiter. Found '" << c << "'\n"; exit(1); }
     }
-    else if (c == '"') { /* read string */
+    else if (c == '"') { // read string
         i++;
         while (((c = line[i++]) != '"')) {
             if (c == '\\') {
@@ -159,21 +199,20 @@ Expression* Reader::readIn() {
             }
             str += c;
         }
-        if (c == EOF) { fprintf(stderr, "non-terminated string literal\n"); exit(1); }
+        if (c == EOF) { cerr <<  "non-terminated string literal\n"; exit(1); }
         return new Expression(Atom('"' + str));
     }
-    else if (c == '(') { /* read pair/list */
+    else if (c == '(') { // read pair/list
         i++;
         return readPair();
     }
-    else if (c == '\'') { /* read quoted expression */
+    else if (c == '\'') { // read quoted expression 
         i++;
         return cons(quote_symbol, cons(readIn(), empty_list));
     }
-    else { /* bad input */
-        fprintf(stderr, "bad input. Unexpected '%c'\n", c);
-        exit(1);
+    else if (c == EOF || in->peek() == EOF || in->eof()) return nullptr;
+    else { // bad input
+        cerr <<  "bad input. Unexpected '" << c << "'\n"; exit(1);
     }
-    fprintf(stderr, "read illegal state\n");
-    exit(1);
+    cerr <<  "read illegal state\n"; exit(1);
 }

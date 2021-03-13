@@ -1,12 +1,21 @@
-#include <iostream>
-#include <string>
 #include "primitive_proc.h"
 #include "env.h"
+#include "read.h"
+#include "write.h"
+#include "eval.h"
+#include <iostream>
+#include <string>
+#include <fstream>
+
+using namespace std;
 
 extern Expression *_false;
 extern Expression *_true;
 extern Expression *ok_symbol;
 extern Expression *global_env;
+extern Expression *eof_object;
+extern ifstream _ifs_2;
+extern ofstream _ofs_2;
 
 Expression* isNullProc(Expression *args) { return isEmptyList(car(args)) ? _true : _false; }
 Expression* isBoolProc(Expression *args) { return isBool(car(args)) ? _true : _false; }
@@ -27,7 +36,7 @@ Expression* strToSymbolProc(Expression *args) { return new Expression(Atom(car(a
 Expression* addProc(Expression *args) {
     long result = 0;
     while (!isEmptyList(args)) {
-        if (!isNum(car(args))) { fprintf(stderr, "incorrect type in addition\n"); exit(1); }
+        if (!isNum(car(args))) { cerr << "incorrect type in addition\n"; exit(1); }
         result += car(args)->atom.getInt();
         args = cdr(args);
     }
@@ -38,7 +47,7 @@ Expression* subProc(Expression *args) {
     long result;
     result = car(args)->atom.getInt();
     while (!isEmptyList(args = cdr(args))) {
-        if (!isNum(car(args))) { fprintf(stderr, "incorrect type in subtraction\n"); exit(1); }
+        if (!isNum(car(args))) { cerr << "incorrect type in subtraction\n"; exit(1); }
         result -= car(args)->atom.getInt();
     }
     return new Expression(Atom(result));
@@ -109,14 +118,108 @@ Expression* isEqProc(Expression *args) {
 }
 
 Expression* applyProc(Expression *args) {
-    fprintf(stderr, "illegal state: The body of the apply primitive procedure should not execute.\n");
-    exit(1);
+    cerr << "illegal state: The body of the apply primitive procedure should not execute.\n"; exit(1);
 }
 
 Expression* interactionEnvProc(Expression *args) { return global_env; }
 Expression* nullEnvProc(Expression *args) { return setupEnv(); }
 Expression* envProc(Expression *args) { return makeEnv(); }
 Expression* evalProc(Expression *args) {
-    fprintf(stderr, "illegal state: The body of the eval primitive procedure should not execute.\n");
+    cerr << "illegal state: The body of the eval primitive procedure should not execute.\n"; exit(1);
+}
+
+Expression* loadProc(Expression *args) {
+    string filename = car(args)->atom.atomValue_;
+    ifstream ifs;
+    Expression *expr;
+    Expression *result;
+
+    ifs.open(filename, ifstream::in);
+    if (ifs.fail()) { cerr << "could not load file \"" << filename << "\""; exit(1); }
+    Reader r = Reader(ifs);
+    while (!r.in->eof()) {
+        r.fillBuff();
+        expr = r.readIn();
+        result = eval(expr, global_env);
+    }
+    ifs.close();
+    return result;
+}
+
+Expression *openInputPortProc(Expression *args) {
+    string filename = car(args)->atom.atomValue_;
+    _ifs_2.open(filename, ofstream::in);
+    if (_ifs_2.fail()) { cerr << "could not load file \"" << filename << "\""; exit(1); }
+    return new Expression(Atom(_ifs_2));
+}
+Expression *closeInputPortProc(Expression *args) {
+    car(args)->atom.in_port->close();
+    if (car(args)->atom.in_port->fail()) { cerr << "could not close input port\n"; exit(1); }
+    return ok_symbol;
+}
+Expression *isInputPortProc(Expression *args) { return isInputPort(car(args)) ? _true : _false; }
+
+Expression *readProc(Expression *args) {
+    Expression *result;
+    Reader r = isEmptyList(args) ? Reader() : Reader(*car(args)->atom.in_port);
+    r.fillBuff();
+    result = r.readIn();
+    return (result == nullptr) ? eof_object : result;
+}
+Expression *readCharProc(Expression *args) {
+    char c;
+    Reader r = isEmptyList(args) ? Reader() : Reader(*car(args)->atom.in_port);
+    if (r.in == &nullIn) cin.get(c);
+    else r.in->get(c);
+    return (r.in->eof()) ? eof_object : new Expression(Atom(c));
+}
+Expression *peekCharProc(Expression *args) {
+    char c;
+    Reader r = isEmptyList(args) ? Reader() : Reader(*car(args)->atom.in_port);
+    if (r.in == &nullIn) c = cin.peek();
+    else c = r.in->peek();
+    return (c == EOF) ? eof_object : new Expression(Atom(c));
+}
+
+Expression *isEOFObjProc(Expression *args) { return isEOFObject(car(args)) ? _true : _false; }
+
+Expression *openOutputPortProc(Expression *args) {
+    string filename = car(args)->atom.atomValue_;
+    _ofs_2.open(filename, ofstream::app);
+    if (_ofs_2.fail()) { cerr << "could not open file \"" << filename << "\""; exit(1); }
+    return new Expression(Atom(_ofs_2));
+}
+Expression *closeOutputPortProc(Expression *args) {
+    car(args)->atom.out_port->close();
+    if (car(args)->atom.out_port->fail()) { cerr << "could not close output port\n"; exit(1); }
+    return ok_symbol;
+}
+Expression *isOutputPortProc(Expression *args) { return isOutputPort(car(args)) ? _true : _false; }
+
+Expression *writeCharProc(Expression *args) {
+    Expression *character = car(args);
+    args = cdr(args);
+    Writer w = isEmptyList(args) ? Writer() : Writer(*car(args)->atom.out_port);
+    w.out->put(character->atom.atomValue_[0]);
+    w.out->flush();
+    return ok_symbol;
+}
+Expression *writeProc(Expression *args) {
+    Expression *expr = car(args);
+    args = cdr(args);
+    Writer w = isEmptyList(args) ? Writer() : Writer(*car(args)->atom.out_port);
+    w.write(expr);
+    w.out->flush();
+    return ok_symbol;
+}
+
+Expression *errorProc(Expression *args) {
+    Writer w = Writer(cerr);
+    while (!isEmptyList(args)) {
+        w.write(car(args));
+        cerr << " ";
+        args = cdr(args);
+    };
+    cout << "\nexiting\n";
     exit(1);
 }

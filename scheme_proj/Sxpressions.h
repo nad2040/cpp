@@ -1,12 +1,13 @@
 #pragma once
 #include <string>
 #include <iostream>
+#include <fstream>
 
 bool isInitial(char c); 
-bool isSym(std::string &str); 
+bool isSym(std::string &str);
 
 class Expression;
-enum AtomType {UNK, BOOL, SYMBOL, NUM, CHAR, STR, PRIM_PROC, COMP_PROC};
+enum AtomType {UNK, BOOL, SYMBOL, NUM, CHAR, STR, PRIM_PROC, COMP_PROC, INPUT, OUTPUT, EOF_OBJECT};
 class Atom {
 public:
     struct Compound {
@@ -17,28 +18,61 @@ public:
         Compound(Expression* p, Expression* b, Expression* e) : params(p), body(b), env(e) {}
     };
 
-    std::string atomValue_;
     AtomType atomType_;
-    Expression* (*fn)(Expression* args);
+    std::string atomValue_;
+    Expression *(*fn)(Expression* args);
     Compound compound_proc;
+    std::ifstream* in_port;
+    std::ofstream* out_port;
 
-    Atom() : atomType_(UNK), atomValue_(""), fn(nullptr), compound_proc() {}
-    Atom(long num) : atomType_(NUM), atomValue_(std::to_string(num)), fn(nullptr), compound_proc() {}
-    Atom(std::string str) : fn(nullptr), compound_proc() {
+    Atom() :
+        atomType_(UNK), atomValue_(""),
+        fn(nullptr), compound_proc(),
+        in_port(nullptr), out_port(nullptr) {}
+
+    Atom(long num) :
+        atomType_(NUM), atomValue_(std::to_string(num)),
+        fn(nullptr), compound_proc(),
+        in_port(nullptr), out_port(nullptr) {}
+
+    Atom(std::string str) :
+        fn(nullptr), compound_proc(),
+        in_port(nullptr), out_port(nullptr) {
         if (str[0] == '"') { atomType_ = STR; str.erase(0,1); atomValue_ = str; }
         else if (isSym(str)) { atomType_ = SYMBOL; atomValue_ = str; }
         else { atomType_ = UNK; atomValue_ = str; }
     }
-    Atom(bool b) : atomType_(BOOL), atomValue_((b == true) ? "#t" : "#f"), fn(nullptr), compound_proc() {}
-    Atom(char c) : fn(nullptr), compound_proc() {
+    Atom(bool b) :
+        atomType_(BOOL), atomValue_((b == true) ? "#t" : "#f"),
+        fn(nullptr), compound_proc(),
+        in_port(nullptr), out_port(nullptr) {}
+
+    Atom(char c) : fn(nullptr), compound_proc(),
+        in_port(nullptr), out_port(nullptr) {
         if (c == ' ' || c == '\n' || isalpha(c) || isdigit(c)) {
             atomType_ = CHAR;
             atomValue_ = c;
-        }
-        else atomType_ = UNK;
+        } else atomType_ = UNK;
     }
-    Atom(Expression* (*fnptr)(Expression* args)) : atomType_(PRIM_PROC), atomValue_("#<procedure>"), fn(fnptr), compound_proc() {}
-    Atom(Expression* _params, Expression* _body, Expression* _env) : atomType_(COMP_PROC), atomValue_("#<procedure>"), fn(nullptr), compound_proc(_params,_body,_env) {}
+    Atom(Expression* (*fnptr)(Expression* args)) :
+        atomType_(PRIM_PROC), atomValue_("#<procedure>"),
+        fn(fnptr), compound_proc(),
+        in_port(nullptr), out_port(nullptr) {}
+
+    Atom(Expression* _params, Expression* _body, Expression* _env) :
+        atomType_(COMP_PROC), atomValue_("#<procedure>"),
+        fn(nullptr), compound_proc(_params,_body,_env),
+        in_port(nullptr), out_port(nullptr) {}
+
+    Atom(std::ifstream& in) :
+        atomType_(INPUT), atomValue_("#<input-port>"),
+        fn(nullptr), compound_proc(),
+        in_port(&in), out_port(nullptr) {}
+
+    Atom(std::ofstream& out) :
+        atomType_(OUTPUT), atomValue_("#<output-port>"),
+        fn(nullptr), compound_proc(),
+        in_port(nullptr), out_port(&out) {}
 
     std::string getValue() { return atomValue_; }
     long getInt() {
@@ -72,44 +106,32 @@ public:
     Expression() : atom(), list(), exprType_(LIST) {}
     Expression(Atom atom_) : atom(atom_), list(nullptr), exprType_(ATOM) {}
     Expression(List* list_) : atom(), list(list_), exprType_(LIST) {}
-
-    /* void display(int ind) {
-        if (exprType_ == ATOM) {
-            for (int i=0; i<ind; i++) std::cout << "    ";
-            std::cout << atom.getValue() << '\n';
-        }
-        else {
-            if (list != nullptr) {
-                this->list->car->display(ind+1);
-                this->list->cdr->display(ind);
-            } else {
-                for (int i=0; i<ind; i++) std::cout << "    ";
-                std::cout << "()\n";
-            }
-        }
-    }*/
 };
 
-Expression* car(Expression* expr); 
-void setcar(Expression *expr, Expression* value); 
-Expression* cdr(Expression* expr); 
-void setcdr(Expression *expr, Expression* value); 
-Expression* cons(Expression *car, Expression *cdr); 
-bool isList(Expression *expr); 
-bool isAtom(Expression *expr); 
-bool isBool(Expression *expr); 
-bool isNum(Expression *expr); 
-bool isChar(Expression *expr); 
-bool isString(Expression *expr); 
-bool isSymbol(Expression *expr); 
-bool isPrimProc(Expression *expr); 
-bool isCompProc(Expression *expr); 
+Expression* car(Expression* expr);
+void setcar(Expression *expr, Expression* value);
+Expression* cdr(Expression* expr);
+void setcdr(Expression *expr, Expression* value);
+Expression* cons(Expression *car, Expression *cdr);
+bool isList(Expression *expr);
+bool isAtom(Expression *expr);
+bool isBool(Expression *expr);
+bool isNum(Expression *expr);
+bool isChar(Expression *expr);
+bool isString(Expression *expr);
+bool isSymbol(Expression *expr);
+bool isPrimProc(Expression *expr);
+bool isCompProc(Expression *expr);
 
-bool isTrue(Expression *expr); 
-bool isFalse(Expression *expr); 
-bool isEmptyList(Expression *expr); 
+bool isTrue(Expression *expr);
+bool isFalse(Expression *expr);
+bool isEmptyList(Expression *expr);
+bool isInputPort(Expression *expr);
+bool isOutputPort(Expression *expr);
+bool isEOFObject(Expression *expr);
 
 Expression* makeSymbol(std::string value);
+Expression* makeEOF();
 Expression* makePrimProc(Expression *(*fn)(Expression *args));
 
 #define caar(obj)   car(car(obj))

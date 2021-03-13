@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Sxpressions.h"
 
 Expression* isNullProc(Expression *args); 
@@ -42,3 +41,24 @@ Expression* interactionEnvProc(Expression *args);
 Expression* nullEnvProc(Expression *args);
 Expression* envProc(Expression *args);
 Expression* evalProc(Expression *args);
+
+Expression *loadProc(Expression *args);
+
+Expression *openInputPortProc(Expression *args);
+Expression *closeInputPortProc(Expression *args);
+Expression *isInputPortProc(Expression *args);
+
+Expression *readProc(Expression *args);
+Expression *readCharProc(Expression *args);
+Expression *peekCharProc(Expression *args);
+
+Expression *isEOFObjProc(Expression *args);
+
+Expression *openOutputPortProc(Expression *args);
+Expression *closeOutputPortProc(Expression *args);
+Expression *isOutputPortProc(Expression *args);
+
+Expression *writeCharProc(Expression *args);
+Expression *writeProc(Expression *args);
+
+Expression *errorProc(Expression *args);

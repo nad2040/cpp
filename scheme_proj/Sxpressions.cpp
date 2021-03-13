@@ -4,6 +4,7 @@
 extern Expression *_false;
 extern Expression *_true;
 extern Expression *symbol_table;
+extern Expression *eof_object;
 
 bool isInitial(char c) {
     return isalpha(c) || c == '*' || c == '/' || c == '>' || c == '<' || c == '=' || c == '?' || c == '!';
@@ -49,9 +50,10 @@ bool isCompProc(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ 
 bool isFalse(Expression *expr) { return expr == _false; }
 bool isTrue(Expression *expr) { return !isFalse(expr); }
 
-bool isEmptyList(Expression *expr) {
-    return isList(expr) && (expr->list == nullptr);
-}
+bool isEmptyList(Expression *expr) { return isList(expr) && (expr->list == nullptr); }
+bool isInputPort(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == INPUT; }
+bool isOutputPort(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == OUTPUT; }
+bool isEOFObject(Expression *expr) { return expr == eof_object; }
 
 Expression* makeSymbol(std::string value) {
     Expression *element;
@@ -69,5 +71,11 @@ Expression* makeSymbol(std::string value) {
     symbol = new Expression(Atom(value));
     symbol_table = cons(symbol, symbol_table);
     return symbol;
+}
+Expression* makeEOF() {
+    Expression* expr = new Expression(Atom());
+    expr->atom.atomType_ = EOF_OBJECT;
+    expr->atom.atomValue_ = "#<eof>";
+    return expr;
 }
 Expression* makePrimProc(Expression *(*fn)(Expression *args)) { return new Expression(Atom(fn)); }
