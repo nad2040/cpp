@@ -60,3 +60,13 @@ add
 (eval '(define z 25) env)
 
 (eval 'z env)
+
+(define out (open-output-port "asdf.txt"))
+
+(write-char #\c out)
+
+(close-output-port out)
+
+(load "scm_files/stdlib.scm")
+
+(error "bad move")
