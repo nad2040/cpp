@@ -7,6 +7,8 @@
 #include "eval.h"
 #include "write.h"
 
+#include "BufferReader.h"
+
 using namespace std;
 
 Expression *empty_list;
@@ -76,6 +78,18 @@ int main() {
     Reader r = Reader();
     Writer w = Writer();
     
+    BufferReader reader;
+    while (true) {
+        cout << "> ";
+        string expression = reader.nextExpression();
+        while (expression.empty()) {
+            reader.readBuffer();
+            expression = reader.nextExpression();
+        }
+        cout << expression << '\n';
+    }
+
+    /*
     while (true) {
         cout << "> ";
         r.fillBuff();
@@ -87,6 +101,7 @@ int main() {
         w.write(eval(expr, global_env));
         *w.out << '\n';
     }
+    */
     cout << "Goodbye\n";
     return 0;
 }
