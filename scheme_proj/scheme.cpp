@@ -67,7 +67,7 @@ ifstream nullIn("null");
 ofstream nullOut("null");
 
 int main() {
-    Expression *expr;
+    Expression *expr = nullptr;
 
     cout << "=== Scheme in C++ === ^C to quit\n";
 
@@ -79,14 +79,13 @@ int main() {
     Writer w = Writer();
     
     BufferReader reader;
-    while (true) {
+    while (!expr) {
         cout << "> ";
-        string expression = reader.nextExpression();
-        while (expression.empty()) {
-            reader.readBuffer();
-            expression = reader.nextExpression();
-        }
-        cout << expression << '\n';
+        reader.readBuffer();
+        expr = reader.nextExpression();
+        //if (expr) std::cout << eval(expr, global_env) << '\n';
+        if (expr) w.write(eval(expr, global_env)); *w.out << '\n';
+        expr = nullptr;
     }
 
     /*
