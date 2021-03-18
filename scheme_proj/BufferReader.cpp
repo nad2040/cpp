@@ -14,7 +14,13 @@ void BufferReader::readBuffer() {
     buffer_ += line;
 }
 
-int listEnd(std::string& buffer, int pos) {
+void dumpBuffer(std::string& buf, int pos) {
+    std::cout << "current position:" << pos << '\n';
+    std::cout << "processed:" << buf.substr(0, pos) << '\n';
+    std::cout << "unprocessed:" << buf.substr(pos) << '\n';
+}
+
+int listEnd(std::string& buffer, int pos) { //bug when string has ( or )
     assert(buffer[pos] == '(');
     int idx = pos+1;
     int count = 1;
@@ -37,33 +43,81 @@ int stringEnd(std::string& buffer, int pos) {
     }
     return pos;
 }
-
+namespace {
+bool isDelimiter(char c) {
+    return (isspace(c) || (c == '(') || (c == ')'));
+}
+}
 int atomEnd(std::string& buffer, int pos) {
     assert(!isspace(buffer[pos]));
     int idx = pos+1;
-    while (idx < buffer.size() && !isspace(buffer[idx])) ++idx;
-    return idx;
+    char c = buffer[idx];
+    if (isspace(c) || c == ')') return pos; //without this line subtle bug
+    while (idx < buffer.size()) { char c = buffer[idx]; if (isDelimiter(c)) break; ++idx; } //treat ` and "
+    return idx-1;
 }
 
-Expression* BufferReader::parseList(const std::string& buffer) {
-    //parse (), (car . cdr), or list (car (cdr))
+Expression* BufferReader::readCdr() {
+    static int count = 0;
+    if (++count > 20) exit(1);
+    dumpBuffer(buffer_, readPos_);
+    int oldReadPos = readPos_;
+    int index = readPos_;
     //first check empty list
+    while(isspace(buffer_[index])) ++index;
+    if (buffer_[index] == ')') {
+        readPos_ = ++index;
+        std::cout << "list reach end\n";
+        return empty_list;
+    }
     //read car
-    //if . read cdr
-    //read pair
-    return new Expression(Atom(buffer));
+    readPos_ = index;
+    Expression* first = nextExpression();
+    if (!first) {
+        readPos_ = oldReadPos;
+        dumpBuffer(buffer_, readPos_);
+        std::cout << "list car empty\n";
+        return nullptr;
+    }
+    Expression* rest = readCdr();
+    if (!rest) {
+        readPos_ = oldReadPos; 
+        dumpBuffer(buffer_, readPos_);
+        std::cout << "list cdr empty\n";
+        return nullptr;
+    }
+    return cons(first, rest);
 }
 
 Expression* BufferReader::readList() {
+    std::cout << "start reading list\n";
+    //parse (), (car . cdr), or list (car (cdr))
     assert(buffer_[readPos_] == '(');
-    int listBeg = readPos_;
-    int listEnd = ::listEnd(buffer_, listBeg);
-    //std::cout << "list begin:" << listBeg << " end:" << listEnd << '\n';
-    if (listBeg != listEnd) {
-        readPos_ = listEnd;
-        return parseList(buffer_.substr(listBeg, listEnd));
+    int oldReadPos_ = readPos_;
+    int index = readPos_+1;
+    while (index < buffer_.size() && isspace(buffer_[index])) ++index;
+    if (buffer_[index] == ')') {
+        readPos_ = ++index;
+        std::cout << "return empty list\n";
+        dumpBuffer(buffer_, readPos_);
+        return empty_list;
     }
-    return nullptr;
+    readPos_ = index;
+    Expression* first = nextExpression();
+    if (!first) {
+        readPos_ = oldReadPos_;
+        return nullptr;
+    }
+    Expression* rest = readCdr();
+    if (!rest) {
+        readPos_ = oldReadPos_; 
+        std::cout << "did not parse full list, revert readPos_\n";
+        dumpBuffer(buffer_, readPos_);
+        return nullptr;
+    }
+    std::cout << "list processed successfully, readPos_ " << readPos_ << '\n';
+    dumpBuffer(buffer_, readPos_);
+    return cons(first, rest);
 }
 
 Expression* BufferReader::readString() {
@@ -72,7 +126,7 @@ Expression* BufferReader::readString() {
     int stringEnd = ::stringEnd(buffer_, stringBeg);
     if (stringBeg != stringEnd) {
         readPos_ = stringEnd;
-        return new Expression(Atom(buffer_.substr(stringBeg, stringEnd)));
+        return new Expression(Atom(buffer_.substr(stringBeg, stringEnd-stringBeg+1)));
     }
     return nullptr;
 }
@@ -90,8 +144,9 @@ Expression* BufferReader::readQuotedExpression() {
 Expression* BufferReader::readNumber() {
     int atomBeg = readPos_;
     int atomEnd = ::atomEnd(buffer_, atomBeg);
-    std::string token = buffer_.substr(atomBeg, atomEnd);
-    readPos_ = atomEnd; //skipped validation of token as number
+    std::string token = buffer_.substr(atomBeg, atomEnd-atomBeg+1);
+    readPos_ = atomEnd+1; //skipped validation of token as number
+    std::cout << "number token:" << token << " size: " << token.size() << " beg: " << atomBeg << " end: " << atomEnd << " readPos_:" << readPos_ << '\n';
     return new Expression(Atom((long)atoi(token.c_str())));
 }
 
@@ -134,7 +189,7 @@ Expression* BufferReader::readHash() {
     int atomBeg = readPos_;
     int atomEnd = ::atomEnd(buffer_, atomBeg);
     if (atomBeg != atomEnd) {
-        std::string token = buffer_.substr(atomBeg, atomEnd);
+        std::string token = buffer_.substr(atomBeg, atomEnd-atomBeg+1);
         if (token == "#t") { readPos_ = atomEnd; return _true; }
         else if (token == "#f") { readPos_ = atomEnd; return _false; }
         else if (token == "#\\space") { readPos_ = atomEnd; return new Expression(Atom(' ')); }
@@ -153,10 +208,12 @@ Expression* BufferReader::readSymbol() {
     assert(!isspace(c));
     int atomBeg = readPos_;
     int atomEnd = ::atomEnd(buffer_, atomBeg);
-    if (atomBeg != atomEnd) {
-        readPos_ = atomEnd;
-        return makeSymbol(buffer_.substr(atomBeg, atomEnd));
-    } else return nullptr;
+    //if (atomBeg != atomEnd) {
+        readPos_ = atomEnd+1;
+        std::string symbol = buffer_.substr(atomBeg, atomEnd-atomBeg+1);
+        std::cout << "symbol:" << symbol << ":\n";
+        return makeSymbol(buffer_.substr(atomBeg, atomEnd-atomBeg+1));
+    //} else return nullptr;
 }
 
 //when fail should not change readPos_

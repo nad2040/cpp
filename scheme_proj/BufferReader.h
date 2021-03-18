@@ -9,6 +9,7 @@ public:
     Expression* nextExpression();
 private:
     Expression* parseList(const std::string& buffer);
+    Expression* readCdr();
     Expression* readList();
     Expression* readString();
     Expression* readQuotedExpression();

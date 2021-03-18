@@ -84,6 +84,7 @@ int main() {
         reader.readBuffer();
         expr = reader.nextExpression();
         //if (expr) std::cout << eval(expr, global_env) << '\n';
+        if (expr) w.write(expr); *w.out << '\n';
         if (expr) w.write(eval(expr, global_env)); *w.out << '\n';
         expr = nullptr;
     }
