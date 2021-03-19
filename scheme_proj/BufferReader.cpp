@@ -8,12 +8,6 @@ extern Expression *_false;
 extern Expression *_true;
 extern Expression *quote_symbol;
 
-void BufferReader::readBuffer() {
-    std::string line;
-    std::getline(std::cin, line);
-    buffer_ += line;
-}
-
 namespace {
 
 bool isDelimiter(char c) { //treat ` and @ and "
@@ -44,6 +38,60 @@ int atomEnd(std::string& buffer, int pos) {
     return idx-1;
 }
 
+bool isSpecial(char c) { //treat ` and @ and "
+    return (c == '\'') || (c == '(') || (c == ')');
+}
+
+std::string readTillDelimiter(std::string& buffer, int& idx) {
+    int begin = idx;
+    ++idx;
+    while (idx < buffer.size()) {
+        char c = buffer[idx];
+        if (isDelimiter(c)) return buffer.substr(begin, idx-begin);
+        ++idx;
+    }
+    return buffer.substr(begin);
+}
+
+//bug, read token failed after first successful call to this
+std::string readStringToken(std::string& buffer, int& idx) {
+    assert(buffer[idx] == '"');
+    //do we need to handle \"
+    int begin = idx;
+    ++idx;
+    while (idx < buffer.size()) {
+        if (buffer[idx] == '"' && buffer[idx-1] != '\\') return buffer.substr(begin, idx-begin+1);
+        ++idx;
+    }
+    idx = begin;
+    return "";
+}
+
+std::string nextToken(std::string& buffer, int& idx) {
+    while (idx < buffer.size()) {
+        char c = buffer[idx];
+        if (isspace(c)) ++idx;
+        else if (isSpecial(c)) { ++idx; return std::string(1, c); }
+        else if (c == '"') return readStringToken(buffer, idx);
+        else return readTillDelimiter(buffer, idx);
+    }
+    return "";
+}
+
+}
+
+void BufferReader::readBuffer() {
+    std::string line;
+    std::getline(std::cin, line);
+    buffer_ += line;
+
+    while(true) {
+        std::string token = nextToken(buffer_, tokenIdx_);
+        if (token.empty()) break;
+        tokens_.push_back(token);
+    }
+    //dump tokens
+    std::cout << "tokens:"; for(auto& elem : tokens_) std::cout << '_' << elem; std::cout << '\n';
 }
 
 Expression* BufferReader::readCdr() {
