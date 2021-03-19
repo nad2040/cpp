@@ -1,1 +1,3 @@
 refactoring in progress
+readList & readCdr similarity
+tokenize first. pull in buffer, populate token stream, parse token stream
