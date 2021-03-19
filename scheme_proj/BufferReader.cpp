@@ -47,8 +47,8 @@ int atomEnd(std::string& buffer, int pos) {
 }
 
 Expression* BufferReader::readCdr() {
-    static int count = 0;
-    if (++count > 20) exit(1);
+    //static int count = 0;
+    //if (++count > 20) exit(1);
     dumpBuffer(buffer_, readPos_);
     int oldReadPos = readPos_;
     int index = readPos_;
