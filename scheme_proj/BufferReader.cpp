@@ -78,37 +78,6 @@ Expression* BufferReader::readCdr() {
     return cons(first, rest);
 }
 
-Expression* BufferReader::readList() {
-    std::cout << "start reading list\n";
-    //parse (), (car . cdr), or list (car (cdr))
-    assert(buffer_[readPos_] == '(');
-    int oldReadPos_ = readPos_;
-    int index = readPos_+1;
-    while (index < buffer_.size() && isspace(buffer_[index])) ++index;
-    if (buffer_[index] == ')') {
-        readPos_ = ++index;
-        std::cout << "return empty list\n";
-        dumpBuffer(buffer_, readPos_);
-        return empty_list;
-    }
-    readPos_ = index;
-    Expression* first = nextExpression();
-    if (!first) {
-        readPos_ = oldReadPos_;
-        return nullptr;
-    }
-    Expression* rest = readCdr();
-    if (!rest) {
-        readPos_ = oldReadPos_; 
-        std::cout << "did not parse full list, revert readPos_\n";
-        dumpBuffer(buffer_, readPos_);
-        return nullptr;
-    }
-    std::cout << "list processed successfully, readPos_ " << readPos_ << '\n';
-    dumpBuffer(buffer_, readPos_);
-    return cons(first, rest);
-}
-
 Expression* BufferReader::readString() {
     assert(buffer_[readPos_] == '"');
     int stringBeg = readPos_;
@@ -176,7 +145,7 @@ Expression* BufferReader::nextExpression() {
     if (readPos_ == buffer_.size()) return nullptr; //at the end of buffer
     char c = buffer_[readPos_];
     char n = buffer_[readPos_+1]; //make sure within the bound
-    if (c == '(') return readList();
+    if (c == '(') { ++readPos_; Expression* expr = readCdr(); if (expr) return expr; else { --readPos_; return nullptr; } }
     else if (c == '"') return readString();
     else if (c == '\'') return readQuotedExpression(); 
     else if ((c == '-' && isdigit(n) || isdigit(c))) return readNumber();
