@@ -53,14 +53,17 @@ std::string readTillDelimiter(std::string& buffer, int& idx) {
     return buffer.substr(begin);
 }
 
-//bug, read token failed after first successful call to this
 std::string readStringToken(std::string& buffer, int& idx) {
     assert(buffer[idx] == '"');
     //do we need to handle \"
     int begin = idx;
     ++idx;
     while (idx < buffer.size()) {
-        if (buffer[idx] == '"' && buffer[idx-1] != '\\') return buffer.substr(begin, idx-begin+1);
+        if (buffer[idx] == '"' && buffer[idx-1] != '\\') { 
+            int count = idx-begin+1;
+            ++idx;
+            return buffer.substr(begin, count);
+        }
         ++idx;
     }
     idx = begin;
@@ -88,7 +91,14 @@ void BufferReader::readBuffer() {
     while(true) {
         std::string token = nextToken(buffer_, tokenIdx_);
         if (token.empty()) break;
+        std::cout << "add token:" << token << " token.size:" << token.size() << '\n';
         tokens_.push_back(token);
+        /*
+        if (!token.empty()) {
+            tokens_.push_back(token);
+            std::cout << "add  token:" << token << " token[1]:" << (int)token[1] << " token.size:" << token.size() << " tokens_.size:" << tokens_.size() << '\n';
+        } else break;
+        */
     }
     //dump tokens
     std::cout << "tokens:"; for(auto& elem : tokens_) std::cout << '_' << elem; std::cout << '\n';
