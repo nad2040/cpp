@@ -13,31 +13,7 @@ namespace {
 bool isDelimiter(char c) { //treat ` and @ and "
     return (isspace(c) || (c == '(') || (c == ')'));
 }
-/*
-void dumpBuffer(std::string& buf, int pos) {
-    std::cout << "current position:" << pos << '\n';
-    std::cout << "processed:" << buf.substr(0, pos) << '\n';
-    std::cout << "unprocessed:" << buf.substr(pos) << '\n';
-}
 
-int stringEnd(std::string& buffer, int pos) {
-    assert(buffer[pos] == '"');
-    int idx = pos+1;
-    //do we need to handle \"
-    while (idx < buffer.size()) {
-        if (buffer[idx] == '"' && buffer[idx-1] != '\\') return ++idx;
-        ++idx;
-    }
-    return pos;
-}
-
-int atomEnd(std::string& buffer, int pos) {
-    assert(!isspace(buffer[pos]));
-    int idx = pos+1;
-    while (idx < buffer.size()) { char c = buffer[idx]; if (isDelimiter(c)) break; ++idx; }
-    return idx-1;
-}
-*/
 bool isSpecial(char c) { //treat ` and @ and "
     return (c == '\'') || (c == '(') || (c == ')');
 }
@@ -125,7 +101,7 @@ Expression* ReadTokenizeParse::parseCdr(int& index) {
         std::cout << "list cdr empty\n";
         return nullptr;
     }
-    std::cout << "return from readCdrT, current token:" << tokens_[index] << " index:" << index << '\n';
+    //std::cout << "return from readCdrT, current token:" << tokens_[index] << " index:" << index << '\n'; //out of boundar 4, 'a, (* 6 7)
     return cons(first, rest);
 }
 
