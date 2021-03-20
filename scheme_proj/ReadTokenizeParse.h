@@ -2,11 +2,14 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
+#include <fstream>
 #include "Sxpressions.h"
 
 class ReadTokenizeParse {
 public:
     void readAndTokenize();
+    void readAndTokenize(std::istream& is);
     Expression* parseExpression(int& index);
 
 private:

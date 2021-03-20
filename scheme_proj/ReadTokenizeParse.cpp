@@ -75,6 +75,22 @@ void ReadTokenizeParse::readAndTokenize() {
     std::cout << "tokens:"; for(auto& elem : tokens_) std::cout << '_' << elem; std::cout << '\n';
 }
 
+void ReadTokenizeParse::readAndTokenize(std::istream& is) {
+    //read
+    std::string line;
+    std::getline(is, line);
+    buffer_ += line;
+    //tokenize
+    while(true) {
+        std::string token = nextToken(buffer_, tokenPos_);
+        if (token.empty()) break;
+        //std::cout << "add token:" << token << " token.size:" << token.size() << '\n';
+        tokens_.push_back(token);
+    }
+    //dump tokens
+    std::cout << "tokens:"; for(auto& elem : tokens_) std::cout << '_' << elem; std::cout << '\n';
+}
+
 Expression* ReadTokenizeParse::parseCdr(int& index) {
     int oldReadPos = index;
     std::string ctoken = tokens_[index];
