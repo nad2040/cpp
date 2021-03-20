@@ -77,7 +77,7 @@ int main() {
     //ofstream ofs("a.txt");
     Reader r = Reader();
     Writer w = Writer();
-    
+    /*   
     BufferReader reader;
     int tokenIdx = 0;
     while (!expr) {
@@ -90,8 +90,8 @@ int main() {
         if (expr) w.write(eval(expr, global_env)); *w.out << '\n';
         expr = nullptr;
     }
-
-    /*
+    */
+    
     while (true) {
         cout << "> ";
         r.fillBuff();
@@ -103,7 +103,7 @@ int main() {
         w.write(eval(expr, global_env));
         *w.out << '\n';
     }
-    */
+    
     cout << "Goodbye\n";
     return 0;
 }
