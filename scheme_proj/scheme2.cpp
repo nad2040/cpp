@@ -57,13 +57,8 @@ void init() {
 }
 
 // *******************LOOP*******************
-
-//ifstream _ifs;
-//ofstream _ofs;
 ifstream _ifs_2; // for scheme input filestream
 ofstream _ofs_2; // for scheme output filestream
-ifstream nullIn("null");
-//ofstream nullOut("null");
 
 int main() {
     cout << "=== Scheme in C++ === ^C to quit\n";
