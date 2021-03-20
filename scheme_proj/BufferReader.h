@@ -25,7 +25,6 @@ private:
 
     //nextExpressionT helper funcions
     Expression* readCdrT(int& index);
-    //Expression* readQuotedExpressionT(int& index);
     Expression* readHashT(int& index);
 
     std::string buffer_; //switch to efficient solution later
