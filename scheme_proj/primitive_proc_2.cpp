@@ -5,6 +5,7 @@
 #include <string>
 #include <fstream>
 #include "ReadTokenizeParse.h"
+#include "output.h"
 
 using namespace std;
 
@@ -222,10 +223,13 @@ Expression *writeProc(Expression *args) {
 
 Expression *errorProc(Expression *args) {
     ostream& os(cerr);
+    os << args;
+    /*
     while (!isEmptyList(args)) {
         os << car(args) << ' ';
         args = cdr(args);
     };
+    */
      
     cout << "\nexiting\n";
     exit(1);
