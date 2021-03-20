@@ -212,3 +212,79 @@ Expression* BufferReader::nextExpression() {
     return nullptr;
 }
 
+/////////////////////////////
+
+Expression* BufferReader::readCdrT(int& index) {
+    int oldReadPos = index;
+    std::string ctoken = tokens_[index];
+    std::cout << "current token:" << ctoken << " index:" << index << '\n';
+    //first check empty list
+    if (ctoken[0] == ')') {
+        ++index;
+        std::cout << "list reach end\n";
+        return empty_list;
+    }
+    //read car
+    std::cout << "readCar current token:" << tokens_[index] << " index:" << index << '\n';
+    Expression* first = nextExpressionT(index);
+    if (!first) {
+        index = oldReadPos;
+        std::cout << "list car empty\n";
+        return nullptr;
+    }
+    std::cout << "readCdr current token:" << tokens_[index] << " index:" << index << '\n';
+    Expression* rest = readCdrT(index);
+    if (!rest) {
+        index = oldReadPos; 
+        std::cout << "list cdr empty\n";
+        return nullptr;
+    }
+    //++index;
+    std::cout << "readCdr return current token:" << tokens_[index] << " index:" << index << '\n';
+    return cons(first, rest);
+}
+
+Expression* BufferReader::readQuotedExpressionT(int& index) {
+    ++index;
+    Expression* expr = nextExpressionT(index);
+    if (expr) { return cons(quote_symbol, cons(expr, empty_list)); }
+    else --index; 
+    return nullptr;
+}
+
+Expression* BufferReader::readHashT(int& index) {
+    std::string ctoken = tokens_[index];
+    if (ctoken == "#t") { ++index; return _true; }
+    else if (ctoken == "#f") { ++index; return _false; }
+    else if (ctoken == "#\\space") { ++index; return new Expression(Atom(' ')); }
+    else if (ctoken == "#\\newline") { ++index; return new Expression(Atom('\n')); }
+    else if (ctoken.size() == 3 && ctoken[1] == '\\') { ++index; return new Expression(Atom(ctoken[2])); }
+    else {
+        std::cerr << "discard unexpected " << ctoken << '\n';
+        ++index;
+        return nullptr;
+    }
+}
+
+Expression* BufferReader::nextExpressionT(int& index) {
+    if (index == tokens_.size()) return nullptr;
+    int base = index;
+    std::string ctoken = tokens_[index];
+
+    if (ctoken[0] == '(') { ++index; Expression* expr = readCdrT(index); if (expr) return expr; else { index = base; return nullptr; } }
+    else if (ctoken[0] == '"') {
+        ++index;
+        return new Expression(Atom(ctoken));
+    }
+    else if (ctoken[0] == '\'') return readQuotedExpressionT(index);
+    else if ((ctoken[0] == '-') && isdigit(ctoken[1]) || isdigit(ctoken[0])) {
+        ++index;
+        return new Expression(Atom((long)atoi(ctoken.c_str())));
+    }
+    else if (ctoken[0] == '#') return readHashT(index);
+    else {
+        ++index;
+        return makeSymbol(ctoken);
+    }
+}
+

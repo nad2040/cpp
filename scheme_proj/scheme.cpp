@@ -79,10 +79,12 @@ int main() {
     Writer w = Writer();
     
     BufferReader reader;
+    int tokenIdx = 0;
     while (!expr) {
         cout << "> ";
         reader.readBuffer();
-        expr = reader.nextExpression();
+        //expr = reader.nextExpression();
+        expr = reader.nextExpressionT(tokenIdx);
         //if (expr) std::cout << eval(expr, global_env) << '\n';
         if (expr) w.write(expr); *w.out << '\n';
         if (expr) w.write(eval(expr, global_env)); *w.out << '\n';

@@ -8,6 +8,8 @@ class BufferReader {
 public:
     void readBuffer();
     Expression* nextExpression();
+    Expression* nextExpressionT(int& index);
+
 private:
     Expression* parseList(const std::string& buffer);
     Expression* readCdr();
@@ -17,6 +19,10 @@ private:
     Expression* readNumber();
     Expression* readHash();
     Expression* readSymbol();
+
+    Expression* readCdrT(int& index);
+    Expression* readQuotedExpressionT(int& index);
+    Expression* readHashT(int& index);
 
     std::string buffer_; //switch to efficient solution later
     int readPos_{0};
