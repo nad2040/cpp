@@ -93,12 +93,6 @@ void BufferReader::readBuffer() {
         if (token.empty()) break;
         std::cout << "add token:" << token << " token.size:" << token.size() << '\n';
         tokens_.push_back(token);
-        /*
-        if (!token.empty()) {
-            tokens_.push_back(token);
-            std::cout << "add  token:" << token << " token[1]:" << (int)token[1] << " token.size:" << token.size() << " tokens_.size:" << tokens_.size() << '\n';
-        } else break;
-        */
     }
     //dump tokens
     std::cout << "tokens:"; for(auto& elem : tokens_) std::cout << '_' << elem; std::cout << '\n';
@@ -232,6 +226,7 @@ Expression* BufferReader::readCdrT(int& index) {
         std::cout << "list car empty\n";
         return nullptr;
     }
+    //read cdr
     std::cout << "readCdr current token:" << tokens_[index] << " index:" << index << '\n';
     Expression* rest = readCdrT(index);
     if (!rest) {
@@ -239,17 +234,8 @@ Expression* BufferReader::readCdrT(int& index) {
         std::cout << "list cdr empty\n";
         return nullptr;
     }
-    //++index;
-    std::cout << "readCdr return current token:" << tokens_[index] << " index:" << index << '\n';
+    std::cout << "return from readCdrT, current token:" << tokens_[index] << " index:" << index << '\n';
     return cons(first, rest);
-}
-
-Expression* BufferReader::readQuotedExpressionT(int& index) {
-    ++index;
-    Expression* expr = nextExpressionT(index);
-    if (expr) { return cons(quote_symbol, cons(expr, empty_list)); }
-    else --index; 
-    return nullptr;
 }
 
 Expression* BufferReader::readHashT(int& index) {
@@ -271,12 +257,21 @@ Expression* BufferReader::nextExpressionT(int& index) {
     int base = index;
     std::string ctoken = tokens_[index];
 
-    if (ctoken[0] == '(') { ++index; Expression* expr = readCdrT(index); if (expr) return expr; else { index = base; return nullptr; } }
+    if (ctoken[0] == '(') {
+        ++index; 
+        Expression* expr = readCdrT(index); 
+        if (expr) return expr; else { index = base; return nullptr; } 
+    }
     else if (ctoken[0] == '"') {
         ++index;
         return new Expression(Atom(ctoken));
     }
-    else if (ctoken[0] == '\'') return readQuotedExpressionT(index);
+    else if (ctoken[0] == '\'') { 
+        ++index;
+        Expression* expr = nextExpressionT(index);
+        if (expr) return cons(quote_symbol, cons(expr, empty_list)); 
+        else { --index; return nullptr; }
+    }
     else if ((ctoken[0] == '-') && isdigit(ctoken[1]) || isdigit(ctoken[0])) {
         ++index;
         return new Expression(Atom((long)atoi(ctoken.c_str())));
