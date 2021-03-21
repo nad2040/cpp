@@ -30,7 +30,7 @@ Expression* addProc(Expression *args) {
     long result = 0;
     while (!isEmptyList(args)) {
         if (!isNum(car(args))) { cerr << "incorrect type in addition\n"; exit(1); }
-        result += car(args)->atom.getInt();
+        result += std::get<long>(car(args)->atom.value_);
         args = cdr(args);
     }
     return new Expression(Atom(result));
@@ -38,10 +38,11 @@ Expression* addProc(Expression *args) {
 
 Expression* subProc(Expression *args) {
     long result;
-    result = car(args)->atom.getInt();
+    if (!isNum(car(args))) { cerr << "incorrect type in subtraction\n"; exit(1); }
+    result = std::get<long>(car(args)->atom.value_);
     while (!isEmptyList(args = cdr(args))) {
         if (!isNum(car(args))) { cerr << "incorrect type in subtraction\n"; exit(1); }
-        result -= car(args)->atom.getInt();
+        result -= std::get<long>(car(args)->atom.value_);
     }
     return new Expression(Atom(result));
 }
@@ -49,25 +50,26 @@ Expression* subProc(Expression *args) {
 Expression* multProc(Expression *args) {
     long result = 1;
     while (!isEmptyList(args)) {
-        result *= car(args)->atom.getInt();
+        if (!isNum(car(args))) { cerr << "incorrect type in multiplication\n"; exit(1); }
+        result *= std::get<long>(car(args)->atom.value_);
         args = cdr(args);
     }
     return new Expression(Atom(result));
 }
 
 Expression* quotientProc(Expression *args) {
-    return new Expression(Atom( (car(args)->atom.getInt()) / (cadr(args)->atom.getInt()) ));
+    return new Expression(Atom( std::get<long>(car(args)->atom.value_) / std::get<long>(cadr(args)->atom.value_) ));
 }
 
 Expression* remainderProc(Expression *args) {
-    return new Expression(Atom( (car(args)->atom.getInt()) % (cadr(args)->atom.getInt()) ));
+    return new Expression(Atom( std::get<long>(car(args)->atom.value_) % std::get<long>(cadr(args)->atom.value_) ));
 }
 
 Expression* isNumberEqualProc(Expression *args) {
     int value;
-    value = car(args)->atom.getInt();
+    value = std::get<long>(car(args)->atom.value_);
     while (!isEmptyList(args = cdr(args))) {
-        if (value != (car(args)->atom.getInt())) return _false;
+        if (value != std::get<long>(car(args)->atom.value_)) return _false;
     }
     return _true;
 }
@@ -75,9 +77,9 @@ Expression* isNumberEqualProc(Expression *args) {
 Expression* isLessThanProc(Expression *args) {
     int previous;
     int next;
-    previous = car(args)->atom.getInt();
+    previous = std::get<long>(car(args)->atom.value_);
     while (!isEmptyList(args = cdr(args))) {
-        next = car(args)->atom.getInt();
+        next = std::get<long>(car(args)->atom.value_);
         if (previous < next) previous = next;
         else return _false;
     }
@@ -87,9 +89,9 @@ Expression* isLessThanProc(Expression *args) {
 Expression* isGreaterThanProc(Expression *args) {
     int previous;
     int next;
-    previous = car(args)->atom.getInt();
+    previous = std::get<long>(car(args)->atom.value_);
     while (!isEmptyList(args = cdr(args))) {
-        next = car(args)->atom.getInt();
+        next = std::get<long>(car(args)->atom.value_);
         if (previous > next) previous = next;
         else return _false;
     }

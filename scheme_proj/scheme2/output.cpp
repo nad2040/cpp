@@ -33,7 +33,7 @@ void write(std::ostream& os, Expression *expr) {
     case ATOM:
         switch (expr->atom.atomType_) {
         case BOOL:
-            os << std::get<char>(expr->atom.value_);
+            os << std::boolalpha << (bool)std::get<char>(expr->atom.value_);
             break;
         case SYMBOL:
             os << std::get<std::string>(expr->atom.value_);

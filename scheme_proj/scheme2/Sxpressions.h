@@ -40,8 +40,11 @@ public:
     }
 
     Atom() : atomType_(UNK), value_() {}
-
     Atom(long num) : atomType_(NUM), value_(num) {}
+    Atom(bool b) : atomType_(BOOL), value_((char)b) {} //temp issue with bool/int both in variant, gcc version 7.4.0 (Ubuntu 7.4.0-1ubuntu1~18.04.1)
+    Atom(char c) : atomType_(CHAR), value_(c) {}
+    Atom(std::ifstream* in) : atomType_(INPUT), value_(in) {}
+    Atom(std::ofstream* out) : atomType_(OUTPUT), value_(out) {}
 
     Atom(std::string str) {
         if (str[0] == '"') { atomType_ = STR; value_ = str.substr(1, str.size()-2); }
@@ -49,35 +52,10 @@ public:
         else { atomType_ = UNK; value_ = str; } //save string in case 
     }
 
-    Atom(bool b) : atomType_(BOOL), value_((char)b) {}
-
-    Atom(char c) : atomType_(CHAR), value_(c) {}
-
     Atom(Primitive fnptr) : atomType_(PRIM_PROC), value_(fnptr) {}
 
     Atom(Expression* _params, Expression* _body, Expression* _env) : atomType_(COMP_PROC) {
         value_ = Compound{_params, _body, _env};
-    }
-
-    Atom(std::ifstream* in) : atomType_(INPUT), value_(in) {}
-
-    Atom(std::ofstream* out) : atomType_(OUTPUT), value_(out) {}
-
-    long getInt() {
-        switch (atomType_) {
-            case NUM:
-                return std::get<long>(value_);
-            case BOOL:
-                return std::get<char>(value_);
-            default:
-                return 0; //log error
-        }
-        return 0;
-    }
-
-    bool getBool() {
-        assert(atomType_ == BOOL);
-        return std::get<char>(value_);
     }
 
     std::ifstream* in_port() {
