@@ -33,13 +33,13 @@ void write(std::ostream& os, Expression *expr) {
     case ATOM:
         switch (expr->atom.atomType_) {
         case BOOL:
-            os << std::boolalpha << (bool)std::get<char>(expr->atom.value_);
+            os << std::boolalpha << expr->atom.getBool();
             break;
         case SYMBOL:
-            os << std::get<std::string>(expr->atom.value_);
+            os << expr->atom.getString();
             break;
         case NUM:
-            os << std::get<long>(expr->atom.value_);
+            os << expr->atom.getNumber();
             break;
         case PRIM_PROC:
             os << "#<primitiv_proc>";
@@ -57,7 +57,7 @@ void write(std::ostream& os, Expression *expr) {
             os << "#<eof>";
             break;
         case CHAR:
-            c = std::get<char>(expr->atom.value_);
+            c = expr->atom.getChar();
             os << "#\\";
             switch (c) {
                 case '\n':
@@ -71,7 +71,7 @@ void write(std::ostream& os, Expression *expr) {
             }
             break;
         case STR:
-            str = std::get<std::string>(expr->atom.value_);
+            str = expr->atom.getString();
             os << '"';
             while ((c = str[i++]) != '\0') {
                 switch (c) {

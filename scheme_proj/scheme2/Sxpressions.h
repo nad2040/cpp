@@ -77,6 +77,26 @@ public:
         assert(atomType_ == COMP_PROC);
         return std::get<Compound>(value_);
     }
+
+    bool getBool() {
+        assert(atomType_ == BOOL);
+        return (bool)std::get<char>(value_);
+    }
+
+    char getChar() {
+        assert(atomType_ == CHAR);
+        return std::get<char>(value_);
+    }
+
+    long getNumber() {
+        assert(atomType_ == NUM);
+        return std::get<long>(value_);
+    }
+
+    std::string getString() {
+        assert(atomType_ == STR || atomType_ == SYMBOL);
+        return std::get<std::string>(value_);
+    }
 };
 
 enum ExpressionType {ATOM, LIST};
