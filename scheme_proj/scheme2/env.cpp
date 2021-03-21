@@ -48,7 +48,7 @@ Expression* lookupVarValue(Expression *var, Expression *env) {
         }
         env = enclosingEnvironment(env);
     }
-    std::cerr << "unbound variable, " << var->atom.atomValue_ << "\n";
+    std::cerr << "unbound variable, " << var << "\n";
     exit(1);
 }
 
@@ -71,7 +71,7 @@ void setVarValue(Expression *var, Expression *val, Expression *env) {
         }
         env = enclosingEnvironment(env);
     }
-    std::cerr << "unbound variable, " << var->atom.atomValue_ << "\n";
+    std::cerr << "unbound variable, " << var << "\n";
     exit(1);
 }
 

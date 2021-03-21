@@ -17,22 +17,37 @@ public:
         Expression *params;
         Expression *body;
         Expression *env;
-        Compound() : params(nullptr), body(nullptr), env(nullptr) {}
-        Compound(Expression* p, Expression* b, Expression* e) : params(p), body(b), env(e) {}
+        bool operator==(const Compound& c) const { return params == c.params && body == c.body && env == c.env; }
     };
     typedef Expression *(*Primitive)(Expression* args);
     std::variant<char, long, std::string, Primitive, Compound, std::ifstream*, std::ofstream*> value_;
     std::string atomValue_;
+
+    bool operator==(const Atom& a) const {
+        if (atomType_ != a.atomType_) return false;
+        switch(atomType_) {
+            case UNK: return false;
+            case BOOL: 
+            case CHAR: return std::get<char>(value_) == std::get<char>(a.value_);
+            case SYMBOL:
+            case STR: return std::get<std::string>(value_) == std::get<std::string>(a.value_);
+            case NUM: return std::get<long>(value_) == std::get<long>(a.value_);
+            case INPUT: return std::get<std::ifstream*>(value_) == std::get<std::ifstream*>(a.value_);
+            case OUTPUT: return std::get<std::ofstream*>(value_) == std::get<std::ofstream*>(a.value_);
+            case PRIM_PROC: return std::get<Primitive>(value_) == std::get<Primitive>(a.value_);
+            case COMP_PROC: return std::get<Compound>(value_) == std::get<Compound>(a.value_);
+        }
+        return false;
+    }
 
     Atom() : atomType_(UNK), atomValue_(""), value_() {}
 
     Atom(long num) : atomType_(NUM), atomValue_(std::to_string(num)), value_(num) {}
 
     Atom(std::string str) {
-        if (str[0] == '"') { atomType_ = STR; atomValue_ = str.substr(1, str.size()-2); }
-        else if (isSym(str)) { atomType_ = SYMBOL; atomValue_ = str; }
+        if (str[0] == '"') { atomType_ = STR; value_ = str.substr(1, str.size()-2); atomValue_ = str.substr(1, str.size()-2); }
+        else if (isSym(str)) { atomType_ = SYMBOL; atomValue_ = str; value_ = str; }
         else { atomType_ = UNK; atomValue_ = str; }
-        value_ = str;
     }
 
     Atom(bool b) : atomType_(BOOL), atomValue_((b == true) ? "#t" : "#f"), value_((char)b) {}
@@ -42,7 +57,7 @@ public:
     Atom(Primitive fnptr) : atomType_(PRIM_PROC), atomValue_("#<procedure>"), value_(fnptr) {}
 
     Atom(Expression* _params, Expression* _body, Expression* _env) : atomType_(COMP_PROC), atomValue_("#<procedure>") {
-        value_ = Compound(_params, _body, _env);
+        value_ = Compound{_params, _body, _env};
     }
 
     Atom(std::ifstream* in) : atomType_(INPUT), atomValue_("#<input-port>"), value_(in) {}

@@ -19,12 +19,12 @@ Expression* isStringProc(Expression *args) { return isString(car(args)) ? _true 
 Expression* isPairProc(Expression *args) { return isList(car(args)) ? _true : _false; }
 Expression* isProcedureProc(Expression *args) { Expression* a = car(args); return (isPrimProc(a) || isCompProc(a)) ? _true : _false; }
 
-Expression* charToIntProc(Expression *args) { return new Expression(Atom((long) car(args)->atom.atomValue_.at(0))); }
-Expression* intToCharProc(Expression *args) { return new Expression(Atom((char) stol(car(args)->atom.atomValue_))); }
-Expression* numToStrProc(Expression *args) { return new Expression(Atom('"' + car(args)->atom.atomValue_)); }
-Expression* strToNumProc(Expression *args) { return new Expression(Atom(stol(car(args)->atom.atomValue_))); }
-Expression* symbolToStrProc(Expression *args) { return new Expression(Atom('"' + car(args)->atom.atomValue_)); }
-Expression* strToSymbolProc(Expression *args) { return new Expression(Atom(car(args)->atom.atomValue_)); }
+Expression* charToIntProc(Expression *args) { return new Expression(Atom((long)std::get<char>(car(args)->atom.value_))); }
+Expression* intToCharProc(Expression *args) { return new Expression(Atom((char)std::get<long>(car(args)->atom.value_))); }
+Expression* numToStrProc(Expression *args) { return new Expression(Atom('"' + std::to_string(std::get<long>(car(args)->atom.value_)))); }
+Expression* strToNumProc(Expression *args) { return new Expression(Atom(stol(std::get<std::string>(car(args)->atom.value_).c_str()))); }
+Expression* symbolToStrProc(Expression *args) { return new Expression(Atom('"' + std::get<std::string>(car(args)->atom.value_))); }
+Expression* strToSymbolProc(Expression *args) { return new Expression(Atom(std::get<std::string>(car(args)->atom.value_))); }
 
 Expression* addProc(Expression *args) {
     long result = 0;
@@ -106,7 +106,7 @@ Expression* listProc(Expression *args) { return args; }
 Expression* isEqProc(Expression *args) {
     Expression *expr1 = car(args), *expr2 = cadr(args);
     if (expr1->atom.atomType_ != expr2->atom.atomType_) return _false;
-    else if (expr1->atom.atomValue_ == expr2->atom.atomValue_) return _true;
+    else if (expr1->atom == expr2->atom) return _true;
     else return (expr1 == expr2) ? _true : _false;
 }
 

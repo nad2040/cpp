@@ -41,7 +41,7 @@ void write(std::ostream& os, Expression *expr) {
             os << expr->atom.atomValue_;
             break;
         case CHAR:
-            c = expr->atom.atomValue_[0];
+            c = std::get<char>(expr->atom.value_);
             os << "#\\";
             switch (c) {
                 case '\n':
@@ -55,7 +55,7 @@ void write(std::ostream& os, Expression *expr) {
             }
             break;
         case STR:
-            str = expr->atom.atomValue_;
+            str = std::get<std::string>(expr->atom.value_);
             os << '"';
             while ((c = str[i++]) != '\0') {
                 switch (c) {
