@@ -37,7 +37,7 @@ public:
 
     Atom(bool b) : atomType_(BOOL), atomValue_((b == true) ? "#t" : "#f"), value_((char)b) {}
 
-    Atom(char c) : atomType_(CHAR), atomValue_(c, 1), value_(c) {}
+    Atom(char c) : atomType_(CHAR), atomValue_(1, c), value_(c) {}
 
     Atom(Primitive fnptr) : atomType_(PRIM_PROC), atomValue_("#<procedure>"), value_(fnptr) {}
 
