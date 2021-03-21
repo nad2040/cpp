@@ -42,19 +42,19 @@ void write(std::ostream& os, Expression *expr) {
             os << std::get<long>(expr->atom.value_);
             break;
         case PRIM_PROC:
-            os << " #<primitiv_proc>";
+            os << "#<primitiv_proc>";
             break;
         case COMP_PROC:
-            os << " #<compound_proc>";
+            os << "#<compound_proc>";
             break;
         case INPUT:
-            os << " #<input_port>";
+            os << "#<input_port>";
             break;
         case OUTPUT:
-            os << " #<output_port>";
+            os << "#<output_port>";
             break;
         case EOF_OBJECT:
-            os << " #<eof>";
+            os << "#<eof>";
             break;
         case CHAR:
             c = std::get<char>(expr->atom.value_);
