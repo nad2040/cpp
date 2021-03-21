@@ -172,12 +172,14 @@ Expression *readProc(Expression *args) {
 
     return (result == nullptr) ? eof_object : result;
 }
+
 Expression *readCharProc(Expression *args) {
     char c;
     istream& is = isEmptyList(args) ? std::cin : *(car(args)->atom.in_port());
     is.get(c);
     return is.eof() ? eof_object : new Expression(Atom(c));
 }
+
 Expression *peekCharProc(Expression *args) {
     char c;
     istream& is = isEmptyList(args) ? std::cin : *(car(args)->atom.in_port());
@@ -200,6 +202,7 @@ Expression *closeOutputPortProc(Expression *args) {
     if (car(args)->atom.out_port()->fail()) { cerr << "could not close output port\n"; exit(1); }
     return ok_symbol;
 }
+
 Expression *isOutputPortProc(Expression *args) { return isOutputPort(car(args)) ? _true : _false; }
 
 Expression *writeCharProc(Expression *args) {
