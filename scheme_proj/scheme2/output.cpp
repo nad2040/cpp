@@ -33,12 +33,28 @@ void write(std::ostream& os, Expression *expr) {
     case ATOM:
         switch (expr->atom.atomType_) {
         case BOOL:
+            os << std::get<char>(expr->atom.value_);
+            break;
         case SYMBOL:
+            os << std::get<std::string>(expr->atom.value_);
+            break;
         case NUM:
+            os << std::get<long>(expr->atom.value_);
+            break;
         case PRIM_PROC:
+            os << " #<primitiv_proc>";
+            break;
         case COMP_PROC:
+            os << " #<compound_proc>";
+            break;
+        case INPUT:
+            os << " #<input_port>";
+            break;
+        case OUTPUT:
+            os << " #<output_port>";
+            break;
         case EOF_OBJECT:
-            os << expr->atom.atomValue_;
+            os << " #<eof>";
             break;
         case CHAR:
             c = std::get<char>(expr->atom.value_);

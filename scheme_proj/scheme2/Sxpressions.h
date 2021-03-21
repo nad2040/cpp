@@ -21,7 +21,6 @@ public:
     };
     typedef Expression *(*Primitive)(Expression* args);
     std::variant<char, long, std::string, Primitive, Compound, std::ifstream*, std::ofstream*> value_;
-    std::string atomValue_;
 
     bool operator==(const Atom& a) const {
         if (atomType_ != a.atomType_) return false;
@@ -40,31 +39,29 @@ public:
         return false;
     }
 
-    Atom() : atomType_(UNK), atomValue_(""), value_() {}
+    Atom() : atomType_(UNK), value_() {}
 
-    Atom(long num) : atomType_(NUM), atomValue_(std::to_string(num)), value_(num) {}
+    Atom(long num) : atomType_(NUM), value_(num) {}
 
     Atom(std::string str) {
-        if (str[0] == '"') { atomType_ = STR; value_ = str.substr(1, str.size()-2); atomValue_ = str.substr(1, str.size()-2); }
-        else if (isSym(str)) { atomType_ = SYMBOL; atomValue_ = str; value_ = str; }
-        else { atomType_ = UNK; atomValue_ = str; }
+        if (str[0] == '"') { atomType_ = STR; value_ = str.substr(1, str.size()-2); }
+        else if (isSym(str)) { atomType_ = SYMBOL; value_ = str; }
+        else { atomType_ = UNK; value_ = str; } //save string in case 
     }
 
-    Atom(bool b) : atomType_(BOOL), atomValue_((b == true) ? "#t" : "#f"), value_((char)b) {}
+    Atom(bool b) : atomType_(BOOL), value_((char)b) {}
 
-    Atom(char c) : atomType_(CHAR), atomValue_(1, c), value_(c) {}
+    Atom(char c) : atomType_(CHAR), value_(c) {}
 
-    Atom(Primitive fnptr) : atomType_(PRIM_PROC), atomValue_("#<procedure>"), value_(fnptr) {}
+    Atom(Primitive fnptr) : atomType_(PRIM_PROC), value_(fnptr) {}
 
-    Atom(Expression* _params, Expression* _body, Expression* _env) : atomType_(COMP_PROC), atomValue_("#<procedure>") {
+    Atom(Expression* _params, Expression* _body, Expression* _env) : atomType_(COMP_PROC) {
         value_ = Compound{_params, _body, _env};
     }
 
-    Atom(std::ifstream* in) : atomType_(INPUT), atomValue_("#<input-port>"), value_(in) {}
+    Atom(std::ifstream* in) : atomType_(INPUT), value_(in) {}
 
-    Atom(std::ofstream* out) : atomType_(OUTPUT), atomValue_("#<output-port>"), value_(out) {}
-
-    std::string getValue() { return atomValue_; }
+    Atom(std::ofstream* out) : atomType_(OUTPUT), value_(out) {}
 
     long getInt() {
         switch (atomType_) {
@@ -73,9 +70,9 @@ public:
             case BOOL:
                 return std::get<char>(value_);
             default:
-                return 0;
+                return 0; //log error
         }
-        return stoi(atomValue_); //???
+        return 0;
     }
 
     bool getBool() {

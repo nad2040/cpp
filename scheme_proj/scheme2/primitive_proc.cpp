@@ -122,7 +122,7 @@ Expression* evalProc(Expression *args) {
 }
 
 Expression* loadProc(Expression *args) {
-    string filename = car(args)->atom.atomValue_;
+    string filename = std::get<std::string>(car(args)->atom.value_);
     ifstream ifs;
     Expression *expr;
     Expression *result;
@@ -144,7 +144,7 @@ Expression* loadProc(Expression *args) {
 }
 
 Expression *openInputPortProc(Expression *args) {
-    string filename = car(args)->atom.atomValue_;
+    string filename = std::get<std::string>(car(args)->atom.value_);
     ifstream* ifs = new ifstream;
     ifs->open(filename, ofstream::in);
     if (ifs->fail()) { cerr << "could not load file \"" << filename << "\""; exit(1); }
@@ -190,7 +190,7 @@ Expression *peekCharProc(Expression *args) {
 Expression *isEOFObjProc(Expression *args) { return isEOFObject(car(args)) ? _true : _false; }
 
 Expression *openOutputPortProc(Expression *args) {
-    string filename = car(args)->atom.atomValue_;
+    string filename = std::get<std::string>(car(args)->atom.value_);
     ofstream* ofs = new ofstream;
     ofs->open(filename, ofstream::app);
     if (ofs->fail()) { cerr << "could not open file \"" << filename << "\""; exit(1); }
@@ -208,7 +208,7 @@ Expression *writeCharProc(Expression *args) {
     Expression *character = car(args);
     args = cdr(args);
     ostream& os = isEmptyList(args) ? std::cout : *(car(args)->atom.out_port());
-    os << character->atom.atomValue_[0];
+    os << std::get<char>(character->atom.value_);
     return ok_symbol;
 }
 Expression *writeProc(Expression *args) {
