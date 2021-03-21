@@ -152,8 +152,8 @@ Expression *openInputPortProc(Expression *args) {
 }
 
 Expression *closeInputPortProc(Expression *args) {
-    car(args)->atom.in_port->close();
-    if (car(args)->atom.in_port->fail()) { cerr << "could not close input port\n"; exit(1); }
+    car(args)->atom.in_port()->close();
+    if (car(args)->atom.in_port()->fail()) { cerr << "could not close input port\n"; exit(1); }
     return ok_symbol;
 }
 
@@ -162,7 +162,7 @@ Expression *isInputPortProc(Expression *args) { return isInputPort(car(args)) ? 
 Expression *readProc(Expression *args) {
     Expression *result;
 
-    istream& ifs = isEmptyList(args) ? std::cin : *(car(args)->atom.in_port);
+    istream& ifs = isEmptyList(args) ? std::cin : *(car(args)->atom.in_port());
     ReadTokenizeParse rtp;
     Expression* expr = nullptr;
     int idx = 0;
@@ -176,13 +176,13 @@ Expression *readProc(Expression *args) {
 }
 Expression *readCharProc(Expression *args) {
     char c;
-    istream& is = isEmptyList(args) ? std::cin : *(car(args)->atom.in_port);
+    istream& is = isEmptyList(args) ? std::cin : *(car(args)->atom.in_port());
     is.get(c);
     return is.eof() ? eof_object : new Expression(Atom(c));
 }
 Expression *peekCharProc(Expression *args) {
     char c;
-    istream& is = isEmptyList(args) ? std::cin : *(car(args)->atom.in_port);
+    istream& is = isEmptyList(args) ? std::cin : *(car(args)->atom.in_port());
     c = is.peek();
     return (c == EOF) ? eof_object : new Expression(Atom(c));
 }
@@ -198,8 +198,8 @@ Expression *openOutputPortProc(Expression *args) {
 }
 
 Expression *closeOutputPortProc(Expression *args) {
-    car(args)->atom.out_port->close();
-    if (car(args)->atom.out_port->fail()) { cerr << "could not close output port\n"; exit(1); }
+    car(args)->atom.out_port()->close();
+    if (car(args)->atom.out_port()->fail()) { cerr << "could not close output port\n"; exit(1); }
     return ok_symbol;
 }
 Expression *isOutputPortProc(Expression *args) { return isOutputPort(car(args)) ? _true : _false; }
@@ -207,14 +207,14 @@ Expression *isOutputPortProc(Expression *args) { return isOutputPort(car(args)) 
 Expression *writeCharProc(Expression *args) {
     Expression *character = car(args);
     args = cdr(args);
-    ostream& os = isEmptyList(args) ? std::cout : *(car(args)->atom.out_port);
+    ostream& os = isEmptyList(args) ? std::cout : *(car(args)->atom.out_port());
     os << character->atom.atomValue_[0];
     return ok_symbol;
 }
 Expression *writeProc(Expression *args) {
     Expression *expr = car(args);
     args = cdr(args);
-    ostream& os = isEmptyList(args) ? std::cout : *(car(args)->atom.out_port);
+    ostream& os = isEmptyList(args) ? std::cout : *(car(args)->atom.out_port());
     os << expr;
     return ok_symbol;
 }
