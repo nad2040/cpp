@@ -5,14 +5,11 @@
 #include <variant>
 #include <cassert>
 
-bool isInitial(char c); 
-bool isSym(std::string &str);
-
 class Expression;
+struct Symbol { std::string symbol; };
 class Atom {
 public:
-    enum AtomType {UNK, BOOL, SYMBOL, NUM, CHAR, STR, PRIM_PROC, COMP_PROC, INPUT, OUTPUT, EOF_OBJECT};
-    AtomType atomType_;
+    enum AtomType {UNK, BOOL, SYMBOL, NUM, CHAR, STR, PRIM_PROC, COMP_PROC, INPUT, OUTPUT, EOF_OBJECT} atomType_;
     struct Compound {
         Expression *params;
         Expression *body;
@@ -46,11 +43,9 @@ public:
     Atom(std::ifstream* in) : atomType_(INPUT), value_(in) {}
     Atom(std::ofstream* out) : atomType_(OUTPUT), value_(out) {}
 
-    Atom(std::string str) {
-        if (str[0] == '"') { atomType_ = STR; value_ = str.substr(1, str.size()-2); }
-        else if (isSym(str)) { atomType_ = SYMBOL; value_ = str; }
-        else { atomType_ = UNK; value_ = str; } //save string in case 
-    }
+    Atom(std::string str) : atomType_(STR), value_(str.substr(1, str.size()-2)) {}
+
+    Atom(Symbol sym) : atomType_(SYMBOL), value_(sym.symbol) {}
 
     Atom(Primitive fnptr) : atomType_(PRIM_PROC), value_(fnptr) {}
 
@@ -94,7 +89,12 @@ public:
     }
 
     std::string getString() {
-        assert(atomType_ == STR || atomType_ == SYMBOL);
+        assert(atomType_ == STR);
+        return std::get<std::string>(value_);
+    }
+
+    std::string getSymbol() {
+        assert(atomType_ == SYMBOL);
         return std::get<std::string>(value_);
     }
 

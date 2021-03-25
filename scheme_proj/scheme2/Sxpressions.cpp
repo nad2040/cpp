@@ -2,18 +2,6 @@
 #include "Sxpressions.h"
 #include "globals.h"
 
-bool isInitial(char c) {
-    return isalpha(c) || c == '*' || c == '/' || c == '>' || c == '<' || c == '=' || c == '?' || c == '!';
-}
-
-bool isSym(std::string &str) {
-    char c; int i=0;
-    while (isInitial(c = str[i]) || c == '+' || c == '-') {
-        i++;
-    }
-    return i == str.length();
-}
-
 Expression* car(Expression* expr) {
     return expr->getCar();
 }
@@ -62,14 +50,14 @@ Expression* makeSymbol(std::string value) {
     while (element != nullptr) {
         assert(isList(element));
         Expression* first=car(element);
-        if (first && isAtom(first) && first->getAtom().getString() == value) {
+        if (first && isAtom(first) && first->getAtom().getSymbol() == value) {
             return first;
         }
         element = cdr(element);
     };
     
     /* create the symbol and add it to the symbol table */
-    symbol = new Expression(Atom(value));
+    symbol = new Expression(Atom(Symbol{value}));
     symbol_table = cons(symbol, symbol_table);
     return symbol;
 }

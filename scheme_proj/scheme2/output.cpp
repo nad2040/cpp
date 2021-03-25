@@ -36,7 +36,7 @@ void write(std::ostream& os, Expression *expr) {
             os << std::boolalpha << expr->getAtom().getBool();
             break;
         case Atom::SYMBOL:
-            os << expr->getAtom().getString();
+            os << expr->getAtom().getSymbol();
             break;
         case Atom::NUM:
             os << expr->getAtom().getNumber();

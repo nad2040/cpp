@@ -21,10 +21,10 @@ Expression* isProcedureProc(Expression *args) { Expression* a = car(args); retur
 
 Expression* charToIntProc(Expression *args) { return new Expression(Atom((long)(car(args)->getAtom().getChar()))); }
 Expression* intToCharProc(Expression *args) { return new Expression(Atom((char)(car(args)->getAtom().getNumber()))); }
-Expression* numToStrProc(Expression *args) { return new Expression(Atom('"' + std::to_string(car(args)->getAtom().getNumber()))); }
+Expression* numToStrProc(Expression *args) { return new Expression(Atom(std::to_string(car(args)->getAtom().getNumber()))); }
 Expression* strToNumProc(Expression *args) { return new Expression(Atom(stol(car(args)->getAtom().getString().c_str()))); }
-Expression* symbolToStrProc(Expression *args) { return new Expression(Atom('"' + car(args)->getAtom().getString())); }
-Expression* strToSymbolProc(Expression *args) { return new Expression(Atom(car(args)->getAtom().getString())); }
+Expression* symbolToStrProc(Expression *args) { return new Expression(Atom(car(args)->getAtom().getSymbol())); }
+Expression* strToSymbolProc(Expression *args) { return new Expression(Atom(Symbol{car(args)->getAtom().getString()})); }
 
 Expression* addProc(Expression *args) {
     long result = 0;
