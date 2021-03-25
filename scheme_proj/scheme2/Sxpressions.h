@@ -9,9 +9,9 @@ bool isInitial(char c);
 bool isSym(std::string &str);
 
 class Expression;
-enum AtomType {UNK, BOOL, SYMBOL, NUM, CHAR, STR, PRIM_PROC, COMP_PROC, INPUT, OUTPUT, EOF_OBJECT};
 class Atom {
 public:
+    enum AtomType {UNK, BOOL, SYMBOL, NUM, CHAR, STR, PRIM_PROC, COMP_PROC, INPUT, OUTPUT, EOF_OBJECT};
     AtomType atomType_;
     struct Compound {
         Expression *params;
@@ -97,6 +97,16 @@ public:
         assert(atomType_ == STR || atomType_ == SYMBOL);
         return std::get<std::string>(value_);
     }
+
+    bool isBool() { return atomType_ == BOOL; }
+    bool isNum() { return atomType_ == NUM; }
+    bool isChar() { return atomType_ == CHAR; }
+    bool isString() { return atomType_ == STR; }
+    bool isSymbol() { return atomType_ == SYMBOL; }
+    bool isPrimProc() { return atomType_ == PRIM_PROC; }
+    bool isCompProc() { return atomType_ == COMP_PROC; }
+    bool isInputPort() { return atomType_ == INPUT; }
+    bool isOutputPort() { return atomType_ == OUTPUT; }
 };
 
 class Expression {

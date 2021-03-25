@@ -32,31 +32,31 @@ void write(std::ostream& os, Expression *expr) {
         break;
     case Expression::ATOM:
         switch (expr->getAtom().atomType_) {
-        case BOOL:
+        case Atom::BOOL:
             os << std::boolalpha << expr->getAtom().getBool();
             break;
-        case SYMBOL:
+        case Atom::SYMBOL:
             os << expr->getAtom().getString();
             break;
-        case NUM:
+        case Atom::NUM:
             os << expr->getAtom().getNumber();
             break;
-        case PRIM_PROC:
+        case Atom::PRIM_PROC:
             os << "#<primitiv_proc>";
             break;
-        case COMP_PROC:
+        case Atom::COMP_PROC:
             os << "#<compound_proc>";
             break;
-        case INPUT:
+        case Atom::INPUT:
             os << "#<input_port>";
             break;
-        case OUTPUT:
+        case Atom::OUTPUT:
             os << "#<output_port>";
             break;
-        case EOF_OBJECT:
+        case Atom::EOF_OBJECT:
             os << "#<eof>";
             break;
-        case CHAR:
+        case Atom::CHAR:
             c = expr->getAtom().getChar();
             os << "#\\";
             switch (c) {
@@ -70,7 +70,7 @@ void write(std::ostream& os, Expression *expr) {
                     os << c;
             }
             break;
-        case STR:
+        case Atom::STR:
             str = expr->getAtom().getString();
             os << '"';
             while ((c = str[i++]) != '\0') {

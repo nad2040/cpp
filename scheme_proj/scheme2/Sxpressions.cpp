@@ -36,23 +36,23 @@ Expression* cons(Expression *car, Expression *cdr) {
     return consObj;
 }
 
+//compare with empty_list
+bool isEmptyList(Expression *expr) { return isList(expr) && expr->getCar() == nullptr && expr->getCdr() == nullptr; }
 bool isList(Expression *expr) { return expr->exprType_ == Expression::LIST; }
 bool isAtom(Expression *expr) { return expr->exprType_ == Expression::ATOM; }
-bool isBool(Expression *expr) { return isAtom(expr) && expr->getAtom().atomType_ == BOOL; }
-bool isNum(Expression *expr) { return isAtom(expr) && expr->getAtom().atomType_ == NUM; }
-bool isChar(Expression *expr) { return isAtom(expr) && expr->getAtom().atomType_ == CHAR; }
-bool isString(Expression *expr) { return isAtom(expr) && expr->getAtom().atomType_ == STR; }
-bool isSymbol(Expression *expr) { return isAtom(expr) && expr->getAtom().atomType_ == SYMBOL; }
-bool isPrimProc(Expression *expr) { return isAtom(expr) && expr->getAtom().atomType_ == PRIM_PROC; }
-bool isCompProc(Expression *expr) { return isAtom(expr) && expr->getAtom().atomType_ == COMP_PROC; }
+bool isBool(Expression *expr) { return isAtom(expr) && expr->getAtom().isBool(); }
+bool isNum(Expression *expr) { return isAtom(expr) && expr->getAtom().isNum(); }
+bool isChar(Expression *expr) { return isAtom(expr) && expr->getAtom().isChar(); }
+bool isString(Expression *expr) { return isAtom(expr) && expr->getAtom().isString(); }
+bool isSymbol(Expression *expr) { return isAtom(expr) && expr->getAtom().isSymbol(); }
+bool isPrimProc(Expression *expr) { return isAtom(expr) && expr->getAtom().isPrimProc(); }
+bool isCompProc(Expression *expr) { return isAtom(expr) && expr->getAtom().isCompProc(); }
+bool isInputPort(Expression *expr) { return isAtom(expr) && expr->getAtom().isInputPort(); }
+bool isOutputPort(Expression *expr) { return isAtom(expr) && expr->getAtom().isOutputPort(); }
+bool isEOFObject(Expression *expr) { return expr == eof_object; }
 
 bool isFalse(Expression *expr) { return expr == _false; }
 bool isTrue(Expression *expr) { return !isFalse(expr); }
-
-bool isEmptyList(Expression *expr) { return isList(expr) && expr->getCar() == nullptr && expr->getCdr() == nullptr; }
-bool isInputPort(Expression *expr) { return isAtom(expr) && expr->getAtom().atomType_ == INPUT; }
-bool isOutputPort(Expression *expr) { return isAtom(expr) && expr->getAtom().atomType_ == OUTPUT; }
-bool isEOFObject(Expression *expr) { return expr == eof_object; }
 
 Expression* makeSymbol(std::string value) {
     Expression *element;
@@ -74,9 +74,10 @@ Expression* makeSymbol(std::string value) {
     return symbol;
 }
 
+//special obj, one instance?
 Expression* makeEOF() {
     Expression* expr = new Expression(Atom());
-    expr->getAtom().atomType_ = EOF_OBJECT;
+    expr->getAtom().atomType_ = Atom::EOF_OBJECT;
     return expr;
 }
 
