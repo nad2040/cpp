@@ -5,18 +5,16 @@
 #include <variant>
 #include <cassert>
 
+#include <utility> //pair
+#include <tuple>
+
 class Expression;
 struct Symbol { std::string symbol; };
 class Atom {
 public:
     enum AtomType {UNK, BOOL, SYMBOL, NUM, CHAR, STR, PRIM_PROC, COMP_PROC, INPUT, OUTPUT, EOF_OBJECT} atomType_;
-    struct Compound {
-        Expression *params;
-        Expression *body;
-        Expression *env;
-        bool operator==(const Compound& c) const { return params == c.params && body == c.body && env == c.env; }
-    };
-    typedef Expression *(*Primitive)(Expression* args);
+    using Primitive = Expression *(*)(Expression* args);
+    using Compound = std::tuple<Expression*, Expression*, Expression*>;
     std::variant<char, long, std::string, Primitive, Compound, std::ifstream*, std::ofstream*> value_;
 
     bool operator==(const Atom& a) const {
@@ -45,9 +43,7 @@ public:
     Atom(std::ifstream* in) : atomType_(INPUT), value_(in) {}
     Atom(std::ofstream* out) : atomType_(OUTPUT), value_(out) {}
     Atom(Primitive fnptr) : atomType_(PRIM_PROC), value_(fnptr) {}
-    Atom(Expression* _params, Expression* _body, Expression* _env) : atomType_(COMP_PROC) {
-        value_ = Compound{_params, _body, _env};
-    }
+    Atom(Expression* _params, Expression* _body, Expression* _env) : atomType_(COMP_PROC), value_(Compound{_params, _body, _env}) {}
 
     std::ifstream* in_port() {
         assert(atomType_ == INPUT);
@@ -108,10 +104,7 @@ public:
 class Expression {
 public:
     enum {ATOM, LIST} exprType_;
-    struct List {
-        Expression* car;
-        Expression* cdr;
-    };
+    using List = std::pair<Expression*, Expression*>;
     std::variant<Atom, List> value_;
 
     Expression() : value_(List{nullptr, nullptr}), exprType_(LIST) {}
@@ -125,24 +118,23 @@ public:
 
     Expression* getCar() {
         assert(exprType_ == LIST);
-        return std::get<List>(value_).car;
+        return std::get<List>(value_).first;
     }
 
     void setCar(Expression* car) {
         assert(exprType_ == LIST);
-        std::get<List>(value_).car = car;
+        std::get<List>(value_).first = car;
     }
 
     Expression* getCdr() {
         assert(exprType_ == LIST);
-        return std::get<List>(value_).cdr;
+        return std::get<List>(value_).second;
     }
 
     void setCdr(Expression* cdr) {
         assert(exprType_ == LIST);
-        std::get<List>(value_).cdr = cdr;
+        std::get<List>(value_).second = cdr;
     }
-
 };
 
 Expression* car(Expression* expr);
