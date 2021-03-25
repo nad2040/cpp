@@ -19,17 +19,17 @@ Expression* isStringProc(Expression *args) { return isString(car(args)) ? _true 
 Expression* isPairProc(Expression *args) { return isList(car(args)) ? _true : _false; }
 Expression* isProcedureProc(Expression *args) { Expression* a = car(args); return (isPrimProc(a) || isCompProc(a)) ? _true : _false; }
 
-Expression* charToIntProc(Expression *args) { return new Expression(Atom((long)car(args)->atom.getChar())); }
-Expression* intToCharProc(Expression *args) { return new Expression(Atom((char)(car(args)->atom.getNumber()))); }
-Expression* numToStrProc(Expression *args) { return new Expression(Atom('"' + std::to_string(car(args)->atom.getNumber()))); }
-Expression* strToNumProc(Expression *args) { return new Expression(Atom(stol(car(args)->atom.getString().c_str()))); }
-Expression* symbolToStrProc(Expression *args) { return new Expression(Atom('"' + car(args)->atom.getString())); }
-Expression* strToSymbolProc(Expression *args) { return new Expression(Atom(car(args)->atom.getString())); }
+Expression* charToIntProc(Expression *args) { return new Expression(Atom((long)(car(args)->getAtom().getChar()))); }
+Expression* intToCharProc(Expression *args) { return new Expression(Atom((char)(car(args)->getAtom().getNumber()))); }
+Expression* numToStrProc(Expression *args) { return new Expression(Atom('"' + std::to_string(car(args)->getAtom().getNumber()))); }
+Expression* strToNumProc(Expression *args) { return new Expression(Atom(stol(car(args)->getAtom().getString().c_str()))); }
+Expression* symbolToStrProc(Expression *args) { return new Expression(Atom('"' + car(args)->getAtom().getString())); }
+Expression* strToSymbolProc(Expression *args) { return new Expression(Atom(car(args)->getAtom().getString())); }
 
 Expression* addProc(Expression *args) {
     long result = 0;
     while (!isEmptyList(args)) {
-        result += car(args)->atom.getNumber();
+        result += car(args)->getAtom().getNumber();
         args = cdr(args);
     }
     return new Expression(Atom(result));
@@ -37,9 +37,9 @@ Expression* addProc(Expression *args) {
 
 Expression* subProc(Expression *args) {
     long result;
-    result = car(args)->atom.getNumber();
+    result = car(args)->getAtom().getNumber();
     while (!isEmptyList(args = cdr(args))) {
-        result -= car(args)->atom.getNumber();
+        result -= car(args)->getAtom().getNumber();
     }
     return new Expression(Atom(result));
 }
@@ -47,25 +47,25 @@ Expression* subProc(Expression *args) {
 Expression* multProc(Expression *args) {
     long result = 1;
     while (!isEmptyList(args)) {
-        result *= car(args)->atom.getNumber();
+        result *= car(args)->getAtom().getNumber();
         args = cdr(args);
     }
     return new Expression(Atom(result));
 }
 
 Expression* quotientProc(Expression *args) {
-    return new Expression(Atom( car(args)->atom.getNumber() / cadr(args)->atom.getNumber() ));
+    return new Expression(Atom( car(args)->getAtom().getNumber() / cadr(args)->getAtom().getNumber() ));
 }
 
 Expression* remainderProc(Expression *args) {
-    return new Expression(Atom( car(args)->atom.getNumber() % cadr(args)->atom.getNumber() ));
+    return new Expression(Atom( car(args)->getAtom().getNumber() % cadr(args)->getAtom().getNumber() ));
 }
 
 Expression* isNumberEqualProc(Expression *args) {
     int value;
-    value = car(args)->atom.getNumber();
+    value = car(args)->getAtom().getNumber();
     while (!isEmptyList(args = cdr(args))) {
-        if (value != car(args)->atom.getNumber()) return _false;
+        if (value != car(args)->getAtom().getNumber()) return _false;
     }
     return _true;
 }
@@ -73,9 +73,9 @@ Expression* isNumberEqualProc(Expression *args) {
 Expression* isLessThanProc(Expression *args) {
     int previous;
     int next;
-    previous = car(args)->atom.getNumber();
+    previous = car(args)->getAtom().getNumber();
     while (!isEmptyList(args = cdr(args))) {
-        next = car(args)->atom.getNumber();
+        next = car(args)->getAtom().getNumber();
         if (previous < next) previous = next;
         else return _false;
     }
@@ -85,9 +85,9 @@ Expression* isLessThanProc(Expression *args) {
 Expression* isGreaterThanProc(Expression *args) {
     int previous;
     int next;
-    previous = car(args)->atom.getNumber();
+    previous = car(args)->getAtom().getNumber();
     while (!isEmptyList(args = cdr(args))) {
-        next = car(args)->atom.getNumber();
+        next = car(args)->getAtom().getNumber();
         if (previous > next) previous = next;
         else return _false;
     }
@@ -103,8 +103,8 @@ Expression* listProc(Expression *args) { return args; }
 
 Expression* isEqProc(Expression *args) {
     Expression *expr1 = car(args), *expr2 = cadr(args);
-    if (expr1->atom.atomType_ != expr2->atom.atomType_) return _false;
-    else if (expr1->atom == expr2->atom) return _true;
+    if (expr1->getAtom().atomType_ != expr2->getAtom().atomType_) return _false;
+    else if (expr1->getAtom() == expr2->getAtom()) return _true;
     else return (expr1 == expr2) ? _true : _false;
 }
 
@@ -120,7 +120,7 @@ Expression* evalProc(Expression *args) {
 }
 
 Expression* loadProc(Expression *args) {
-    string filename = car(args)->atom.getString();
+    string filename = car(args)->getAtom().getString();
     ifstream ifs;
     Expression *expr;
     Expression *result;
@@ -142,7 +142,7 @@ Expression* loadProc(Expression *args) {
 }
 
 Expression *openInputPortProc(Expression *args) {
-    string filename = car(args)->atom.getString();
+    string filename = car(args)->getAtom().getString();
     ifstream* ifs = new ifstream;
     ifs->open(filename, ofstream::in);
     if (ifs->fail()) { cerr << "could not load file \"" << filename << "\""; exit(1); }
@@ -150,8 +150,8 @@ Expression *openInputPortProc(Expression *args) {
 }
 
 Expression *closeInputPortProc(Expression *args) {
-    car(args)->atom.in_port()->close();
-    if (car(args)->atom.in_port()->fail()) { cerr << "could not close input port\n"; exit(1); }
+    car(args)->getAtom().in_port()->close();
+    if (car(args)->getAtom().in_port()->fail()) { cerr << "could not close input port\n"; exit(1); }
     return ok_symbol;
 }
 
@@ -160,7 +160,7 @@ Expression *isInputPortProc(Expression *args) { return isInputPort(car(args)) ? 
 Expression *readProc(Expression *args) {
     Expression *result;
 
-    istream& ifs = isEmptyList(args) ? std::cin : *(car(args)->atom.in_port());
+    istream& ifs = isEmptyList(args) ? std::cin : *(car(args)->getAtom().in_port());
     ReadTokenizeParse rtp;
     Expression* expr = nullptr;
     int idx = 0;
@@ -175,14 +175,14 @@ Expression *readProc(Expression *args) {
 
 Expression *readCharProc(Expression *args) {
     char c;
-    istream& is = isEmptyList(args) ? std::cin : *(car(args)->atom.in_port());
+    istream& is = isEmptyList(args) ? std::cin : *(car(args)->getAtom().in_port());
     is.get(c);
     return is.eof() ? eof_object : new Expression(Atom(c));
 }
 
 Expression *peekCharProc(Expression *args) {
     char c;
-    istream& is = isEmptyList(args) ? std::cin : *(car(args)->atom.in_port());
+    istream& is = isEmptyList(args) ? std::cin : *(car(args)->getAtom().in_port());
     c = is.peek();
     return (c == EOF) ? eof_object : new Expression(Atom(c));
 }
@@ -190,7 +190,7 @@ Expression *peekCharProc(Expression *args) {
 Expression *isEOFObjProc(Expression *args) { return isEOFObject(car(args)) ? _true : _false; }
 
 Expression *openOutputPortProc(Expression *args) {
-    string filename = car(args)->atom.getString();
+    string filename = car(args)->getAtom().getString();
     ofstream* ofs = new ofstream;
     ofs->open(filename, ofstream::app);
     if (ofs->fail()) { cerr << "could not open file \"" << filename << "\""; exit(1); }
@@ -198,8 +198,8 @@ Expression *openOutputPortProc(Expression *args) {
 }
 
 Expression *closeOutputPortProc(Expression *args) {
-    car(args)->atom.out_port()->close();
-    if (car(args)->atom.out_port()->fail()) { cerr << "could not close output port\n"; exit(1); }
+    car(args)->getAtom().out_port()->close();
+    if (car(args)->getAtom().out_port()->fail()) { cerr << "could not close output port\n"; exit(1); }
     return ok_symbol;
 }
 
@@ -208,14 +208,14 @@ Expression *isOutputPortProc(Expression *args) { return isOutputPort(car(args)) 
 Expression *writeCharProc(Expression *args) {
     Expression *character = car(args);
     args = cdr(args);
-    ostream& os = isEmptyList(args) ? std::cout : *(car(args)->atom.out_port());
-    os << character->atom.getChar();
+    ostream& os = isEmptyList(args) ? std::cout : *(car(args)->getAtom().out_port());
+    os << character->getAtom().getChar();
     return ok_symbol;
 }
 Expression *writeProc(Expression *args) {
     Expression *expr = car(args);
     args = cdr(args);
-    ostream& os = isEmptyList(args) ? std::cout : *(car(args)->atom.out_port());
+    ostream& os = isEmptyList(args) ? std::cout : *(car(args)->getAtom().out_port());
     os << expr;
     return ok_symbol;
 }

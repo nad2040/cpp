@@ -174,20 +174,20 @@ tailcall:
         proc = eval(operation(expr), env);
         args = listOfValues(operands(expr), env);
 
-        if (isPrimProc(proc) && proc->atom.primitive() == evalProc) {
+        if (isPrimProc(proc) && proc->getAtom().primitive() == evalProc) {
             expr = evalExpr(args);
             env = evalEnv(args);
             goto tailcall;
         }
-        if (isPrimProc(proc) && proc->atom.primitive() == applyProc) {
+        if (isPrimProc(proc) && proc->getAtom().primitive() == applyProc) {
             proc = applyOperator(args);
             args = applyOperands(args);
         }
 
-        if (isPrimProc(proc)) return (proc->atom.primitive())(args);
+        if (isPrimProc(proc)) return (proc->getAtom().primitive())(args);
         else if (isCompProc(proc)) {
-            env = extendEnv(proc->atom.compound().params, args, proc->atom.compound().env);
-            expr = makeBegin(proc->atom.compound().body);
+            env = extendEnv(proc->getAtom().compound().params, args, proc->getAtom().compound().env);
+            expr = makeBegin(proc->getAtom().compound().body);
             goto tailcall;
         } else { std::cerr << "unknown procedure type\n"; exit(1); }
     }

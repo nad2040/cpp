@@ -10,7 +10,7 @@ void writeList(std::ostream& os, Expression *list) {
 
     write(os, car_obj);
 
-    if (cdr_obj->exprType_ == LIST && cdr_obj != empty_list) {
+    if (cdr_obj->exprType_ == Expression::LIST && cdr_obj != empty_list) {
         os << " ";
         writeList(os, cdr_obj);
     } else {
@@ -25,21 +25,21 @@ void write(std::ostream& os, Expression *expr) {
     char c;
     std::string str;
     switch (expr->exprType_) {
-    case LIST:
+    case Expression::LIST:
         os << "(";
-        if (expr->list != nullptr) { writeList(os, expr); }
+        if (!isEmptyList(expr)) { writeList(os, expr); }
         os << ")";
         break;
-    case ATOM:
-        switch (expr->atom.atomType_) {
+    case Expression::ATOM:
+        switch (expr->getAtom().atomType_) {
         case BOOL:
-            os << std::boolalpha << expr->atom.getBool();
+            os << std::boolalpha << expr->getAtom().getBool();
             break;
         case SYMBOL:
-            os << expr->atom.getString();
+            os << expr->getAtom().getString();
             break;
         case NUM:
-            os << expr->atom.getNumber();
+            os << expr->getAtom().getNumber();
             break;
         case PRIM_PROC:
             os << "#<primitiv_proc>";
@@ -57,7 +57,7 @@ void write(std::ostream& os, Expression *expr) {
             os << "#<eof>";
             break;
         case CHAR:
-            c = expr->atom.getChar();
+            c = expr->getAtom().getChar();
             os << "#\\";
             switch (c) {
                 case '\n':
@@ -71,7 +71,7 @@ void write(std::ostream& os, Expression *expr) {
             }
             break;
         case STR:
-            str = expr->atom.getString();
+            str = expr->getAtom().getString();
             os << '"';
             while ((c = str[i++]) != '\0') {
                 switch (c) {

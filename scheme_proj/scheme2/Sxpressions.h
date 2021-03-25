@@ -99,21 +99,44 @@ public:
     }
 };
 
-enum ExpressionType {ATOM, LIST};
 class Expression {
 public:
+    enum {ATOM, LIST} exprType_;
     struct List {
         Expression* car;
         Expression* cdr;
     };
+    std::variant<Atom, List> value_;
 
-    Atom atom;
-    List *list;
-    ExpressionType exprType_;
+    Expression() : value_(List{nullptr, nullptr}), exprType_(LIST) {}
+    Expression(const Atom& atom) : value_(atom), exprType_(ATOM) {}
+    Expression(const List list) : value_(list), exprType_(LIST) {}
 
-    Expression() : atom(), list(), exprType_(LIST) {}
-    Expression(Atom atom_) : atom(atom_), list(nullptr), exprType_(ATOM) {}
-    Expression(List* list_) : atom(), list(list_), exprType_(LIST) {}
+    Atom& getAtom() {
+        assert(exprType_ == ATOM);
+        return std::get<Atom>(value_);
+    }
+
+    Expression* getCar() {
+        assert(exprType_ == LIST);
+        return std::get<List>(value_).car;
+    }
+
+    void setCar(Expression* car) {
+        assert(exprType_ == LIST);
+        std::get<List>(value_).car = car;
+    }
+
+    Expression* getCdr() {
+        assert(exprType_ == LIST);
+        return std::get<List>(value_).cdr;
+    }
+
+    void setCdr(Expression* cdr) {
+        assert(exprType_ == LIST);
+        std::get<List>(value_).cdr = cdr;
+    }
+
 };
 
 Expression* car(Expression* expr);
