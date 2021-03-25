@@ -40,15 +40,11 @@ public:
     Atom(long num) : atomType_(NUM), value_(num) {}
     Atom(bool b) : atomType_(BOOL), value_((char)b) {} //temp issue with bool/int both in variant, gcc version 7.4.0 (Ubuntu 7.4.0-1ubuntu1~18.04.1)
     Atom(char c) : atomType_(CHAR), value_(c) {}
+    Atom(std::string str) : atomType_(STR), value_(str.substr(1, str.size()-2)) {}
+    Atom(Symbol sym) : atomType_(SYMBOL), value_(sym.symbol) {}
     Atom(std::ifstream* in) : atomType_(INPUT), value_(in) {}
     Atom(std::ofstream* out) : atomType_(OUTPUT), value_(out) {}
-
-    Atom(std::string str) : atomType_(STR), value_(str.substr(1, str.size()-2)) {}
-
-    Atom(Symbol sym) : atomType_(SYMBOL), value_(sym.symbol) {}
-
     Atom(Primitive fnptr) : atomType_(PRIM_PROC), value_(fnptr) {}
-
     Atom(Expression* _params, Expression* _body, Expression* _env) : atomType_(COMP_PROC) {
         value_ = Compound{_params, _body, _env};
     }

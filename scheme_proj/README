@@ -4,5 +4,5 @@ refactoring in progress
 //remove globals, current magic sequence 4, 'a, (* 6 7) //access vector.size() elem
 //using c++17 inline to avoid "externs"
 //using c++17 variant Atom definition, do not leak variant outside of Atom!!
-
+put symbol as separate type
 keep track memory allocation
