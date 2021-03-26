@@ -24,8 +24,8 @@ Expression* cons(Expression *car, Expression *cdr) {
     return consObj;
 }
 
-//compare with empty_list
-bool isEmptyList(Expression *expr) { return isList(expr) && expr->getCar() == nullptr && expr->getCdr() == nullptr; }
+//bool isEmptyList(Expression *expr) { return isList(expr) && expr->getCar() == nullptr && expr->getCdr() == nullptr; }
+bool isEmptyList(Expression *expr) { return expr == empty_list; }
 bool isList(Expression *expr) { return expr->exprType_ == Expression::LIST; }
 bool isAtom(Expression *expr) { return expr->exprType_ == Expression::ATOM; }
 bool isBool(Expression *expr) { return isAtom(expr) && expr->getAtom().isBool(); }

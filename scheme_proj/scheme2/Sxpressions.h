@@ -7,12 +7,14 @@
 
 #include <utility> //pair
 #include <tuple>
+//#include <functional>
 
 class Expression;
 struct Symbol { std::string symbol; };
 class Atom {
 public:
     enum AtomType {UNK, BOOL, SYMBOL, NUM, CHAR, STR, PRIM_PROC, COMP_PROC, INPUT, OUTPUT, EOF_OBJECT} atomType_;
+    //using Primitive = std::function<Expression*(Expression* args)>; //compiler complains about equality test
     using Primitive = Expression *(*)(Expression* args);
     using Compound = std::tuple<Expression*, Expression*, Expression*>;
     std::variant<char, long, std::string, Primitive, Compound, std::ifstream*, std::ofstream*> value_;

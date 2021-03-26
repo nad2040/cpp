@@ -3,9 +3,7 @@
 #include "env.h"
 
 bool isSelfEval(Expression *expr);
-
 bool isVar(Expression *expr); 
-
 bool isTaggedList(Expression *expr, Expression *tag); 
 
 bool isQuoted(Expression *expr); 
