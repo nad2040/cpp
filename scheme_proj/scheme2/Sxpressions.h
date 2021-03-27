@@ -11,12 +11,13 @@
 
 class Expression;
 struct Symbol { std::string symbol; };
+using Primitive = Expression *(*)(Expression* args);
 class Atom {
 public:
     enum AtomType {UNK, BOOL, SYMBOL, NUM, CHAR, STR, PRIM_PROC, COMP_PROC, INPUT, OUTPUT, EOF_OBJECT} atomType_;
     //using Primitive = std::function<Expression*(Expression* args)>; //compiler complains about equality test
-    using Primitive = Expression *(*)(Expression* args);
-    using Compound = std::tuple<Expression*, Expression*, Expression*>;
+    //using Primitive = Expression *(*)(Expression* args);
+    using Compound = std::tuple<Expression*, Expression*, Expression*>; //params, body, env
     std::variant<char, long, std::string, Primitive, Compound, std::ifstream*, std::ofstream*> value_;
 
     bool operator==(const Atom& a) const {
@@ -92,6 +93,14 @@ public:
         return std::get<std::string>(value_);
     }
 
+    void getCompound(Expression*& params, Expression*& body, Expression*& env) {
+        assert(atomType_ == COMP_PROC);
+        auto& compound = std::get<Compound>(value_);
+        params = std::get<0>(compound);
+        body = std::get<1>(compound);
+        env = std::get<2>(compound);
+    }
+
     bool isBool() { return atomType_ == BOOL; }
     bool isNum() { return atomType_ == NUM; }
     bool isChar() { return atomType_ == CHAR; }
@@ -136,6 +145,16 @@ public:
     void setCdr(Expression* cdr) {
         assert(exprType_ == LIST);
         std::get<List>(value_).second = cdr;
+    }
+
+    Primitive getPrimitive() {
+        assert(exprType_ == ATOM);
+        return std::get<Atom>(value_).primitive();
+    }
+
+    void getCompound(Expression*& params, Expression*& body, Expression*& env) {
+        assert(exprType_ == ATOM);
+        std::get<Atom>(value_).getCompound(params, body, env);
     }
 };
 

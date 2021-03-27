@@ -174,24 +174,22 @@ tailcall:
         proc = eval(operation(expr), env);
         args = listOfValues(operands(expr), env);
 
-        if (isPrimProc(proc) && proc->getAtom().primitive() == evalProc) {
+        if (isPrimProc(proc) && proc->getPrimitive() == evalProc) {
             expr = evalExpr(args);
             env = evalEnv(args);
             goto tailcall;
         }
-        if (isPrimProc(proc) && proc->getAtom().primitive() == applyProc) {
+        if (isPrimProc(proc) && proc->getPrimitive() == applyProc) {
             proc = applyOperator(args);
             args = applyOperands(args);
         }
 
-        if (isPrimProc(proc)) return (proc->getAtom().primitive())(args);
+        if (isPrimProc(proc)) return (proc->getPrimitive())(args);
         else if (isCompProc(proc)) {
-            /*
-            env = extendEnv(proc->getAtom().compound().params, args, proc->getAtom().compound().env);
-            expr = makeBegin(proc->getAtom().compound().body);
-            */
-            env = extendEnv(std::get<0>(proc->getAtom().compound()), args, std::get<2>(proc->getAtom().compound()));
-            expr = makeBegin(std::get<1>(proc->getAtom().compound()));
+            Expression *compParams, *compBody, *compEnv;
+            proc->getCompound(compParams, compBody, compEnv);
+            env = extendEnv(compParams, args, compEnv);
+            expr = makeBegin(compBody);
             goto tailcall;
         } else { std::cerr << "unknown procedure type\n"; exit(1); }
     }
