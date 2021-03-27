@@ -1,6 +1,4 @@
 #include "output.h"
-#include "globals.h"
-
 #include <string>
 
 void write(std::ostream& os, Expression *expr);

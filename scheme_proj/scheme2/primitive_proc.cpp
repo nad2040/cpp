@@ -6,7 +6,8 @@
 #include <fstream>
 #include "ReadTokenizeParse.h"
 #include "output.h"
-#include "globals.h"
+
+extern theEnv* the_env;
 
 using namespace std;
 

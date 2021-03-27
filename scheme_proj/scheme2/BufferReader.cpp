@@ -2,8 +2,6 @@
 #include <iostream>
 #include <cassert>
 #include <cstdlib>
-#include "globals.h"
-
 
 namespace {
 

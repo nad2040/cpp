@@ -11,7 +11,6 @@
 
 class Expression;
 Expression* makeSymbol(std::string value);
-//inline Expression *symbol_table = Expression::getEmptyList();
 struct Symbol { 
     std::string symbol;
     static Expression *quote_symbol() { return makeSymbol("quote"); }

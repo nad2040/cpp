@@ -1,6 +1,5 @@
 #include <string>
 #include "Sxpressions.h"
-#include "globals.h"
 
 Expression* car(Expression* expr) {
     return expr->getCar();
@@ -42,6 +41,7 @@ bool isEOFObject(Expression *expr) { return expr == Expression::eof_object(); }
 bool isFalse(Expression *expr) { return expr == Expression::_false(); }
 bool isTrue(Expression *expr) { return !isFalse(expr); }
 
+Expression *symbol_table = Expression::getEmptyList();
 Expression* makeSymbol(std::string value) {
     Expression *element;
     Expression *symbol;

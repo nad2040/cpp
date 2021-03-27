@@ -1,6 +1,7 @@
 #include "eval.h"
 #include "primitive_proc.h"
-#include "globals.h"
+
+extern theEnv* the_env;
 
 bool isSelfEval(Expression *expr) {
     return isBool(expr) || isNum(expr) ||
