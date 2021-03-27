@@ -132,10 +132,14 @@ Expression* loadProc(Expression *args) {
     ReadTokenizeParse rtp;
     expr = nullptr;
     int idx = 0;
-    while (!expr) {
+    //while (!expr) {
+    while (!ifs.eof()) {
         rtp.readAndTokenize(ifs);
         expr = rtp.parseExpression(idx);
-        result = eval(expr, the_env->getGlobalEnv());
+        if (expr) {
+            //std::cout << "eval current expr:" << expr << '\n';
+            result = eval(expr, the_env->getGlobalEnv());
+        }
     }
     
     ifs.close();
