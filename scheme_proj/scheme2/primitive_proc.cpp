@@ -113,7 +113,7 @@ Expression* applyProc(Expression *args) {
 }
 
 Expression* interactionEnvProc(Expression *args) { return the_env->global_env; }
-Expression* nullEnvProc(Expression *args) { return the_env->setupEnv(); }
+Expression* nullEnvProc(Expression *args) { return the_env->null_env; }
 Expression* envProc(Expression *args) { return the_env->makeEnv(); }
 Expression* evalProc(Expression *args) {
     cerr << "illegal state: The body of the eval primitive procedure should not execute.\n"; exit(1);

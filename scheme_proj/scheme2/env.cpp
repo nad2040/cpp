@@ -2,6 +2,8 @@
 #include "primitive_proc.h"
 #include <iostream>
 
+extern Expression* empty_list;
+
 Expression* theEnv::enclosingEnvironment(Expression *env) {
     return cdr(env);
 }
@@ -93,10 +95,7 @@ void theEnv::defVar(Expression *var, Expression *val, Expression *env) {
 }
 
 Expression* theEnv::setupEnv() {
-    Expression *initial_env;
-
-    initial_env = extendEnv(empty_list, empty_list, empty_env);
-    return initial_env;
+    return extendEnv(empty_list, empty_list, empty_list);
 }
 
 void theEnv::populateEnv(Expression* env) {

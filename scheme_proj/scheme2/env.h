@@ -1,17 +1,14 @@
 #pragma once
 #include "Sxpressions.h"
 
-extern Expression* empty_list;
-
 class theEnv {
 public:
     theEnv() {
-        empty_env = empty_list;
+        null_env = setupEnv();
         global_env = makeEnv();
     }
 
     //required by primitive
-    Expression* setupEnv(); //nullEnvProc
     Expression* makeEnv(); //envProc
 
     //required by eval
@@ -20,10 +17,11 @@ public:
     void defVar(Expression *var, Expression *val, Expression *env); 
     void setVarValue(Expression *var, Expression *val, Expression *env); 
 
-    Expression* empty_env;
+    Expression* null_env;
     Expression* global_env;
 
 private:
+    Expression* setupEnv(); //nullEnvProc
     void populateEnv(Expression* env);
 
     Expression* makeFrame(Expression *variables, Expression *values);
