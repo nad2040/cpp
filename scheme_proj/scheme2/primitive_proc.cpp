@@ -7,8 +7,6 @@
 #include "ReadTokenizeParse.h"
 #include "output.h"
 
-using namespace std;
-
 Expression* isNullProc(Expression *args) { return isEmptyList(car(args)) ? Expression::_true() : Expression::_false(); }
 Expression* isBoolProc(Expression *args) { return isBool(car(args)) ? Expression::_true() : Expression::_false(); }
 Expression* isSymbolProc(Expression *args) { return isSymbol(car(args)) ? Expression::_true() : Expression::_false(); }
@@ -108,14 +106,14 @@ Expression* isEqProc(Expression *args) {
 }
 
 Expression* applyProc(Expression *args) {
-    cerr << "illegal state: The body of the apply primitive procedure should not execute.\n"; exit(1);
+    std::cerr << "illegal state: The body of the apply primitive procedure should not execute.\n"; exit(1);
 }
 
 Expression* interactionEnvProc(Expression *args) { return theEnv::getGlobalEnv(); }
 Expression* nullEnvProc(Expression *args) { return theEnv::setupEnv(); }
 Expression* envProc(Expression *args) { return theEnv::makeEnv(); }
 Expression* evalProc(Expression *args) {
-    cerr << "illegal state: The body of the eval primitive procedure should not execute.\n"; exit(1);
+    std::cerr << "illegal state: The body of the eval primitive procedure should not execute.\n"; exit(1);
 }
 
 Expression* loadProc(Expression *args) {
@@ -125,7 +123,7 @@ Expression* loadProc(Expression *args) {
     Expression *result;
 
     ifs.open(filename, ifstream::in);
-    if (ifs.fail()) { cerr << "could not load file \"" << filename << "\""; exit(1); }
+    if (ifs.fail()) { std::cerr << "could not load file \"" << filename << "\""; exit(1); }
 
     ReadTokenizeParse rtp;
     expr = nullptr;
@@ -148,13 +146,13 @@ Expression *openInputPortProc(Expression *args) {
     string filename = car(args)->getAtom().getString();
     ifstream* ifs = new ifstream;
     ifs->open(filename, ofstream::in);
-    if (ifs->fail()) { cerr << "could not load file \"" << filename << "\""; exit(1); }
+    if (ifs->fail()) { std::cerr << "could not load file \"" << filename << "\""; exit(1); }
     return new Expression(Atom(ifs));
 }
 
 Expression *closeInputPortProc(Expression *args) {
     car(args)->getAtom().in_port()->close();
-    if (car(args)->getAtom().in_port()->fail()) { cerr << "could not close input port\n"; exit(1); }
+    if (car(args)->getAtom().in_port()->fail()) { std::cerr << "could not close input port\n"; exit(1); }
     return Symbol::ok_symbol();
 }
 
@@ -196,13 +194,13 @@ Expression *openOutputPortProc(Expression *args) {
     string filename = car(args)->getAtom().getString();
     ofstream* ofs = new ofstream;
     ofs->open(filename, ofstream::app);
-    if (ofs->fail()) { cerr << "could not open file \"" << filename << "\""; exit(1); }
+    if (ofs->fail()) { std::cerr << "could not open file \"" << filename << "\""; exit(1); }
     return new Expression(Atom(ofs));
 }
 
 Expression *closeOutputPortProc(Expression *args) {
     car(args)->getAtom().out_port()->close();
-    if (car(args)->getAtom().out_port()->fail()) { cerr << "could not close output port\n"; exit(1); }
+    if (car(args)->getAtom().out_port()->fail()) { std::cerr << "could not close output port\n"; exit(1); }
     return Symbol::ok_symbol();
 }
 
@@ -224,15 +222,8 @@ Expression *writeProc(Expression *args) {
 }
 
 Expression *errorProc(Expression *args) {
-    ostream& os(cerr);
+    ostream& os(std::cerr);
     os << args;
-    /*
-    while (!isEmptyList(args)) {
-        os << car(args) << ' ';
-        args = cdr(args);
-    };
-    */
-     
-    cout << "\nexiting\n";
+    std::cout << "\nexiting\n";
     exit(1);
 }
