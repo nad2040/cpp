@@ -4,7 +4,7 @@
 
 bool isSelfEval(Expression *expr) {
     return isBool(expr) || isNum(expr) ||
-           isChar(expr) || isString(expr) || (expr == empty_list);
+           isChar(expr) || isString(expr);
 }
 
 bool isVar(Expression *expr) { return isSymbol(expr); }
@@ -31,7 +31,7 @@ Expression* makeLambda(Expression *params, Expression *body);
 Expression* definitionValue(Expression *expr) { if (isSymbol(cadr(expr))) return caddr(expr); else return makeLambda(cdadr(expr), cddr(expr)); }
 
 Expression* makeIf(Expression *predicate, Expression *consequent, Expression *alternative) {
-    return cons(if_symbol, cons(predicate, cons(consequent, cons(alternative, empty_list))));
+    return cons(if_symbol, cons(predicate, cons(consequent, cons(alternative, Expression::getEmptyList()))));
 }
 bool isIf(Expression *expr) { return isTaggedList(expr,if_symbol); }
 Expression* ifPredicate(Expression *expr) { return cadr(expr); }
@@ -90,10 +90,10 @@ Expression* letBody(Expression *expr) { return cddr(expr); }
 Expression* bindingParam(Expression *binding) { return car(binding); }
 Expression* bindingArg(Expression *binding) { return cadr(binding); }
 Expression* bindingsParams(Expression *bindings) {
-    return isEmptyList(bindings) ? empty_list : cons(bindingParam(car(bindings)), bindingsParams(cdr(bindings)));
+    return isEmptyList(bindings) ? Expression::getEmptyList() : cons(bindingParam(car(bindings)), bindingsParams(cdr(bindings)));
 }
 Expression* bindingsArgs(Expression *bindings) {
-    return isEmptyList(bindings) ? empty_list : cons(bindingArg(car(bindings)), bindingsArgs(cdr(bindings)));
+    return isEmptyList(bindings) ? Expression::getEmptyList() : cons(bindingArg(car(bindings)), bindingsArgs(cdr(bindings)));
 }
 Expression* letParams(Expression *expr) { return bindingsParams(letBindings(expr)); }
 Expression* letArgs(Expression *expr) { return bindingsArgs(letBindings(expr)); }
@@ -117,7 +117,7 @@ Expression* evalEnv(Expression *args) { return cadr(args); }
 // eval dependent
 
 Expression* listOfValues(Expression *expr, Expression *env) {
-    return (noOperands(expr)) ? empty_list :
+    return (noOperands(expr)) ? Expression::getEmptyList() :
             cons(eval(firstOperand(expr), env), listOfValues(otherOperands(expr), env));
 }
 

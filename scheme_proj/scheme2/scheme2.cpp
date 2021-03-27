@@ -19,7 +19,7 @@ int main() {
         rtp.readAndTokenize();
         expr = rtp.parseExpression(tokenIdx);
         if (expr) cout << expr << '\n';
-        if (expr) cout << eval(expr, the_env->global_env) << '\n';
+        if (expr) cout << eval(expr, the_env->getGlobalEnv()) << '\n';
         expr = nullptr;
     }
 

@@ -2,7 +2,7 @@
 #include "primitive_proc.h"
 #include <iostream>
 
-extern Expression* empty_list;
+//extern Expression* empty_list;
 
 Expression* theEnv::enclosingEnvironment(Expression *env) {
     return cdr(env);
@@ -95,7 +95,8 @@ void theEnv::defVar(Expression *var, Expression *val, Expression *env) {
 }
 
 Expression* theEnv::setupEnv() {
-    return extendEnv(empty_list, empty_list, empty_list);
+    Expression* empty_list = Expression::getEmptyList();
+    return extendEnv(empty_list, empty_list, empty_list); //env/frame/bindings ((()))
 }
 
 void theEnv::populateEnv(Expression* env) {
@@ -159,9 +160,7 @@ void theEnv::populateEnv(Expression* env) {
 }
 
 Expression* theEnv::makeEnv() {
-    Expression* env;
-
-    env = setupEnv();
+    Expression* env = setupEnv();
     populateEnv(env);
     return env;
 }

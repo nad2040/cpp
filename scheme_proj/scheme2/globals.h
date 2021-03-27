@@ -1,7 +1,7 @@
 #pragma once
 #include "env.h"
 
-inline Expression *empty_list;
+//inline Expression *empty_list;
 inline Expression *_false;
 inline Expression *_true;
 inline Expression *quote_symbol;
@@ -22,11 +22,11 @@ inline Expression *eof_object;
 inline theEnv *the_env;
 
 inline void init() {
-    empty_list = new Expression();
+    //empty_list = new Expression();
     _false = new Expression(Atom(false));
     _true = new Expression(Atom(true));
 
-    symbol_table = empty_list;
+    symbol_table = Expression::getEmptyList();
     quote_symbol = makeSymbol("quote");
     define_symbol = makeSymbol("define");
     set_symbol = makeSymbol("set!");

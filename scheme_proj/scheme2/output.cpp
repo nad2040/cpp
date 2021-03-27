@@ -10,11 +10,11 @@ void writeList(std::ostream& os, Expression *list) {
 
     write(os, car_obj);
 
-    if (cdr_obj->exprType_ == Expression::LIST && cdr_obj != empty_list) {
+    if (cdr_obj->exprType_ == Expression::LIST && cdr_obj != Expression::getEmptyList()) {
         os << " ";
         writeList(os, cdr_obj);
     } else {
-        if (cdr_obj == empty_list) { return; }
+        if (cdr_obj == Expression::getEmptyList()) { return; }
         os << " . ";
         write(os, cdr_obj);
     }

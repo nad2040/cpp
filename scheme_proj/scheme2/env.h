@@ -4,11 +4,11 @@
 class theEnv {
 public:
     theEnv() {
-        null_env = setupEnv();
-        global_env = makeEnv();
+        global_env_ = makeEnv();
     }
 
     //required by primitive
+    Expression* setupEnv(); //nullEnvProc
     Expression* makeEnv(); //envProc
 
     //required by eval
@@ -17,11 +17,9 @@ public:
     void defVar(Expression *var, Expression *val, Expression *env); 
     void setVarValue(Expression *var, Expression *val, Expression *env); 
 
-    Expression* null_env;
-    Expression* global_env;
+    Expression* getGlobalEnv() { return global_env_; }
 
 private:
-    Expression* setupEnv(); //nullEnvProc
     void populateEnv(Expression* env);
 
     Expression* makeFrame(Expression *variables, Expression *values);
@@ -30,5 +28,7 @@ private:
     void addBindingToFrame(Expression *var, Expression *val, Expression *frame); 
     Expression* enclosingEnvironment(Expression *env);
     Expression* firstFrame(Expression *env); 
+
+    Expression* global_env_{nullptr}; 
 };
 

@@ -156,6 +156,11 @@ public:
         assert(exprType_ == ATOM);
         std::get<Atom>(value_).getCompound(params, body, env);
     }
+
+    static Expression* getEmptyList() {
+        static Expression* empty_list = new Expression();
+        return empty_list;
+    }
 };
 
 Expression* car(Expression* expr);

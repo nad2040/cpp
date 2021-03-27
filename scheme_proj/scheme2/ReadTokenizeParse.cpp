@@ -95,7 +95,7 @@ Expression* ReadTokenizeParse::parseCdr(int& index) {
     if (ctoken[0] == ')') {
         ++index;
         std::cout << "list reach end\n";
-        return empty_list;
+        return Expression::getEmptyList();
     }
     //parse car
     std::cout << "parse car current token:" << tokens_[index] << " index:" << index << '\n';
@@ -147,7 +147,7 @@ Expression* ReadTokenizeParse::parseExpression(int& index) {
     else if (ctoken[0] == '\'') { 
         ++index;
         Expression* expr = parseExpression(index);
-        if (expr) return cons(quote_symbol, cons(expr, empty_list)); 
+        if (expr) return cons(quote_symbol, cons(expr, Expression::getEmptyList())); 
         else { --index; return nullptr; }
     }
     else if ((ctoken[0] == '-') && isdigit(ctoken[1]) || isdigit(ctoken[0])) {

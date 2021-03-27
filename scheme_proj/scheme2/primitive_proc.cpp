@@ -112,8 +112,9 @@ Expression* applyProc(Expression *args) {
     cerr << "illegal state: The body of the apply primitive procedure should not execute.\n"; exit(1);
 }
 
-Expression* interactionEnvProc(Expression *args) { return the_env->global_env; }
-Expression* nullEnvProc(Expression *args) { return the_env->null_env; }
+Expression* interactionEnvProc(Expression *args) { return the_env->getGlobalEnv(); }
+//Expression* nullEnvProc(Expression *args) { return the_env->null_env; }
+Expression* nullEnvProc(Expression *args) { return the_env->setupEnv(); }
 Expression* envProc(Expression *args) { return the_env->makeEnv(); }
 Expression* evalProc(Expression *args) {
     cerr << "illegal state: The body of the eval primitive procedure should not execute.\n"; exit(1);
@@ -134,7 +135,7 @@ Expression* loadProc(Expression *args) {
     while (!expr) {
         rtp.readAndTokenize(ifs);
         expr = rtp.parseExpression(idx);
-        result = eval(expr, the_env->global_env);
+        result = eval(expr, the_env->getGlobalEnv());
     }
     
     ifs.close();
@@ -167,7 +168,7 @@ Expression *readProc(Expression *args) {
     while (!expr) {
         rtp.readAndTokenize(ifs);
         expr = rtp.parseExpression(idx);
-        result = eval(expr, the_env->global_env);
+        result = eval(expr, the_env->getGlobalEnv());
     }
 
     return (result == nullptr) ? eof_object : result;

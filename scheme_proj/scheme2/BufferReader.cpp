@@ -106,7 +106,7 @@ Expression* BufferReader::readCdr() {
     if (buffer_[index] == ')') {
         readPos_ = ++index;
         std::cout << "list reach end\n";
-        return empty_list;
+        return Expression::getEmptyList();
     }
     //read car
     readPos_ = index;
@@ -143,7 +143,7 @@ Expression* BufferReader::readQuotedExpression() {
     assert(c == '\'');
     ++readPos_;
     Expression* expr = nextExpression();
-    if (expr) return cons(quote_symbol, cons(expr, empty_list));
+    if (expr) return cons(quote_symbol, cons(expr, Expression::getEmptyList()));
     else --readPos_; 
     return nullptr;
 }
@@ -213,7 +213,7 @@ Expression* BufferReader::readCdrT(int& index) {
     if (ctoken[0] == ')') {
         ++index;
         std::cout << "list reach end\n";
-        return empty_list;
+        return Expression::getEmptyList();
     }
     //read car
     std::cout << "readCar current token:" << tokens_[index] << " index:" << index << '\n';
@@ -266,7 +266,7 @@ Expression* BufferReader::nextExpressionT(int& index) {
     else if (ctoken[0] == '\'') { 
         ++index;
         Expression* expr = nextExpressionT(index);
-        if (expr) return cons(quote_symbol, cons(expr, empty_list)); 
+        if (expr) return cons(quote_symbol, cons(expr, Expression::getEmptyList())); 
         else { --index; return nullptr; }
     }
     else if ((ctoken[0] == '-') && isdigit(ctoken[1]) || isdigit(ctoken[0])) {
