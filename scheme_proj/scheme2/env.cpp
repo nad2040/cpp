@@ -2,8 +2,6 @@
 #include "primitive_proc.h"
 #include <iostream>
 
-//extern Expression* empty_list;
-
 Expression* theEnv::enclosingEnvironment(Expression *env) {
     return cdr(env);
 }

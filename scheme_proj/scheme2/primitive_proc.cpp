@@ -7,8 +7,6 @@
 #include "ReadTokenizeParse.h"
 #include "output.h"
 
-extern theEnv* the_env;
-
 using namespace std;
 
 Expression* isNullProc(Expression *args) { return isEmptyList(car(args)) ? Expression::_true() : Expression::_false(); }
@@ -113,10 +111,9 @@ Expression* applyProc(Expression *args) {
     cerr << "illegal state: The body of the apply primitive procedure should not execute.\n"; exit(1);
 }
 
-Expression* interactionEnvProc(Expression *args) { return the_env->getGlobalEnv(); }
-//Expression* nullEnvProc(Expression *args) { return the_env->null_env; }
-Expression* nullEnvProc(Expression *args) { return the_env->setupEnv(); }
-Expression* envProc(Expression *args) { return the_env->makeEnv(); }
+Expression* interactionEnvProc(Expression *args) { return theEnv::getGlobalEnv(); }
+Expression* nullEnvProc(Expression *args) { return theEnv::setupEnv(); }
+Expression* envProc(Expression *args) { return theEnv::makeEnv(); }
 Expression* evalProc(Expression *args) {
     cerr << "illegal state: The body of the eval primitive procedure should not execute.\n"; exit(1);
 }
@@ -139,7 +136,7 @@ Expression* loadProc(Expression *args) {
         expr = rtp.parseExpression(idx);
         if (expr) {
             //std::cout << "eval current expr:" << expr << '\n';
-            result = eval(expr, the_env->getGlobalEnv());
+            result = eval(expr, theEnv::getGlobalEnv());
         }
     }
     
@@ -173,7 +170,7 @@ Expression *readProc(Expression *args) {
     while (!expr) {
         rtp.readAndTokenize(ifs);
         expr = rtp.parseExpression(idx);
-        result = eval(expr, the_env->getGlobalEnv());
+        result = eval(expr, theEnv::getGlobalEnv());
     }
 
     return (result == nullptr) ? Expression::eof_object() : result;
