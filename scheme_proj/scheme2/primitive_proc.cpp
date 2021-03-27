@@ -2,8 +2,8 @@
 #include "env.h"
 #include "eval.h"
 #include <iostream>
-#include <string>
 #include <fstream>
+#include <string>
 #include "ReadTokenizeParse.h"
 #include "output.h"
 
@@ -19,7 +19,7 @@ Expression* isProcedureProc(Expression *args) { Expression* a = car(args); retur
 Expression* charToIntProc(Expression *args) { return new Expression(Atom((long)(car(args)->getAtom().getChar()))); }
 Expression* intToCharProc(Expression *args) { return new Expression(Atom((char)(car(args)->getAtom().getNumber()))); }
 Expression* numToStrProc(Expression *args) { return new Expression(Atom(std::to_string(car(args)->getAtom().getNumber()))); }
-Expression* strToNumProc(Expression *args) { return new Expression(Atom(stol(car(args)->getAtom().getString().c_str()))); }
+Expression* strToNumProc(Expression *args) { return new Expression(Atom(std::stol(car(args)->getAtom().getString().c_str()))); }
 Expression* symbolToStrProc(Expression *args) { return new Expression(Atom(car(args)->getAtom().getSymbol())); }
 Expression* strToSymbolProc(Expression *args) { return new Expression(Atom(Symbol{car(args)->getAtom().getString()})); }
 
@@ -117,12 +117,12 @@ Expression* evalProc(Expression *args) {
 }
 
 Expression* loadProc(Expression *args) {
-    string filename = car(args)->getAtom().getString();
-    ifstream ifs;
+    std::string filename = car(args)->getAtom().getString();
+    std::ifstream ifs;
     Expression *expr;
     Expression *result;
 
-    ifs.open(filename, ifstream::in);
+    ifs.open(filename, std::ifstream::in);
     if (ifs.fail()) { std::cerr << "could not load file \"" << filename << "\""; exit(1); }
 
     ReadTokenizeParse rtp;
@@ -143,9 +143,9 @@ Expression* loadProc(Expression *args) {
 }
 
 Expression *openInputPortProc(Expression *args) {
-    string filename = car(args)->getAtom().getString();
-    ifstream* ifs = new ifstream;
-    ifs->open(filename, ofstream::in);
+    std::string filename = car(args)->getAtom().getString();
+    std::ifstream* ifs = new std::ifstream;
+    ifs->open(filename, std::ofstream::in);
     if (ifs->fail()) { std::cerr << "could not load file \"" << filename << "\""; exit(1); }
     return new Expression(Atom(ifs));
 }
@@ -161,7 +161,7 @@ Expression *isInputPortProc(Expression *args) { return isInputPort(car(args)) ? 
 Expression *readProc(Expression *args) {
     Expression *result;
 
-    istream& ifs = isEmptyList(args) ? std::cin : *(car(args)->getAtom().in_port());
+    std::istream& ifs = isEmptyList(args) ? std::cin : *(car(args)->getAtom().in_port());
     ReadTokenizeParse rtp;
     Expression* expr = nullptr;
     int idx = 0;
@@ -176,14 +176,14 @@ Expression *readProc(Expression *args) {
 
 Expression *readCharProc(Expression *args) {
     char c;
-    istream& is = isEmptyList(args) ? std::cin : *(car(args)->getAtom().in_port());
+    std::istream& is = isEmptyList(args) ? std::cin : *(car(args)->getAtom().in_port());
     is.get(c);
     return is.eof() ? Expression::eof_object() : new Expression(Atom(c));
 }
 
 Expression *peekCharProc(Expression *args) {
     char c;
-    istream& is = isEmptyList(args) ? std::cin : *(car(args)->getAtom().in_port());
+    std::istream& is = isEmptyList(args) ? std::cin : *(car(args)->getAtom().in_port());
     c = is.peek();
     return (c == EOF) ? Expression::eof_object() : new Expression(Atom(c));
 }
@@ -191,9 +191,9 @@ Expression *peekCharProc(Expression *args) {
 Expression *isEOFObjProc(Expression *args) { return isEOFObject(car(args)) ? Expression::_true() : Expression::_false(); }
 
 Expression *openOutputPortProc(Expression *args) {
-    string filename = car(args)->getAtom().getString();
-    ofstream* ofs = new ofstream;
-    ofs->open(filename, ofstream::app);
+    std::string filename = car(args)->getAtom().getString();
+    std::ofstream* ofs = new std::ofstream;
+    ofs->open(filename, std::ofstream::app);
     if (ofs->fail()) { std::cerr << "could not open file \"" << filename << "\""; exit(1); }
     return new Expression(Atom(ofs));
 }
@@ -209,20 +209,20 @@ Expression *isOutputPortProc(Expression *args) { return isOutputPort(car(args)) 
 Expression *writeCharProc(Expression *args) {
     Expression *character = car(args);
     args = cdr(args);
-    ostream& os = isEmptyList(args) ? std::cout : *(car(args)->getAtom().out_port());
+    std::ostream& os = isEmptyList(args) ? std::cout : *(car(args)->getAtom().out_port());
     os << character->getAtom().getChar();
     return Symbol::ok_symbol();
 }
 Expression *writeProc(Expression *args) {
     Expression *expr = car(args);
     args = cdr(args);
-    ostream& os = isEmptyList(args) ? std::cout : *(car(args)->getAtom().out_port());
+    std::ostream& os = isEmptyList(args) ? std::cout : *(car(args)->getAtom().out_port());
     os << expr;
     return Symbol::ok_symbol();
 }
 
 Expression *errorProc(Expression *args) {
-    ostream& os(std::cerr);
+    std::ostream& os(std::cerr);
     os << args;
     std::cout << "\nexiting\n";
     exit(1);
