@@ -97,8 +97,8 @@ Expression* isGreaterThanProc(Expression *args) {
 Expression* consProc(Expression *args) { return cons(car(args), cadr(args)); }
 Expression* carProc(Expression *args) { return caar(args); }
 Expression* cdrProc(Expression *args) { return cdar(args); }
-Expression* setcarProc(Expression *args) { setcar(car(args), cadr(args)); return ok_symbol; }
-Expression* setcdrProc(Expression *args) { setcdr(car(args), cadr(args)); return ok_symbol; }
+Expression* setcarProc(Expression *args) { setcar(car(args), cadr(args)); return Symbol::ok_symbol(); }
+Expression* setcdrProc(Expression *args) { setcdr(car(args), cadr(args)); return Symbol::ok_symbol(); }
 Expression* listProc(Expression *args) { return args; }
 
 Expression* isEqProc(Expression *args) {
@@ -157,7 +157,7 @@ Expression *openInputPortProc(Expression *args) {
 Expression *closeInputPortProc(Expression *args) {
     car(args)->getAtom().in_port()->close();
     if (car(args)->getAtom().in_port()->fail()) { cerr << "could not close input port\n"; exit(1); }
-    return ok_symbol;
+    return Symbol::ok_symbol();
 }
 
 Expression *isInputPortProc(Expression *args) { return isInputPort(car(args)) ? _true : _false; }
@@ -205,7 +205,7 @@ Expression *openOutputPortProc(Expression *args) {
 Expression *closeOutputPortProc(Expression *args) {
     car(args)->getAtom().out_port()->close();
     if (car(args)->getAtom().out_port()->fail()) { cerr << "could not close output port\n"; exit(1); }
-    return ok_symbol;
+    return Symbol::ok_symbol();
 }
 
 Expression *isOutputPortProc(Expression *args) { return isOutputPort(car(args)) ? _true : _false; }
@@ -215,14 +215,14 @@ Expression *writeCharProc(Expression *args) {
     args = cdr(args);
     ostream& os = isEmptyList(args) ? std::cout : *(car(args)->getAtom().out_port());
     os << character->getAtom().getChar();
-    return ok_symbol;
+    return Symbol::ok_symbol();
 }
 Expression *writeProc(Expression *args) {
     Expression *expr = car(args);
     args = cdr(args);
     ostream& os = isEmptyList(args) ? std::cout : *(car(args)->getAtom().out_port());
     os << expr;
-    return ok_symbol;
+    return Symbol::ok_symbol();
 }
 
 Expression *errorProc(Expression *args) {

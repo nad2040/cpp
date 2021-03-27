@@ -147,7 +147,7 @@ Expression* ReadTokenizeParse::parseExpression(int& index) {
     else if (ctoken[0] == '\'') { 
         ++index;
         Expression* expr = parseExpression(index);
-        if (expr) return cons(quote_symbol, cons(expr, Expression::getEmptyList())); 
+        if (expr) return cons(Symbol::quote_symbol(), cons(expr, Expression::getEmptyList())); 
         else { --index; return nullptr; }
     }
     else if ((ctoken[0] == '-') && isdigit(ctoken[1]) || isdigit(ctoken[0])) {

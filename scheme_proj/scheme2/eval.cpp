@@ -18,44 +18,44 @@ bool isTaggedList(Expression *expr, Expression *tag) {
     return false;
 }
 
-bool isQuoted(Expression *expr) { return isTaggedList(expr, quote_symbol); }
+bool isQuoted(Expression *expr) { return isTaggedList(expr, Symbol::quote_symbol()); }
 Expression* textOfQuote(Expression *expr) { return cadr(expr); }
 
-bool isAssign(Expression *expr) { return isTaggedList(expr,set_symbol); }
+bool isAssign(Expression *expr) { return isTaggedList(expr,Symbol::set_symbol()); }
 Expression* assignmentVar(Expression *expr) { return cadr(expr); }
 Expression* assignmentValue(Expression *expr) { return caddr(expr); }
 
-bool isDefine(Expression *expr) { return isTaggedList(expr,define_symbol); }
+bool isDefine(Expression *expr) { return isTaggedList(expr,Symbol::define_symbol()); }
 Expression* definitionVar(Expression *expr) { if (isSymbol(cadr(expr))) return cadr(expr); else return caadr(expr); }
 Expression* makeLambda(Expression *params, Expression *body);
 Expression* definitionValue(Expression *expr) { if (isSymbol(cadr(expr))) return caddr(expr); else return makeLambda(cdadr(expr), cddr(expr)); }
 
 Expression* makeIf(Expression *predicate, Expression *consequent, Expression *alternative) {
-    return cons(if_symbol, cons(predicate, cons(consequent, cons(alternative, Expression::getEmptyList()))));
+    return cons(Symbol::if_symbol(), cons(predicate, cons(consequent, cons(alternative, Expression::getEmptyList()))));
 }
-bool isIf(Expression *expr) { return isTaggedList(expr,if_symbol); }
+bool isIf(Expression *expr) { return isTaggedList(expr, Symbol::if_symbol()); }
 Expression* ifPredicate(Expression *expr) { return cadr(expr); }
 Expression* ifConsequent(Expression *expr) { return caddr(expr); }
 Expression* ifAlternative(Expression *expr) { return (isEmptyList(cdddr(expr))) ? _false : cadddr(expr); }
 
-Expression* makeLambda(Expression *params, Expression *body) { return cons(lambda_symbol, cons(params, body)); };
-bool isLambda(Expression *expr) { return isTaggedList(expr, lambda_symbol); }
+Expression* makeLambda(Expression *params, Expression *body) { return cons(Symbol::lambda_symbol(), cons(params, body)); };
+bool isLambda(Expression *expr) { return isTaggedList(expr, Symbol::lambda_symbol()); }
 Expression* lambdaParams(Expression *expr) { return cadr(expr); }
 Expression* lambdaBody(Expression *expr) { return cddr(expr); }
 
-Expression* makeBegin(Expression *expr) { return cons(begin_symbol, expr); }
-bool isBegin(Expression *expr) { return isTaggedList(expr, begin_symbol); }
+Expression* makeBegin(Expression *expr) { return cons(Symbol::begin_symbol(), expr); }
+bool isBegin(Expression *expr) { return isTaggedList(expr, Symbol::begin_symbol()); }
 Expression* beginActions(Expression *expr) { return cdr(expr); }
 
 bool isLastExpr(Expression *seq) { return isEmptyList(cdr(seq)); }
 Expression* firstExpr(Expression *seq) { return car(seq); }
 Expression* restExprs(Expression *seq) { return cdr(seq); }
 
-bool isCond(Expression *expr) { return isTaggedList(expr, cond_symbol); }
+bool isCond(Expression *expr) { return isTaggedList(expr, Symbol::cond_symbol()); }
 Expression* condClauses(Expression *expr) { return cdr(expr); }
 Expression* condPredicate(Expression *clause) { return car(clause); }
 Expression* condActions(Expression *clause) { return cdr(clause); }
-bool isCondElseClause(Expression *clause) { return condPredicate(clause) == else_symbol; }
+bool isCondElseClause(Expression *clause) { return condPredicate(clause) == Symbol::else_symbol(); }
 Expression* seqToExpr(Expression *seq) {
     if (isEmptyList(seq)) return seq;
     else if (isLastExpr(seq)) return firstExpr(seq);
@@ -84,7 +84,7 @@ bool noOperands(Expression *ops) { return isEmptyList(ops); }
 Expression* firstOperand(Expression *ops) { return car(ops); }
 Expression* otherOperands(Expression *ops) { return cdr(ops); }
 
-bool isLet(Expression *expr) { return isTaggedList(expr, let_symbol); }
+bool isLet(Expression *expr) { return isTaggedList(expr, Symbol::let_symbol()); }
 Expression* letBindings(Expression *expr) { return cadr(expr); }
 Expression* letBody(Expression *expr) { return cddr(expr); }
 Expression* bindingParam(Expression *binding) { return car(binding); }
@@ -99,9 +99,9 @@ Expression* letParams(Expression *expr) { return bindingsParams(letBindings(expr
 Expression* letArgs(Expression *expr) { return bindingsArgs(letBindings(expr)); }
 Expression* letToApplication(Expression *expr) { return makeApplication(makeLambda(letParams(expr), letBody(expr)), letArgs(expr)); }
 
-bool isAnd(Expression *expr) { return isTaggedList(expr, and_symbol); }
+bool isAnd(Expression *expr) { return isTaggedList(expr, Symbol::and_symbol()); }
 Expression* andTests(Expression *expr) { return cdr(expr); }
-bool isOr(Expression *expr) { return isTaggedList(expr, or_symbol); }
+bool isOr(Expression *expr) { return isTaggedList(expr, Symbol::or_symbol()); }
 Expression* orTests(Expression *expr) { return cdr(expr); }
 
 Expression* applyOperator(Expression *args) { return car(args); }
@@ -123,11 +123,11 @@ Expression* listOfValues(Expression *expr, Expression *env) {
 
 Expression* evalAssignment(Expression *expr, Expression *env) {
     the_env->setVarValue(assignmentVar(expr), eval(assignmentValue(expr), env), env);
-    return ok_symbol;
+    return Symbol::ok_symbol();
 }
 Expression* evalDefinition(Expression *expr, Expression *env) {    
     the_env->defVar(definitionVar(expr), eval(definitionValue(expr), env), env);
-    return ok_symbol;
+    return Symbol::ok_symbol();
 }
 
 Expression* eval(Expression *expr, Expression *env) {

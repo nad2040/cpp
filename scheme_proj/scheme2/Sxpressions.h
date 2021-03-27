@@ -10,7 +10,24 @@
 //#include <functional>
 
 class Expression;
-struct Symbol { std::string symbol; };
+Expression* makeSymbol(std::string value);
+//inline Expression *symbol_table = Expression::getEmptyList();
+struct Symbol { 
+    std::string symbol;
+    static Expression *quote_symbol() { return makeSymbol("quote"); }
+    static Expression *define_symbol() { return makeSymbol("define"); }
+    static Expression *set_symbol() { return makeSymbol("set!"); }
+    static Expression *ok_symbol() { return makeSymbol("ok"); }
+    static Expression *if_symbol() { return makeSymbol("if"); }
+    static Expression *lambda_symbol() { return makeSymbol("lambda"); }
+    static Expression *begin_symbol() { return makeSymbol("begin"); }
+    static Expression *cond_symbol() { return makeSymbol("cond"); }
+    static Expression *else_symbol() { return makeSymbol("else"); }
+    static Expression *let_symbol() { return makeSymbol("let"); }
+    static Expression *and_symbol() { return makeSymbol("and"); }
+    static Expression *or_symbol() { return makeSymbol("or"); }
+};
+
 using Primitive = Expression *(*)(Expression* args);
 class Atom {
 public:
@@ -185,7 +202,6 @@ bool isInputPort(Expression *expr);
 bool isOutputPort(Expression *expr);
 bool isEOFObject(Expression *expr);
 
-Expression* makeSymbol(std::string value);
 Expression* makeEOF();
 Expression* makePrimProc(Expression *(*fn)(Expression *args));
 
