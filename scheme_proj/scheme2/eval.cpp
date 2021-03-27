@@ -122,11 +122,11 @@ Expression* listOfValues(Expression *expr, Expression *env) {
 }
 
 Expression* evalAssignment(Expression *expr, Expression *env) {
-    setVarValue(assignmentVar(expr), eval(assignmentValue(expr), env), env);
+    the_env->setVarValue(assignmentVar(expr), eval(assignmentValue(expr), env), env);
     return ok_symbol;
 }
 Expression* evalDefinition(Expression *expr, Expression *env) {    
-    defVar(definitionVar(expr), eval(definitionValue(expr), env), env);
+    the_env->defVar(definitionVar(expr), eval(definitionValue(expr), env), env);
     return ok_symbol;
 }
 
@@ -135,7 +135,7 @@ Expression* eval(Expression *expr, Expression *env) {
 
 tailcall:
     if (isSelfEval(expr)) return expr;
-    else if (isVar(expr)) return lookupVarValue(expr, env);
+    else if (isVar(expr)) return the_env->lookupVarValue(expr, env);
     else if (isQuoted(expr)) return textOfQuote(expr);
     else if (isAssign(expr)) return evalAssignment(expr, env);
     else if (isDefine(expr)) return evalDefinition(expr, env);
@@ -188,7 +188,7 @@ tailcall:
         else if (isCompProc(proc)) {
             Expression *compParams, *compBody, *compEnv;
             proc->getCompound(compParams, compBody, compEnv);
-            env = extendEnv(compParams, args, compEnv);
+            env = the_env->extendEnv(compParams, args, compEnv);
             expr = makeBegin(compBody);
             goto tailcall;
         } else { std::cerr << "unknown procedure type\n"; exit(1); }

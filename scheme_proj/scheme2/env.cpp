@@ -2,35 +2,32 @@
 #include "primitive_proc.h"
 #include <iostream>
 
-extern Expression *empty_list;
-extern Expression *empty_env;
-
-Expression* enclosingEnvironment(Expression *env) {
+Expression* theEnv::enclosingEnvironment(Expression *env) {
     return cdr(env);
 }
-Expression* firstFrame(Expression *env) {
+Expression* theEnv::firstFrame(Expression *env) {
     return car(env);
 }
-Expression* makeFrame(Expression *variables, Expression *values) {
+Expression* theEnv::makeFrame(Expression *variables, Expression *values) {
     return cons(variables, values);
 }
-Expression* frameVar(Expression *frame) {
+Expression* theEnv::frameVar(Expression *frame) {
     return car(frame);
 }
-Expression* frameValues(Expression *frame) {
+Expression* theEnv::frameValues(Expression *frame) {
     return cdr(frame);
 }
 
-void addBindingToFrame(Expression *var, Expression *val, Expression *frame) {
+void theEnv::addBindingToFrame(Expression *var, Expression *val, Expression *frame) {
     setcar(frame, cons(var, car(frame)));
     setcdr(frame, cons(val, cdr(frame)));
 }
 
-Expression* extendEnv(Expression *vars, Expression *vals, Expression *base_env) {
+Expression* theEnv::extendEnv(Expression *vars, Expression *vals, Expression *base_env) {
     return cons(makeFrame(vars, vals), base_env);
 }
 
-Expression* lookupVarValue(Expression *var, Expression *env) {
+Expression* theEnv::lookupVarValue(Expression *var, Expression *env) {
     Expression *frame;
     Expression *vars;
     Expression *vals;
@@ -52,7 +49,7 @@ Expression* lookupVarValue(Expression *var, Expression *env) {
     exit(1);
 }
 
-void setVarValue(Expression *var, Expression *val, Expression *env) {
+void theEnv::setVarValue(Expression *var, Expression *val, Expression *env) {
     Expression *frame;
     Expression *vars;
     Expression *vals;
@@ -75,7 +72,7 @@ void setVarValue(Expression *var, Expression *val, Expression *env) {
     exit(1);
 }
 
-void defVar(Expression *var, Expression *val, Expression *env) {
+void theEnv::defVar(Expression *var, Expression *val, Expression *env) {
     Expression *frame;
     Expression *vars;
     Expression *vals;
@@ -95,14 +92,14 @@ void defVar(Expression *var, Expression *val, Expression *env) {
     addBindingToFrame(var, val, frame);
 }
 
-Expression* setupEnv() {
+Expression* theEnv::setupEnv() {
     Expression *initial_env;
 
     initial_env = extendEnv(empty_list, empty_list, empty_env);
     return initial_env;
 }
 
-void populateEnv(Expression* env) {
+void theEnv::populateEnv(Expression* env) {
 #define addSchemeProc(scheme_name, name) defVar(makeSymbol(scheme_name),makePrimProc(name), env);
     addSchemeProc("null?", isNullProc);
     addSchemeProc("boolean?", isBoolProc);
@@ -162,7 +159,7 @@ void populateEnv(Expression* env) {
     addSchemeProc("error", errorProc);
 }
 
-Expression* makeEnv() {
+Expression* theEnv::makeEnv() {
     Expression* env;
 
     env = setupEnv();

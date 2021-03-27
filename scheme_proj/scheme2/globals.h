@@ -18,8 +18,8 @@ inline Expression *let_symbol;
 inline Expression *and_symbol;
 inline Expression *or_symbol;
 inline Expression *eof_object;
-inline Expression *empty_env;
-inline Expression *global_env;
+
+inline theEnv *the_env;
 
 inline void init() {
     empty_list = new Expression();
@@ -42,6 +42,5 @@ inline void init() {
 
     eof_object = makeEOF();
 
-    empty_env = empty_list;
-    global_env = makeEnv();
+    the_env = new theEnv();
 }
