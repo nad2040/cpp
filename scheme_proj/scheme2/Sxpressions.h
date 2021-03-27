@@ -129,6 +129,7 @@ public:
     bool isOutputPort() { return atomType_ == OUTPUT; }
 };
 
+Expression* makeEOF();
 class Expression {
 public:
     enum {ATOM, LIST} exprType_;
@@ -178,6 +179,21 @@ public:
         static Expression* empty_list = new Expression();
         return empty_list;
     }
+
+    static Expression* _false() {
+        static Expression* _false = new Expression(Atom(false));
+        return _false;
+    }
+
+    static Expression* _true() {
+        static Expression* _true = new Expression(Atom(true));
+        return _true;
+    }
+
+    static Expression* eof_object() {
+        static Expression* eof_object = makeEOF();
+        return eof_object;
+    }
 };
 
 Expression* car(Expression* expr);
@@ -202,7 +218,6 @@ bool isInputPort(Expression *expr);
 bool isOutputPort(Expression *expr);
 bool isEOFObject(Expression *expr);
 
-Expression* makeEOF();
 Expression* makePrimProc(Expression *(*fn)(Expression *args));
 
 #define caar(obj)   car(car(obj))

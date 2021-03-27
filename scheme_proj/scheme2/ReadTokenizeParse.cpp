@@ -119,8 +119,8 @@ Expression* ReadTokenizeParse::parseCdr(int& index) {
 
 Expression* ReadTokenizeParse::parseHash(int& index) {
     std::string ctoken = tokens_[index];
-    if (ctoken == "#t") { ++index; return _true; }
-    else if (ctoken == "#f") { ++index; return _false; }
+    if (ctoken == "#t") { ++index; return Expression::_true(); }
+    else if (ctoken == "#f") { ++index; return Expression::_false(); }
     else if (ctoken == "#\\space") { ++index; return new Expression(Atom(' ')); }
     else if (ctoken == "#\\newline") { ++index; return new Expression(Atom('\n')); }
     else if (ctoken.size() == 3 && ctoken[1] == '\\') { ++index; return new Expression(Atom(ctoken[2])); }

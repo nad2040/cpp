@@ -36,7 +36,7 @@ Expression* makeIf(Expression *predicate, Expression *consequent, Expression *al
 bool isIf(Expression *expr) { return isTaggedList(expr, Symbol::if_symbol()); }
 Expression* ifPredicate(Expression *expr) { return cadr(expr); }
 Expression* ifConsequent(Expression *expr) { return caddr(expr); }
-Expression* ifAlternative(Expression *expr) { return (isEmptyList(cdddr(expr))) ? _false : cadddr(expr); }
+Expression* ifAlternative(Expression *expr) { return (isEmptyList(cdddr(expr))) ? Expression::_false() : cadddr(expr); }
 
 Expression* makeLambda(Expression *params, Expression *body) { return cons(Symbol::lambda_symbol(), cons(params, body)); };
 bool isLambda(Expression *expr) { return isTaggedList(expr, Symbol::lambda_symbol()); }
@@ -63,7 +63,7 @@ Expression* seqToExpr(Expression *seq) {
 }
 Expression* expandClauses(Expression *clauses) {
     Expression *first, *rest;
-    if (isEmptyList(clauses)) return _false;
+    if (isEmptyList(clauses)) return Expression::_false();
     else {
         first = car(clauses);
         rest = cdr(clauses);
@@ -150,7 +150,7 @@ tailcall:
     else if (isLet(expr)) { expr = letToApplication(expr); goto tailcall; }
     else if (isAnd(expr)) {
         expr = andTests(expr);
-        if (isEmptyList(expr)) return _true;
+        if (isEmptyList(expr)) return Expression::_true();
         while (!isLastExpr(expr)) {
             result = eval(firstExpr(expr), env);
             if (isFalse(result)) return result;
@@ -161,7 +161,7 @@ tailcall:
     }
     else if (isOr(expr)) {
         expr = orTests(expr);
-        if (isEmptyList(expr)) return _false;
+        if (isEmptyList(expr)) return Expression::_false();
         while (!isLastExpr(expr)) {
             result = eval(firstExpr(expr), env);
             if (isTrue(result)) return result;

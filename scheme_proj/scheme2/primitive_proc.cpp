@@ -10,14 +10,14 @@
 
 using namespace std;
 
-Expression* isNullProc(Expression *args) { return isEmptyList(car(args)) ? _true : _false; }
-Expression* isBoolProc(Expression *args) { return isBool(car(args)) ? _true : _false; }
-Expression* isSymbolProc(Expression *args) { return isSymbol(car(args)) ? _true : _false; }
-Expression* isIntegerProc(Expression *args) { return isNum(car(args)) ? _true : _false; }
-Expression* isCharProc(Expression *args) { return isChar(car(args)) ? _true : _false; }
-Expression* isStringProc(Expression *args) { return isString(car(args)) ? _true : _false; }
-Expression* isPairProc(Expression *args) { return isList(car(args)) ? _true : _false; }
-Expression* isProcedureProc(Expression *args) { Expression* a = car(args); return (isPrimProc(a) || isCompProc(a)) ? _true : _false; }
+Expression* isNullProc(Expression *args) { return isEmptyList(car(args)) ? Expression::_true() : Expression::_false(); }
+Expression* isBoolProc(Expression *args) { return isBool(car(args)) ? Expression::_true() : Expression::_false(); }
+Expression* isSymbolProc(Expression *args) { return isSymbol(car(args)) ? Expression::_true() : Expression::_false(); }
+Expression* isIntegerProc(Expression *args) { return isNum(car(args)) ? Expression::_true() : Expression::_false(); }
+Expression* isCharProc(Expression *args) { return isChar(car(args)) ? Expression::_true() : Expression::_false(); }
+Expression* isStringProc(Expression *args) { return isString(car(args)) ? Expression::_true() : Expression::_false(); }
+Expression* isPairProc(Expression *args) { return isList(car(args)) ? Expression::_true() : Expression::_false(); }
+Expression* isProcedureProc(Expression *args) { Expression* a = car(args); return (isPrimProc(a) || isCompProc(a)) ? Expression::_true() : Expression::_false(); }
 
 Expression* charToIntProc(Expression *args) { return new Expression(Atom((long)(car(args)->getAtom().getChar()))); }
 Expression* intToCharProc(Expression *args) { return new Expression(Atom((char)(car(args)->getAtom().getNumber()))); }
@@ -65,9 +65,9 @@ Expression* isNumberEqualProc(Expression *args) {
     int value;
     value = car(args)->getAtom().getNumber();
     while (!isEmptyList(args = cdr(args))) {
-        if (value != car(args)->getAtom().getNumber()) return _false;
+        if (value != car(args)->getAtom().getNumber()) return Expression::_false();
     }
-    return _true;
+    return Expression::_true();
 }
 
 Expression* isLessThanProc(Expression *args) {
@@ -77,9 +77,9 @@ Expression* isLessThanProc(Expression *args) {
     while (!isEmptyList(args = cdr(args))) {
         next = car(args)->getAtom().getNumber();
         if (previous < next) previous = next;
-        else return _false;
+        else return Expression::_false();
     }
-    return _true;
+    return Expression::_true();
 }
 
 Expression* isGreaterThanProc(Expression *args) {
@@ -89,9 +89,9 @@ Expression* isGreaterThanProc(Expression *args) {
     while (!isEmptyList(args = cdr(args))) {
         next = car(args)->getAtom().getNumber();
         if (previous > next) previous = next;
-        else return _false;
+        else return Expression::_false();
     }
-    return _true;
+    return Expression::_true();
 }
 
 Expression* consProc(Expression *args) { return cons(car(args), cadr(args)); }
@@ -103,9 +103,9 @@ Expression* listProc(Expression *args) { return args; }
 
 Expression* isEqProc(Expression *args) {
     Expression *expr1 = car(args), *expr2 = cadr(args);
-    if (expr1->getAtom().atomType_ != expr2->getAtom().atomType_) return _false;
-    else if (expr1->getAtom() == expr2->getAtom()) return _true;
-    else return (expr1 == expr2) ? _true : _false;
+    if (expr1->getAtom().atomType_ != expr2->getAtom().atomType_) return Expression::_false();
+    else if (expr1->getAtom() == expr2->getAtom()) return Expression::_true();
+    else return (expr1 == expr2) ? Expression::_true() : Expression::_false();
 }
 
 Expression* applyProc(Expression *args) {
@@ -160,7 +160,7 @@ Expression *closeInputPortProc(Expression *args) {
     return Symbol::ok_symbol();
 }
 
-Expression *isInputPortProc(Expression *args) { return isInputPort(car(args)) ? _true : _false; }
+Expression *isInputPortProc(Expression *args) { return isInputPort(car(args)) ? Expression::_true() : Expression::_false(); }
 
 Expression *readProc(Expression *args) {
     Expression *result;
@@ -175,24 +175,24 @@ Expression *readProc(Expression *args) {
         result = eval(expr, the_env->getGlobalEnv());
     }
 
-    return (result == nullptr) ? eof_object : result;
+    return (result == nullptr) ? Expression::eof_object() : result;
 }
 
 Expression *readCharProc(Expression *args) {
     char c;
     istream& is = isEmptyList(args) ? std::cin : *(car(args)->getAtom().in_port());
     is.get(c);
-    return is.eof() ? eof_object : new Expression(Atom(c));
+    return is.eof() ? Expression::eof_object() : new Expression(Atom(c));
 }
 
 Expression *peekCharProc(Expression *args) {
     char c;
     istream& is = isEmptyList(args) ? std::cin : *(car(args)->getAtom().in_port());
     c = is.peek();
-    return (c == EOF) ? eof_object : new Expression(Atom(c));
+    return (c == EOF) ? Expression::eof_object() : new Expression(Atom(c));
 }
 
-Expression *isEOFObjProc(Expression *args) { return isEOFObject(car(args)) ? _true : _false; }
+Expression *isEOFObjProc(Expression *args) { return isEOFObject(car(args)) ? Expression::_true() : Expression::_false(); }
 
 Expression *openOutputPortProc(Expression *args) {
     string filename = car(args)->getAtom().getString();
@@ -208,7 +208,7 @@ Expression *closeOutputPortProc(Expression *args) {
     return Symbol::ok_symbol();
 }
 
-Expression *isOutputPortProc(Expression *args) { return isOutputPort(car(args)) ? _true : _false; }
+Expression *isOutputPortProc(Expression *args) { return isOutputPort(car(args)) ? Expression::_true() : Expression::_false(); }
 
 Expression *writeCharProc(Expression *args) {
     Expression *character = car(args);
