@@ -1,5 +1,4 @@
 #include "primitive_proc.h"
-#include "env.h"
 #include "eval.h"
 #include <iostream>
 #include <fstream>
@@ -109,9 +108,6 @@ Expression* applyProc(Expression *args) {
     std::cerr << "illegal state: The body of the apply primitive procedure should not execute.\n"; exit(1);
 }
 
-Expression* interactionEnvProc(Expression *args) { return theEnv::getGlobalEnv(); }
-Expression* nullEnvProc(Expression *args) { return theEnv::setupEnv(); }
-Expression* envProc(Expression *args) { return theEnv::makeEnv(); }
 Expression* evalProc(Expression *args) {
     std::cerr << "illegal state: The body of the eval primitive procedure should not execute.\n"; exit(1);
 }
@@ -134,7 +130,7 @@ Expression* loadProc(Expression *args) {
         expr = rtp.parseExpression(idx);
         if (expr) {
             //std::cout << "eval current expr:" << expr << '\n';
-            result = Evaluator::eval(expr, theEnv::getGlobalEnv());
+            result = Evaluator::eval(expr);
         }
     }
     
@@ -168,7 +164,7 @@ Expression *readProc(Expression *args) {
     while (!expr) {
         rtp.readAndTokenize(ifs);
         expr = rtp.parseExpression(idx);
-        result = Evaluator::eval(expr, theEnv::getGlobalEnv());
+        result = Evaluator::eval(expr);
     }
 
     return (result == nullptr) ? Expression::eof_object() : result;

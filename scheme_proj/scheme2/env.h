@@ -27,5 +27,9 @@ private:
     static void addBindingToFrame(Expression *var, Expression *val, Expression *frame); 
     static Expression* enclosingEnvironment(Expression *env);
     static Expression* firstFrame(Expression *env); 
+
+    static Expression* interactionEnvProc(Expression *args);
+    static Expression* nullEnvProc(Expression *args);
+    static Expression* envProc(Expression *args);
 };
 

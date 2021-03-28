@@ -3,6 +3,7 @@
 
 class Evaluator {
 public:
+    static Expression* eval(Expression *expr);
     static Expression* eval(Expression *expr, Expression *env);
 private:
     static bool isSelfEval(Expression *expr);

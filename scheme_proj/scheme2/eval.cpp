@@ -2,7 +2,7 @@
 #include "env.h"
 #include "primitive_proc.h"
 
-extern theEnv* the_env;
+theEnv *the_env = new theEnv();
 
 bool Evaluator::isSelfEval(Expression *expr) {
     return isBool(expr) || isNum(expr) ||
@@ -197,3 +197,7 @@ tailcall:
     else { std::cerr << "cannot eval unknown expression type\n"; exit(1); }
     std::cerr << "eval illegal state\n"; exit(1);
 }
+
+Expression* Evaluator::eval(Expression *expr) {
+    eval(expr, the_env->getGlobalEnv());
+} 
