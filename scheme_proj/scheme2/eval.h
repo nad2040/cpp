@@ -1,11 +1,12 @@
 #pragma once
 #include "Sxpressions.h"
+#include "env.h"
 
 class Evaluator {
 public:
     static Expression* eval(Expression *expr);
-    static Expression* eval(Expression *expr, Expression *env);
 private:
+    static theEnv *the_env;
     static bool isSelfEval(Expression *expr);
     static bool isVar(Expression *expr); 
     static bool isTaggedList(Expression *expr, Expression *tag); 
@@ -81,6 +82,7 @@ private:
     static Expression* evalEnv(Expression *args);
     static Expression* listOfValues(Expression *expr, Expression *env); 
     
+    static Expression* eval(Expression *expr, Expression *env);
     static Expression* evalAssignment(Expression *expr, Expression *env); 
     static Expression* evalDefinition(Expression *expr, Expression *env); 
 };

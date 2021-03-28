@@ -1,8 +1,7 @@
 #include "eval.h"
-#include "env.h"
 #include "primitive_proc.h"
 
-theEnv *the_env = new theEnv();
+theEnv *Evaluator::the_env = new theEnv();
 
 bool Evaluator::isSelfEval(Expression *expr) {
     return isBool(expr) || isNum(expr) ||

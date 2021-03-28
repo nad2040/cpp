@@ -41,12 +41,10 @@ bool isEOFObject(Expression *expr) { return expr && expr == Expression::eof_obje
 bool isFalse(Expression *expr) { return expr == Expression::_false(); }
 bool isTrue(Expression *expr) { return !isFalse(expr); }
 
-Expression *symbol_table = Expression::getEmptyList();
 Expression* makeSymbol(std::string value) {
-    Expression *element;
-    Expression *symbol;
+    static Expression *symbol_table = Expression::getEmptyList();
+    Expression *element = symbol_table;
     /* search for they symbol in the symbol table */
-    element = symbol_table;
     while (element != nullptr) {
         assert(isList(element));
         Expression* first=car(element);
@@ -57,7 +55,7 @@ Expression* makeSymbol(std::string value) {
     };
     
     /* create the symbol and add it to the symbol table */
-    symbol = new Expression(Atom(Symbol{value}));
+    Expression *symbol = new Expression(Atom(Symbol{value}));
     symbol_table = cons(symbol, symbol_table);
     return symbol;
 }
