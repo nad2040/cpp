@@ -3,12 +3,13 @@
 
 #include "ReadTokenizeParse.h"
 #include "output.h"
-#include "globals.h"
+
+inline theEnv *the_env;
 
 using namespace std;
 
 int main() {
-    init();
+    the_env = new theEnv();
     cout << "=== Scheme in C++ === ^C to quit\n";
 
     ReadTokenizeParse rtp;

@@ -1,6 +1,5 @@
 #include <string>
 #include "Sxpressions.h"
-#include "globals.h"
 
 Expression* car(Expression* expr) {
     return expr->getCar();
@@ -37,11 +36,12 @@ bool isPrimProc(Expression *expr) { return isAtom(expr) && expr->getAtom().isPri
 bool isCompProc(Expression *expr) { return isAtom(expr) && expr->getAtom().isCompProc(); }
 bool isInputPort(Expression *expr) { return isAtom(expr) && expr->getAtom().isInputPort(); }
 bool isOutputPort(Expression *expr) { return isAtom(expr) && expr->getAtom().isOutputPort(); }
-bool isEOFObject(Expression *expr) { return expr == eof_object; }
+bool isEOFObject(Expression *expr) { return expr == Expression::eof_object(); }
 
-bool isFalse(Expression *expr) { return expr == _false; }
+bool isFalse(Expression *expr) { return expr == Expression::_false(); }
 bool isTrue(Expression *expr) { return !isFalse(expr); }
 
+Expression *symbol_table = Expression::getEmptyList();
 Expression* makeSymbol(std::string value) {
     Expression *element;
     Expression *symbol;

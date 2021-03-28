@@ -2,7 +2,6 @@
 #include <iostream>
 #include <cassert>
 #include <cstdlib>
-#include "globals.h"
 
 namespace {
 
@@ -119,8 +118,8 @@ Expression* ReadTokenizeParse::parseCdr(int& index) {
 
 Expression* ReadTokenizeParse::parseHash(int& index) {
     std::string ctoken = tokens_[index];
-    if (ctoken == "#t") { ++index; return _true; }
-    else if (ctoken == "#f") { ++index; return _false; }
+    if (ctoken == "#t") { ++index; return Expression::_true(); }
+    else if (ctoken == "#f") { ++index; return Expression::_false(); }
     else if (ctoken == "#\\space") { ++index; return new Expression(Atom(' ')); }
     else if (ctoken == "#\\newline") { ++index; return new Expression(Atom('\n')); }
     else if (ctoken.size() == 3 && ctoken[1] == '\\') { ++index; return new Expression(Atom(ctoken[2])); }
@@ -147,7 +146,7 @@ Expression* ReadTokenizeParse::parseExpression(int& index) {
     else if (ctoken[0] == '\'') { 
         ++index;
         Expression* expr = parseExpression(index);
-        if (expr) return cons(quote_symbol, cons(expr, Expression::getEmptyList())); 
+        if (expr) return cons(Symbol::quote_symbol(), cons(expr, Expression::getEmptyList())); 
         else { --index; return nullptr; }
     }
     else if ((ctoken[0] == '-') && isdigit(ctoken[1]) || isdigit(ctoken[0])) {
