@@ -19,6 +19,7 @@ void writeList(std::ostream& os, Expression *list) {
 }
 
 void write(std::ostream& os, Expression *expr) {
+    if (!expr) return;
     int i=0;
     char c;
     std::string str;
