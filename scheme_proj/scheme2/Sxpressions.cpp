@@ -25,8 +25,8 @@ Expression* cons(Expression *car, Expression *cdr) {
 
 bool isEmptyList(Expression *expr) { return isList(expr) && expr->getCar() == nullptr && expr->getCdr() == nullptr; }
 //bool isEmptyList(Expression *expr) { return expr == getEmptyList(); }
-bool isList(Expression *expr) { return expr->exprType_ == Expression::LIST; }
-bool isAtom(Expression *expr) { return expr->exprType_ == Expression::ATOM; }
+bool isList(Expression *expr) { return expr && expr->exprType_ == Expression::LIST; }
+bool isAtom(Expression *expr) { return expr && expr->exprType_ == Expression::ATOM; }
 bool isBool(Expression *expr) { return isAtom(expr) && expr->getAtom().isBool(); }
 bool isNum(Expression *expr) { return isAtom(expr) && expr->getAtom().isNum(); }
 bool isChar(Expression *expr) { return isAtom(expr) && expr->getAtom().isChar(); }
@@ -36,7 +36,7 @@ bool isPrimProc(Expression *expr) { return isAtom(expr) && expr->getAtom().isPri
 bool isCompProc(Expression *expr) { return isAtom(expr) && expr->getAtom().isCompProc(); }
 bool isInputPort(Expression *expr) { return isAtom(expr) && expr->getAtom().isInputPort(); }
 bool isOutputPort(Expression *expr) { return isAtom(expr) && expr->getAtom().isOutputPort(); }
-bool isEOFObject(Expression *expr) { return expr == Expression::eof_object(); }
+bool isEOFObject(Expression *expr) { return expr && expr == Expression::eof_object(); }
 
 bool isFalse(Expression *expr) { return expr == Expression::_false(); }
 bool isTrue(Expression *expr) { return !isFalse(expr); }

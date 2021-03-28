@@ -37,9 +37,6 @@ Expression* isEqProc(Expression *args);
 
 Expression* applyProc(Expression *args);
 
-Expression* interactionEnvProc(Expression *args);
-Expression* nullEnvProc(Expression *args);
-Expression* envProc(Expression *args);
 Expression* evalProc(Expression *args);
 
 Expression *loadProc(Expression *args);

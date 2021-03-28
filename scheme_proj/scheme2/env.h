@@ -3,32 +3,33 @@
 
 class theEnv {
 public:
-    theEnv() {
-        global_env_ = makeEnv();
-    }
-
     //required by primitive
-    Expression* setupEnv(); //nullEnvProc
-    Expression* makeEnv(); //envProc
+    static Expression* setupEnv(); //nullEnvProc
+    static Expression* makeEnv(); //envProc
 
     //required by eval
-    Expression* extendEnv(Expression *vars, Expression *vals, Expression *base_env); 
-    Expression* lookupVarValue(Expression *var, Expression *env); 
-    void defVar(Expression *var, Expression *val, Expression *env); 
-    void setVarValue(Expression *var, Expression *val, Expression *env); 
+    static Expression* extendEnv(Expression *vars, Expression *vals, Expression *base_env); 
+    static Expression* lookupVarValue(Expression *var, Expression *env); 
+    static void defVar(Expression *var, Expression *val, Expression *env); 
+    static void setVarValue(Expression *var, Expression *val, Expression *env); 
 
-    Expression* getGlobalEnv() { return global_env_; }
+    static Expression* getGlobalEnv() {
+        static Expression* global_env = makeEnv();
+        return global_env;
+    }
 
 private:
-    void populateEnv(Expression* env);
+    static void populateEnv(Expression* env);
 
-    Expression* makeFrame(Expression *variables, Expression *values);
-    Expression* frameVar(Expression *frame); 
-    Expression* frameValues(Expression *frame); 
-    void addBindingToFrame(Expression *var, Expression *val, Expression *frame); 
-    Expression* enclosingEnvironment(Expression *env);
-    Expression* firstFrame(Expression *env); 
+    static Expression* makeFrame(Expression *variables, Expression *values);
+    static Expression* frameVar(Expression *frame); 
+    static Expression* frameValues(Expression *frame); 
+    static void addBindingToFrame(Expression *var, Expression *val, Expression *frame); 
+    static Expression* enclosingEnvironment(Expression *env);
+    static Expression* firstFrame(Expression *env); 
 
-    Expression* global_env_{nullptr}; 
+    static Expression* interactionEnvProc(Expression *args);
+    static Expression* nullEnvProc(Expression *args);
+    static Expression* envProc(Expression *args);
 };
 
