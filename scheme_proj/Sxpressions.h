@@ -7,7 +7,7 @@ bool isInitial(char c);
 bool isSym(std::string &str);
 
 class Expression;
-enum AtomType {UNK, BOOL, SYMBOL, NUM, CHAR, STR, PRIM_PROC, COMP_PROC, INPUT, OUTPUT, EOF_OBJECT};
+enum AtomType {UNK, BOOL, NUM, CHAR, STR, SYMBOL, PRIM_PROC, COMP_PROC, INPUT, OUTPUT, EOF_OBJECT};
 class Atom {
 public:
     struct Compound {
@@ -55,12 +55,12 @@ public:
         } else atomType_ = UNK;
     }
     Atom(Expression* (*fnptr)(Expression* args)) :
-        atomType_(PRIM_PROC), atomValue_("#<procedure>"),
+        atomType_(PRIM_PROC), atomValue_("#<primitive-procedure>"),
         fn(fnptr), compound_proc(),
         in_port(nullptr), out_port(nullptr) {}
 
     Atom(Expression* _params, Expression* _body, Expression* _env) :
-        atomType_(COMP_PROC), atomValue_("#<procedure>"),
+        atomType_(COMP_PROC), atomValue_("#<compound-procedure>"),
         fn(nullptr), compound_proc(_params,_body,_env),
         in_port(nullptr), out_port(nullptr) {}
 
