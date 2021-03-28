@@ -67,7 +67,7 @@ void ReadTokenizeParse::readAndTokenize() {
         tokens_.push_back(token);
     }
     //dump tokens
-    std::cout << "tokens:"; for(auto& elem : tokens_) std::cout << '_' << elem; std::cout << '\n';
+    //std::cout << "tokens:"; for(auto& elem : tokens_) std::cout << '_' << elem; std::cout << '\n';
 }
 
 void ReadTokenizeParse::readAndTokenize(std::istream& is) {
@@ -83,33 +83,33 @@ void ReadTokenizeParse::readAndTokenize(std::istream& is) {
         tokens_.push_back(token);
     }
     //dump tokens
-    std::cout << "tokens:"; for(auto& elem : tokens_) std::cout << '_' << elem; std::cout << '\n';
+    //std::cout << "tokens:"; for(auto& elem : tokens_) std::cout << '_' << elem; std::cout << '\n';
 }
 
 Expression* ReadTokenizeParse::parseCdr(int& index) {
     int oldReadPos = index;
     std::string ctoken = tokens_[index];
-    std::cout << "current token:" << ctoken << " index:" << index << '\n';
+    //std::cout << "current token:" << ctoken << " index:" << index << '\n';
     //first check empty list
     if (ctoken[0] == ')') {
         ++index;
-        std::cout << "list reach end\n";
+        //std::cout << "list reach end\n";
         return Expression::getEmptyList();
     }
     //parse car
-    std::cout << "parse car current token:" << tokens_[index] << " index:" << index << '\n';
+    //std::cout << "parse car current token:" << tokens_[index] << " index:" << index << '\n';
     Expression* first = parseExpression(index);
     if (!first) {
         index = oldReadPos;
-        std::cout << "list car empty\n";
+        //std::cout << "list car empty\n";
         return nullptr;
     }
     //parse cdr
-    std::cout << "parse cdr current token:" << tokens_[index] << " index:" << index << '\n';
+    //std::cout << "parse cdr current token:" << tokens_[index] << " index:" << index << '\n';
     Expression* rest = parseCdr(index);
     if (!rest) {
         index = oldReadPos; 
-        std::cout << "list cdr empty\n";
+        //std::cout << "list cdr empty\n";
         return nullptr;
     }
     //std::cout << "return from readCdrT, current token:" << tokens_[index] << " index:" << index << '\n'; //out of boundar 4, 'a, (* 6 7)

@@ -7,6 +7,7 @@ public:
     static Expression* eval(Expression *expr);
 private:
     static theEnv *the_env;
+
     static bool isSelfEval(Expression *expr);
     static bool isVar(Expression *expr); 
     static bool isTaggedList(Expression *expr, Expression *tag); 
