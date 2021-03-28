@@ -1,5 +1,6 @@
 #include <iostream>
 #include "eval.h"
+#include "env.h"
 
 #include "ReadTokenizeParse.h"
 #include "output.h"
@@ -18,7 +19,7 @@ int main() {
         rtp.readAndTokenize();
         expr = rtp.parseExpression(tokenIdx);
         if (expr) std::cout << expr << '\n';
-        if (expr) std::cout << eval(expr, the_env->getGlobalEnv()) << '\n';
+        if (expr) std::cout << Evaluator::eval(expr, the_env->getGlobalEnv()) << '\n';
         expr = nullptr;
     }
 

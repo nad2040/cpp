@@ -1,85 +1,85 @@
 #pragma once
 #include "Sxpressions.h"
-#include "env.h"
 
-bool isSelfEval(Expression *expr);
-bool isVar(Expression *expr); 
-bool isTaggedList(Expression *expr, Expression *tag); 
-
-bool isQuoted(Expression *expr); 
-Expression* textOfQuote(Expression *expr); 
-
-bool isAssign(Expression *expr); 
-Expression* assignmentVar(Expression *expr); 
-Expression* assignmentValue(Expression *expr); 
-
-bool isDefine(Expression *expr); 
-Expression* definitionVar(Expression *expr); 
-Expression* makeLambda(Expression *params, Expression *body);
-Expression* definitionValue(Expression *expr); 
-
-Expression* makeIf(Expression *predicate, Expression *consequent, Expression *alternative); 
-bool isIf(Expression *expr); 
-Expression* ifPredicate(Expression *expr); 
-Expression* ifConsequent(Expression *expr); 
-Expression* ifAlternative(Expression *expr); 
-
-Expression* makeLambda(Expression *params, Expression *body) ;;
-bool isLambda(Expression *expr); 
-Expression* lambdaParams(Expression *expr); 
-Expression* lambdaBody(Expression *expr); 
-
-Expression* makeBegin(Expression *expr); 
-bool isBegin(Expression *expr); 
-Expression* beginActions(Expression *expr); 
-
-bool isLastExpr(Expression *seq); 
-Expression* firstExpr(Expression *seq); 
-Expression* restExprs(Expression *seq); 
-
-bool isCond(Expression *expr); 
-Expression* condClauses(Expression *expr); 
-Expression* condPredicate(Expression *clause); 
-Expression* condActions(Expression *clause); 
-bool isCondElseClause(Expression *clause); 
-Expression* seqToExpr(Expression *seq); 
-Expression* expandClauses(Expression *clauses); 
-Expression* condToIf(Expression *expr); 
-
-Expression* makeApplication(Expression *operation, Expression *operands); 
-bool isApplication(Expression *expr); 
-Expression* operation(Expression *expr); 
-Expression* operands(Expression *expr); 
-bool noOperands(Expression *ops); 
-Expression* firstOperand(Expression *ops); 
-Expression* otherOperands(Expression *ops); 
-
-bool isLet(Expression *expr); 
-Expression* letBindings(Expression *expr); 
-Expression* letBody(Expression *expr); 
-Expression* bindingParam(Expression *binding); 
-Expression* bindingArg(Expression *binding); 
-Expression* bindingsParams(Expression *bindings); 
-Expression* bindingsArgs(Expression *bindings); 
-Expression* letParams(Expression *expr); 
-Expression* letArgs(Expression *expr); 
-Expression* letToApplication(Expression *expr); 
-
-bool isAnd(Expression *expr); 
-Expression* andTests(Expression *expr); 
-bool isOr(Expression *expr); 
-Expression* orTests(Expression *expr); 
-
-Expression* applyOperator(Expression *args);
-Expression* prepApplyOperands(Expression *args);
-Expression* applyOperands(Expression *args);
-
-Expression* evalExpr(Expression *args);
-Expression* evalEnv(Expression *args);
-
-Expression* eval(Expression *expr, Expression *env);
-
-Expression* listOfValues(Expression *expr, Expression *env); 
-
-Expression* evalAssignment(Expression *expr, Expression *env); 
-Expression* evalDefinition(Expression *expr, Expression *env); 
+class Evaluator {
+public:
+    static Expression* eval(Expression *expr, Expression *env);
+private:
+    static bool isSelfEval(Expression *expr);
+    static bool isVar(Expression *expr); 
+    static bool isTaggedList(Expression *expr, Expression *tag); 
+    
+    static bool isQuoted(Expression *expr); 
+    static Expression* textOfQuote(Expression *expr); 
+   
+    static bool isAssign(Expression *expr); 
+    static Expression* assignmentVar(Expression *expr); 
+    static Expression* assignmentValue(Expression *expr); 
+    
+    static bool isDefine(Expression *expr); 
+    static Expression* definitionVar(Expression *expr); 
+    static Expression* definitionValue(Expression *expr); 
+    
+    static Expression* makeIf(Expression *predicate, Expression *consequent, Expression *alternative); 
+    static bool isIf(Expression *expr); 
+    static Expression* ifPredicate(Expression *expr); 
+    static Expression* ifConsequent(Expression *expr); 
+    static Expression* ifAlternative(Expression *expr); 
+    
+    static Expression* makeLambda(Expression *params, Expression *body);
+    static bool isLambda(Expression *expr); 
+    static Expression* lambdaParams(Expression *expr); 
+    static Expression* lambdaBody(Expression *expr); 
+    
+    static Expression* makeBegin(Expression *expr); 
+    static bool isBegin(Expression *expr); 
+    static Expression* beginActions(Expression *expr); 
+    
+    static bool isLastExpr(Expression *seq); 
+    static Expression* firstExpr(Expression *seq); 
+    static Expression* restExprs(Expression *seq); 
+    
+    static bool isCond(Expression *expr); 
+    static Expression* condClauses(Expression *expr); 
+    static Expression* condPredicate(Expression *clause); 
+    static Expression* condActions(Expression *clause); 
+    static bool isCondElseClause(Expression *clause); 
+    static Expression* seqToExpr(Expression *seq); 
+    static Expression* expandClauses(Expression *clauses); 
+    static Expression* condToIf(Expression *expr); 
+    
+    static Expression* makeApplication(Expression *operation, Expression *operands); 
+    static bool isApplication(Expression *expr); 
+    static Expression* operation(Expression *expr); 
+    static Expression* operands(Expression *expr); 
+    static bool noOperands(Expression *ops); 
+    static Expression* firstOperand(Expression *ops); 
+    static Expression* otherOperands(Expression *ops); 
+    
+    static bool isLet(Expression *expr); 
+    static Expression* letBindings(Expression *expr); 
+    static Expression* letBody(Expression *expr); 
+    static Expression* bindingParam(Expression *binding); 
+    static Expression* bindingArg(Expression *binding); 
+    static Expression* bindingsParams(Expression *bindings); 
+    static Expression* bindingsArgs(Expression *bindings); 
+    static Expression* letParams(Expression *expr); 
+    static Expression* letArgs(Expression *expr); 
+    static Expression* letToApplication(Expression *expr); 
+    
+    static bool isAnd(Expression *expr); 
+    static Expression* andTests(Expression *expr); 
+    static bool isOr(Expression *expr); 
+    static Expression* orTests(Expression *expr); 
+    
+    static Expression* applyOperator(Expression *args);
+    static Expression* prepApplyOperands(Expression *args);
+    static Expression* applyOperands(Expression *args);
+    
+    static Expression* evalExpr(Expression *args);
+    static Expression* evalEnv(Expression *args);
+    static Expression* listOfValues(Expression *expr, Expression *env); 
+    
+    static Expression* evalAssignment(Expression *expr, Expression *env); 
+    static Expression* evalDefinition(Expression *expr, Expression *env); 
+};
