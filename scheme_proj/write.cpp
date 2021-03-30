@@ -12,7 +12,7 @@ void Writer::writeList(Expression *list) {
     write(car_obj);
 
     if (cdr_obj->exprType_ == LIST && cdr_obj != empty_list) {
-        *out << " ";
+        if (car_obj) *out << " ";
         writeList(cdr_obj);
     } else {
         if (cdr_obj == empty_list) { return; }
@@ -22,6 +22,7 @@ void Writer::writeList(Expression *list) {
 }
 
 void Writer::write(Expression *expr) {
+    if (!expr) return;
     int i=0;
     char c;
     string str;

@@ -152,8 +152,6 @@ Expression* Reader::readIn() {
 
     eatWhiteSpace();
 
-    if (line.empty()) { return new Expression(Atom()); }
-
     c = line[i];
     if (c == '#') { // read boolean/char
         c = line[++i];

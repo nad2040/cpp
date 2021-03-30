@@ -12,19 +12,21 @@ bool isInitial(char c) {
 
 bool isSym(std::string &str) {
     char c; int i=0;
-    while (isInitial(c = str[i]) || c == '+' || c == '-') {
+    while (isInitial(c = str[i]) || isdigit(c) || c == '+' || c == '-') {
         i++;
     }
     return i == str.length();
 }
 
 Expression* car(Expression* expr) {
+    if (!expr || !(expr->list)) return nullptr;
     return expr->list->car;
 }
 void setcar(Expression *expr, Expression* value) {
     expr->list->car = value;
 }
 Expression* cdr(Expression* expr) {
+    if (!expr || !(expr->list)) return nullptr;
     return expr->list->cdr;
 }
 void setcdr(Expression *expr, Expression* value) {
@@ -37,8 +39,8 @@ Expression* cons(Expression *car, Expression *cdr) {
     Expression* consObj = new Expression(myList);
     return consObj;
 }
-bool isList(Expression *expr) { return expr->exprType_ == LIST; }
-bool isAtom(Expression *expr) { return expr->exprType_ == ATOM; }
+bool isList(Expression *expr) { return expr && expr->exprType_ == LIST; }
+bool isAtom(Expression *expr) { return expr && expr->exprType_ == ATOM; }
 bool isBool(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == BOOL; }
 bool isNum(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == NUM; }
 bool isChar(Expression *expr) { return isAtom(expr) && expr->atom.atomType_ == CHAR; }

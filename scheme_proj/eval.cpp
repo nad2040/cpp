@@ -147,7 +147,7 @@ Expression* evalDefinition(Expression *expr, Expression *env) {
 
 Expression* eval(Expression *expr, Expression *env) {
     Expression *proc, *args, *result;
-
+    
 tailcall:
     if (isSelfEval(expr)) return expr;
     else if (isVar(expr)) return lookupVarValue(expr, env);
