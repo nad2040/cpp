@@ -55,12 +55,12 @@ public:
         } else atomType_ = UNK;
     }
     Atom(Expression* (*fnptr)(Expression* args)) :
-        atomType_(PRIM_PROC), atomValue_("#<primitive-procedure>"),
+        atomType_(PRIM_PROC), atomValue_("#<prim-proc>"),
         fn(fnptr), compound_proc(),
         in_port(nullptr), out_port(nullptr) {}
 
     Atom(Expression* _params, Expression* _body, Expression* _env) :
-        atomType_(COMP_PROC), atomValue_("#<compound-procedure>"),
+        atomType_(COMP_PROC), atomValue_("#<comp-proc>"),
         fn(nullptr), compound_proc(_params,_body,_env),
         in_port(nullptr), out_port(nullptr) {}
 
