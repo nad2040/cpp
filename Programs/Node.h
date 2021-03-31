@@ -1,4 +1,5 @@
-#include<iostream>
+#pragma once
+#include <iostream>
 
 template<typename T>
 std::string toString(T& t) {
