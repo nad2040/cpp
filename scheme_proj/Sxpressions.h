@@ -47,13 +47,11 @@ public:
         fn(nullptr), compound_proc(),
         in_port(nullptr), out_port(nullptr) {}
 
-    Atom(char c) : fn(nullptr), compound_proc(),
-        in_port(nullptr), out_port(nullptr) {
-        if (c == ' ' || c == '\n' || isalpha(c) || isdigit(c)) {
-            atomType_ = CHAR;
-            atomValue_ = c;
-        } else atomType_ = UNK;
-    }
+    Atom(char c) : 
+        atomType_(CHAR), atomValue_(1,c),
+        fn(nullptr), compound_proc(),
+        in_port(nullptr), out_port(nullptr) {}
+    
     Atom(Expression* (*fnptr)(Expression* args)) :
         atomType_(PRIM_PROC), atomValue_("#<prim-proc>"),
         fn(fnptr), compound_proc(),

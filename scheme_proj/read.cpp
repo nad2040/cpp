@@ -24,27 +24,28 @@ int parenCount(string line) {
 }
 void Reader::getInput() {
     string l = "", temp = "";
-    int left = 0, right = 0;
-    while (true) {
-        getline(cin, temp);
-        for (int in=0; in<temp.size(); ++in) {
-            if (temp[in] == '(') ++left;
-            if (temp[in] == ')') ++right;
-            if (temp[in] == 5) { l += temp; goto end; }
-        }
-        l += temp + '\n';
+    getline(cin,l);
+    while (int p = parenCount(l) > 0) {
         cout << "  ";
-        for (int j = 0; j < left-right; ++j) cout << "  ";
+        for (int j = 0; j < p; ++j) cout << "  ";
+        getline(cin, temp);
+        l += '\n' + temp;
     }
-    end:
-    l.pop_back();
+    l += '\n';
     line = l;
     i = 0;
 }
 void Reader::fileInput() {
     string l = "", temp = "";
     char c;
-    while (in->get(c) && isspace(c));
+    while (in->get(c) && !in->eof()) {
+        if (isspace(c)) continue;
+        else if (c==';') {
+            while ((in->get(c) && !in->eof()) && (c != '\n'));
+            continue;
+        }
+        break;
+    }
     getline(*in,l);
     l = c + l;
     while (parenCount(l) > 0) {
@@ -71,15 +72,14 @@ void Reader::eatWhiteSpace() {
 void Reader::eatString(string check) {
     int c=0;
     while (c<check.length()) {
-        if (line[i++] != check[c++]) {
+        if (line[++i] != check[c++]) {
             cerr <<  "unexpected character '" << line[i] << "'\n"; exit(1);
         }
     }
-    ++i;
 }
 void Reader::peekDelimiter() {
     if (!isDelimiter(line[++i])) {
-        cerr <<  "character not followed by delimiter\n"; exit(1);
+        cerr << "character not followed by delimiter\n"; exit(1);
     }
 }
 Expression* Reader::readCharacter() {
@@ -89,13 +89,13 @@ Expression* Reader::readCharacter() {
             cerr <<  "incomplete character literal\n";
             exit(1);
         case 's':
-            if (line[++i] == 'p') {
+            if (line[i+1] == 'p') {
                 eatString("pace");
                 peekDelimiter();
                 return new Expression(Atom(' '));
             } break;
         case 'n':
-            if (line[++i] == 'e') {
+            if (line[i+1] == 'e') {
                 eatString("ewline");
                 peekDelimiter();
                 return new Expression(Atom('\n'));
