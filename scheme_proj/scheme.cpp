@@ -64,8 +64,6 @@ ofstream _ofs;
 ifstream _ifs_2; // for scheme input filestream
 ofstream _ofs_2; // for scheme output filestream
 
-ofstream nullOut("null");
-
 int main() {
     Expression *expr = nullptr;
 
