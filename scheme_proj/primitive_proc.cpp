@@ -169,15 +169,13 @@ Expression *readProc(Expression *args) {
 Expression *readCharProc(Expression *args) {
     char c;
     Reader r = isEmptyList(args) ? Reader() : Reader(*car(args)->atom.in_port);
-    if (r.in == &nullIn) cin.get(c);
-    else r.in->get(c);
+    r.in->get(c);
     return (r.in->eof()) ? eof_object : new Expression(Atom(c));
 }
 Expression *peekCharProc(Expression *args) {
     char c;
     Reader r = isEmptyList(args) ? Reader() : Reader(*car(args)->atom.in_port);
-    if (r.in == &nullIn) c = cin.peek();
-    else c = r.in->peek();
+    c = r.in->peek();
     return (c == EOF) ? eof_object : new Expression(Atom(c));
 }
 

@@ -63,7 +63,7 @@ ifstream _ifs;
 ofstream _ofs;
 ifstream _ifs_2; // for scheme input filestream
 ofstream _ofs_2; // for scheme output filestream
-ifstream nullIn("null");
+
 ofstream nullOut("null");
 
 int main() {
@@ -75,31 +75,16 @@ int main() {
 
     //ifstream ifs("scm_files/testing_input.scm");
     //ofstream ofs("a.txt");
-    Reader r = Reader();
+    Reader r = Reader("scm_files/b.scm");
+    //Reader r = Reader();
     Writer w = Writer();
-    /*   
-    BufferReader reader;
-    int tokenIdx = 0;
-    while (!expr) {
-        cout << "> ";
-        reader.readBuffer();
-        //expr = reader.nextExpression();
-        expr = reader.nextExpressionT(tokenIdx);
-        //if (expr) std::cout << eval(expr, global_env) << '\n';
-        if (expr) w.write(expr); *w.out << '\n';
-        if (expr) w.write(eval(expr, global_env)); *w.out << '\n';
-        expr = nullptr;
-    }
-    */
     
     while (true) {
         cout << "> ";
         r.fillBuff();
         expr = r.readIn();
         if (expr == nullptr) break;
-        // Uncomment to see input from file
-        // w.write(expr);
-        // *w.out << '\n';
+        w.write(expr); *w.out << '\n'; // Uncomment to see input from file
         w.write(eval(expr, global_env));
         *w.out << '\n';
     }

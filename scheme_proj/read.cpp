@@ -14,47 +14,40 @@ bool isDelimiter(char c) {
            c == '\004';
 }
 
-int parenCount(string line) {
+void ignorews(istream& in) {
+    char c;
+    while (in.get(c) && !in.eof()) {
+        if (isspace(c)) continue;
+        else if (c == ';') {
+            while (in.get(c) && !in.eof() && c != '\n');
+            continue;
+        }
+        in.unget();
+        break;
+    }
+}
+int parenCount(string& line) {
     int left = 0, right = 0;
-    for (int i=0; i<line.size(); ++i) {
+    for (int i=0; i<line.length(); ++i) {
         if (line[i] == '(') ++left;
         if (line[i] == ')') ++right;
     }
     return left - right;
 }
-void Reader::getInput() {
-    string l = "", temp = "";
-    getline(cin,l);
-    while (int p = parenCount(l) > 0) {
-        cout << "  ";
-        for (int j = 0; j < p; ++j) cout << "  ";
-        getline(cin, temp);
-        l += '\n' + temp;
-    }
-    l += '\n';
-    line = l;
-    i = 0;
-}
-void Reader::fileInput() {
-    string l = "", temp = "";
+void Reader::fillBuff() {
     char c;
+    ignorews(*in);
     while (in->get(c) && !in->eof()) {
-        if (isspace(c)) continue;
-        else if (c==';') {
-            while ((in->get(c) && !in->eof()) && (c != '\n'));
-            continue;
+        line += c;
+        if (c == '\n' && parenCount(line) == 0) return;
+        else if (c == '"') {
+            while (in->get(c) && !in->eof() && c != '"') line += c;
+            line+='"';
         }
-        break;
+        else if (c == '(') { fillBuff(); if (parenCount(line) == 0) return; }
+        else if (c == ')') return;
     }
-    getline(*in,l);
-    l = c + l;
-    while (parenCount(l) > 0) {
-        getline(*in,temp);
-        l += '\n' + temp;
-    }
-    l += '\n';
-    line = l;
-    i = 0;
+    line += '\n';
 }
 
 void Reader::eatWhiteSpace() {
