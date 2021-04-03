@@ -4,27 +4,26 @@
 #include <fstream>
 #include "Sxpressions.h"
 
-extern std::ifstream nullIn;
 extern std::ifstream _ifs;
 
 bool isDelimiter(char c);
-int parenCount(std::string line);
+void ignorews(std::istream& in);
+int parenCount(std::string& line);
 
 class Reader {
 public:
     int i;
     std::string line;
-    std::ifstream* in;
+    std::istream* in;
 
-    Reader() : i(0), line(""), in(&nullIn) {}
+    Reader() : i(0), line(""), in(&std::cin) {}
     Reader(std::ifstream& ifs) : i(0), line(""), in(&ifs) {}
     Reader(std::string filename) : i(0), line("") {
         _ifs.open(filename, std::ifstream::in);
         in = &_ifs;
     }
 
-    void getInput();
-    void fileInput();
+    void fillBuff();
 
     void eatWhiteSpace();
     void eatString(std::string check);
@@ -32,9 +31,4 @@ public:
     Expression* readCharacter();
     Expression* readIn();
     Expression* readPair();
-
-    void fillBuff() {
-        if (in == &nullIn) getInput();
-        else fileInput();
-    }
 };

@@ -14,46 +14,40 @@ bool isDelimiter(char c) {
            c == '\004';
 }
 
-int parenCount(string line) {
+void ignorews(istream& in) {
+    char c;
+    while (in.get(c) && !in.eof()) {
+        if (isspace(c)) continue;
+        else if (c == ';') {
+            while (in.get(c) && !in.eof() && c != '\n');
+            continue;
+        }
+        in.unget();
+        break;
+    }
+}
+int parenCount(string& line) {
     int left = 0, right = 0;
-    for (int i=0; i<line.size(); ++i) {
+    for (int i=0; i<line.length(); ++i) {
         if (line[i] == '(') ++left;
         if (line[i] == ')') ++right;
     }
     return left - right;
 }
-void Reader::getInput() {
-    string l = "", temp = "";
-    int left = 0, right = 0;
-    while (true) {
-        getline(cin, temp);
-        for (int in=0; in<temp.size(); ++in) {
-            if (temp[in] == '(') ++left;
-            if (temp[in] == ')') ++right;
-            if (temp[in] == 5) { l += temp; goto end; }
-        }
-        l += temp + '\n';
-        cout << "  ";
-        for (int j = 0; j < left-right; ++j) cout << "  ";
-    }
-    end:
-    l.pop_back();
-    line = l;
-    i = 0;
-}
-void Reader::fileInput() {
-    string l = "", temp = "";
+void Reader::fillBuff() {
     char c;
-    while (in->get(c) && isspace(c));
-    getline(*in,l);
-    l = c + l;
-    while (parenCount(l) > 0) {
-        getline(*in,temp);
-        l += '\n' + temp;
+    ignorews(*in);
+    while (in->get(c) && !in->eof()) {
+        line += c;
+        if (c == '\n' && parenCount(line) == 0) return;
+        else if (c == '"') {
+            while (in->get(c) && !in->eof() && c != '"') line += c;
+            line+='"';
+        }
+        else if (c == '(') { fillBuff(); if (parenCount(line) == 0) return; }
+        else if (c == ')') return;
     }
-    l += '\n';
-    line = l;
-    i = 0;
+    line += '\n';
 }
 
 void Reader::eatWhiteSpace() {
@@ -71,15 +65,14 @@ void Reader::eatWhiteSpace() {
 void Reader::eatString(string check) {
     int c=0;
     while (c<check.length()) {
-        if (line[i++] != check[c++]) {
+        if (line[++i] != check[c++]) {
             cerr <<  "unexpected character '" << line[i] << "'\n"; exit(1);
         }
     }
-    ++i;
 }
 void Reader::peekDelimiter() {
     if (!isDelimiter(line[++i])) {
-        cerr <<  "character not followed by delimiter\n"; exit(1);
+        cerr << "character not followed by delimiter\n"; exit(1);
     }
 }
 Expression* Reader::readCharacter() {
@@ -89,13 +82,13 @@ Expression* Reader::readCharacter() {
             cerr <<  "incomplete character literal\n";
             exit(1);
         case 's':
-            if (line[++i] == 'p') {
+            if (line[i+1] == 'p') {
                 eatString("pace");
                 peekDelimiter();
                 return new Expression(Atom(' '));
             } break;
         case 'n':
-            if (line[++i] == 'e') {
+            if (line[i+1] == 'e') {
                 eatString("ewline");
                 peekDelimiter();
                 return new Expression(Atom('\n'));
@@ -151,8 +144,6 @@ Expression* Reader::readIn() {
     string str;
 
     eatWhiteSpace();
-
-    if (line.empty()) { return new Expression(Atom()); }
 
     c = line[i];
     if (c == '#') { // read boolean/char

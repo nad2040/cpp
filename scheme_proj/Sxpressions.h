@@ -47,20 +47,18 @@ public:
         fn(nullptr), compound_proc(),
         in_port(nullptr), out_port(nullptr) {}
 
-    Atom(char c) : fn(nullptr), compound_proc(),
-        in_port(nullptr), out_port(nullptr) {
-        if (c == ' ' || c == '\n' || isalpha(c) || isdigit(c)) {
-            atomType_ = CHAR;
-            atomValue_ = c;
-        } else atomType_ = UNK;
-    }
+    Atom(char c) : 
+        atomType_(CHAR), atomValue_(1,c),
+        fn(nullptr), compound_proc(),
+        in_port(nullptr), out_port(nullptr) {}
+    
     Atom(Expression* (*fnptr)(Expression* args)) :
-        atomType_(PRIM_PROC), atomValue_("#<primitive-procedure>"),
+        atomType_(PRIM_PROC), atomValue_("#<prim-proc>"),
         fn(fnptr), compound_proc(),
         in_port(nullptr), out_port(nullptr) {}
 
     Atom(Expression* _params, Expression* _body, Expression* _env) :
-        atomType_(COMP_PROC), atomValue_("#<compound-procedure>"),
+        atomType_(COMP_PROC), atomValue_("#<comp-proc>"),
         fn(nullptr), compound_proc(_params,_body,_env),
         in_port(nullptr), out_port(nullptr) {}
 

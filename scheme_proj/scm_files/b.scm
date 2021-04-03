@@ -1,7 +1,2 @@
-#t
+(load "scm_files/run-meta-circular.scm")
 
--123
-
-#\c
-
-"adsf"

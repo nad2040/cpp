@@ -1,5 +1,7 @@
 #include "eval.h"
 #include "primitive_proc.h"
+#include "write.h"
+Writer w = Writer();
 
 extern Expression *empty_list;
 extern Expression *_false;
@@ -147,8 +149,11 @@ Expression* evalDefinition(Expression *expr, Expression *env) {
 
 Expression* eval(Expression *expr, Expression *env) {
     Expression *proc, *args, *result;
-
+    
 tailcall:
+    //std::cout << "env: "; w.write(env); std::cout << '\n'; 
+    //std::cout << "eval expr: "; w.write(expr); std::cout << '\n';
+
     if (isSelfEval(expr)) return expr;
     else if (isVar(expr)) return lookupVarValue(expr, env);
     else if (isQuoted(expr)) return textOfQuote(expr);

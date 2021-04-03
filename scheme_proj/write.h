@@ -3,7 +3,6 @@
 #include <iostream>
 #include "Sxpressions.h"
 
-extern std::ofstream nullOut;
 extern std::ofstream _ofs;
 
 class Writer {
