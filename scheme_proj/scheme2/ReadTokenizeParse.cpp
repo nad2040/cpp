@@ -41,12 +41,23 @@ std::string readStringToken(std::string& buffer, int& idx) {
     return "";
 }
 
+std::string readCommentToken(std::string& buffer, int& idx) {
+    assert(buffer[idx] == ';');
+    int begin = idx;
+    ++idx;
+    while (idx < buffer.size()) {
+        ++idx;
+    }
+    return "";
+}
+
 std::string nextToken(std::string& buffer, int& idx) {
     while (idx < buffer.size()) {
         char c = buffer[idx];
         if (isspace(c)) ++idx;
         else if (isSpecial(c)) { ++idx; return std::string(1, c); }
         else if (c == '"') return readStringToken(buffer, idx);
+        else if (c == ';') return readCommentToken(buffer, idx);
         else return readTillDelimiter(buffer, idx);
     }
     return "";
@@ -58,6 +69,13 @@ void ReadTokenizeParse::readAndTokenize() {
     //read
     std::string line;
     std::getline(std::cin, line);
+    //skip comments, bug whe ; inside "
+    /*
+    auto iter = line.find(';');
+    if (iter != std::string::npos) {
+        line = line.substr(0, iter);
+        //std::cout << "skip comment; add " << line << '\n';
+    }*/
     buffer_ += line;
     //tokenize
     while(true) {
@@ -74,6 +92,13 @@ void ReadTokenizeParse::readAndTokenize(std::istream& is) {
     //read
     std::string line;
     std::getline(is, line);
+    //skip comments, bug whe ; inside "
+    /*
+    auto iter = line.find(';');
+    if (iter != std::string::npos) {
+        line = line.substr(0, iter);
+        //std::cout << "skip comment; add " << line << '\n';
+    }*/
     buffer_ += line;
     //tokenize
     while(true) {
@@ -87,6 +112,10 @@ void ReadTokenizeParse::readAndTokenize(std::istream& is) {
 }
 
 Expression* ReadTokenizeParse::parseCdr(int& index) {
+    //std::cout << "parseCdr tokens:"; for(auto& elem : tokens_) std::cout << '_' << elem; std::cout << '\n';
+    //std::cout << "parseCdr buffer:" << buffer_ << '\n';
+    if (index == tokens_.size()) return nullptr;
+
     int oldReadPos = index;
     std::string ctoken = tokens_[index];
     //std::cout << "current token:" << ctoken << " index:" << index << '\n';
