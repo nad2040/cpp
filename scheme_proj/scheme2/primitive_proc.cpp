@@ -124,18 +124,20 @@ Expression* loadProc(Expression *args) {
     ReadTokenizeParse rtp;
     expr = nullptr;
     int idx = 0;
-    //while (!expr) {
-    while (!ifs.eof()) {
+    //while (!ifs.eof()) {
+    while (!expr && !ifs.eof()) {
         rtp.readAndTokenize(ifs);
         expr = rtp.parseExpression(idx);
         if (expr) {
-            //std::cout << "eval current expr:" << expr << '\n';
+            std::cout << "xxxx eval current expr:" << expr << '\n';
             result = Evaluator::eval(expr);
+            expr = nullptr;
         }
     }
     
     ifs.close();
-    return result;
+    return (result == nullptr) ? Expression::eof_object() : result;
+    //return result;
 }
 
 Expression *openInputPortProc(Expression *args) {
