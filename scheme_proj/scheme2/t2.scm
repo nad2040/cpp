@@ -1,0 +1,7 @@
+(define env (environment))
+(define (repl)
+    (write-char #\])
+    (write-char #\space)
+    (write (eval (read) env))
+    (write-char #\newline)
+    (repl))
