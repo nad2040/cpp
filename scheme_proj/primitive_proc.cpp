@@ -112,9 +112,11 @@ Expression* listProc(Expression *args) { return args; }
 
 Expression* isEqProc(Expression *args) {
     Expression *expr1 = car(args), *expr2 = cadr(args);
-    if (expr1->atom.atomType_ != expr2->atom.atomType_) return _false;
-    else if (expr1->atom.atomValue_ == expr2->atom.atomValue_) return _true;
-    else return (expr1 == expr2) ? _true : _false;
+    if (expr1->exprType_ != expr2->exprType_) return _false;
+    if (expr1->exprType_ == ATOM) {
+        if (expr1->atom.atomType_ != expr2->atom.atomType_) return _false;
+        else return (expr1->atom.atomValue_ == expr2->atom.atomValue_) ? _true : _false;
+    } else return (expr1 == expr2) ? _true : _false;
 }
 
 Expression* applyProc(Expression *args) {
@@ -141,6 +143,7 @@ Expression* loadProc(Expression *args) {
         r.fillBuff();
         expr = r.readIn();
         result = eval(expr, global_env);
+        //r.emptyBuff();
     }
     ifs.close();
     return result;
@@ -164,6 +167,7 @@ Expression *readProc(Expression *args) {
     Reader r = isEmptyList(args) ? Reader() : Reader(*car(args)->atom.in_port);
     r.fillBuff();
     result = r.readIn();
+    //r.emptyBuff();
     return (result == nullptr) ? eof_object : result;
 }
 Expression *readCharProc(Expression *args) {

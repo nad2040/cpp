@@ -24,6 +24,7 @@ public:
     }
 
     void fillBuff();
+    void emptyBuff();
 
     void eatWhiteSpace();
     void eatString(std::string check);
