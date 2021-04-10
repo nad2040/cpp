@@ -1,5 +1,6 @@
 #include "eval.h"
 #include "primitive_proc.h"
+#include "output.h"
 
 theEnv *Evaluator::the_env = new theEnv();
 Expression* Evaluator::eval(Expression *expr) {
@@ -134,6 +135,8 @@ Expression* Evaluator::evalDefinition(Expression *expr, Expression *env) {
 }
 
 Expression* Evaluator::eval(Expression *expr, Expression *env) {
+    //std::cout << "xxxx eval expr:" << expr << " env:" << env << '\n';
+    //std::cout << "xxxx eval expr:" << expr << '\n';
     Expression *proc, *args, *result;
 
 tailcall:
@@ -178,21 +181,27 @@ tailcall:
         args = listOfValues(operands(expr), env);
 
         if (isPrimProc(proc) && proc->getPrimitive() == evalProc) {
+            //std::cout << "evalProc expr: " << expr << '\n';
             expr = evalExpr(args);
             env = evalEnv(args);
             goto tailcall;
         }
         if (isPrimProc(proc) && proc->getPrimitive() == applyProc) {
+            //std::cout << "applyProc expr: " << expr << '\n';
             proc = applyOperator(args);
             args = applyOperands(args);
         }
 
-        if (isPrimProc(proc)) return (proc->getPrimitive())(args);
+        if (isPrimProc(proc)) {
+            //std::cout << "apply proc: " << proc << " to args:" << args << '\n';
+            return (proc->getPrimitive())(args);
+        }
         else if (isCompProc(proc)) {
             Expression *compParams, *compBody, *compEnv;
             proc->getCompound(compParams, compBody, compEnv);
             env = the_env->extendEnv(compParams, args, compEnv);
             expr = makeBegin(compBody);
+            //std::cout << "isCompProc para: " << compParams << " body:" << compBody << " env:" << compEnv << '\n';
             goto tailcall;
         } else { std::cerr << "unknown procedure type\n"; exit(1); }
     }

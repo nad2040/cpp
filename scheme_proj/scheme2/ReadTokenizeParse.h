@@ -12,6 +12,12 @@ public:
     void readAndTokenize(std::istream& is);
     Expression* parseExpression(int& index);
 
+    std::string& getBuffer() { return buffer_; }
+    int getReadPos() { return readPos_; }
+
+    std::vector<std::string>& getTokens() { return tokens_; }
+    int getTokenPos() { return tokenPos_; }
+
 private:
     Expression* parseCdr(int& index);
     Expression* parseHash(int& index);
