@@ -1,6 +1,7 @@
 #include "env.h"
 #include "primitive_proc.h"
 #include <iostream>
+#include "output.h"
 
 Expression* theEnv::enclosingEnvironment(Expression *env) {
     return cdr(env);
