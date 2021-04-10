@@ -47,7 +47,11 @@ void Reader::fillBuff() {
         else if (c == '(') { fillBuff(); if (parenCount(line) == 0) return; }
         else if (c == ')') return;
     }
-    line += '\n';
+    line += ' ';
+}
+void Reader::emptyBuff() {
+    line = "";
+    i = 0;
 }
 
 void Reader::eatWhiteSpace() {
@@ -190,7 +194,7 @@ Expression* Reader::readIn() {
             }
             str += c;
         }
-        if (c == EOF) { cerr <<  "non-terminated string literal\n"; exit(1); }
+        if (c == '\0') { cerr <<  "non-terminated string literal\n"; exit(1); }
         return new Expression(Atom('"' + str));
     }
     else if (c == '(') { // read pair/list
@@ -201,7 +205,7 @@ Expression* Reader::readIn() {
         i++;
         return cons(quote_symbol, cons(readIn(), empty_list));
     }
-    else if (c == EOF || in->peek() == EOF || in->eof()) return nullptr;
+    else if (c == '\0' || in->peek() == EOF || in->eof()) return nullptr;
     else { // bad input
         cerr <<  "bad input. Unexpected '" << c << "'\n"; exit(1);
     }

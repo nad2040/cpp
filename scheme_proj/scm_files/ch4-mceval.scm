@@ -244,6 +244,8 @@
           (error "Too few arguments supplied" vars vals))))
 
 (define (lookup-variable-value var env)
+  (write env)
+  (write (eq? env the-empty-environment))
   (define (env-loop env)
     (define (scan vars vals)
       (cond ((null? vars)
@@ -303,10 +305,62 @@
 (define (primitive-implementation proc) (cadr proc))
 
 (define primitive-procedures
-  (list (list 'car car)
-        (list 'cdr cdr)
+  (list (list 'null? null?)
+        (list 'boolean? boolean?)
+        (list 'symbol? symbol?)
+        (list 'integer? integer?)
+        (list 'char? char?)
+        (list 'string? string?)
+        (list 'pair? pair?)
+        (list 'procedure? procedure?)
+
+        (list 'char->integer char->integer)
+        (list 'integer->char integer->char)
+        (list 'number->string number->string)
+        (list 'string->number string->number)
+        (list 'symbol->string symbol->string)
+        (list 'string->symbol string->symbol)
+
+        (list '+ +)
+        (list '- -)
+        (list '* *)
+        (list 'quotient quotient)
+        (list 'remainder remainder)
+        (list '= =)
+        (list '< <)
+        (list '> >)
+
         (list 'cons cons)
-        (list 'null? null?)
+        (list 'car car)
+        (list 'cdr cdr)
+        (list 'set-car! set-car!)
+        (list 'set-cdr! set-cdr!)
+        (list 'list list)
+
+        (list 'eq? eq?)
+
+        (list 'apply apply)
+
+        (list 'interaction-environment interaction-environment)
+        (list 'null-environment null-environment)
+        (list 'environment environment)
+        (list 'eval eval)
+
+        (list 'load load)
+        (list 'open-input-port open-input-port)
+        (list 'close-input-port close-input-port)
+        (list 'input-port? input-port?)
+        (list 'read read)
+        (list 'read-char read-char)
+        (list 'peek-char peek-char)
+        (list 'eof-object? eof-object?)
+        (list 'open-output-port open-output-port)
+        (list 'close-output-port close-output-port)
+        (list 'output-port? output-port?)
+        (list 'write-char write-char)
+        (list 'write write)
+
+        (list 'error error)
 ;;      more primitives
         ))
 

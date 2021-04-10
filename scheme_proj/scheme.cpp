@@ -85,6 +85,7 @@ int main() {
         w.write(expr); *w.out << '\n'; // Uncomment to see input from file
         w.write(eval(expr, global_env));
         *w.out << '\n';
+        //r.emptyBuff();
     }
     
     cout << "Goodbye\n";

@@ -42,9 +42,14 @@ void getInput(istream& in, string& temp) {
 }
 
 int main() {
-    ifstream ifs("../scheme_proj/scm_files/run-meta-circular.scm");
+    ifstream ifs("../scheme_proj/scm_files/b.scm");
     string s;
-    getInput(cin, s);
-    cout << s << '\n';
+    int i=0;
+    while (i<3) {
+        s = "";
+        getInput(cin, s);
+        cout << s << '\n';
+        i++;
+    }
 }
 
