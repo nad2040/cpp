@@ -244,8 +244,6 @@
           (error "Too few arguments supplied" vars vals))))
 
 (define (lookup-variable-value var env)
-  (write env)
-  (write (eq? env the-empty-environment))
   (define (env-loop env)
     (define (scan vars vals)
       (cond ((null? vars)
