@@ -99,8 +99,11 @@ Expression* listProc(Expression *args) { return args; }
 
 Expression* isEqProc(Expression *args) {
     Expression *expr1 = car(args), *expr2 = cadr(args);
-    if (expr1->getAtom().atomType_ != expr2->getAtom().atomType_) return Expression::_false();
-    else if (expr1->getAtom() == expr2->getAtom()) return Expression::_true();
+    assert(expr1 != nullptr && expr2 != nullptr);
+    if (expr1->exprType_ != expr2->exprType_) return Expression::_false();
+    if (expr1->exprType_ == Expression::ATOM) {
+        return (expr1->getAtom() == expr2->getAtom()) ? Expression::_true() : Expression::_false();
+    }
     else return (expr1 == expr2) ? Expression::_true() : Expression::_false();
 }
 
@@ -129,7 +132,7 @@ Expression* loadProc(Expression *args) {
         rtp.readAndTokenize(ifs);
         expr = rtp.parseExpression(idx);
         if (expr) {
-            std::cout << "xxxx eval current expr:" << expr << '\n';
+            //std::cout << "xxxx eval current expr:" << expr << '\n';
             result = Evaluator::eval(expr);
             expr = nullptr;
         }
@@ -157,7 +160,7 @@ Expression *closeInputPortProc(Expression *args) {
 Expression *isInputPortProc(Expression *args) { return isInputPort(car(args)) ? Expression::_true() : Expression::_false(); }
 
 Expression *readProc(Expression *args) {
-    Expression *result;
+    Expression *result = nullptr;
 
     std::istream& ifs = isEmptyList(args) ? std::cin : *(car(args)->getAtom().in_port());
     ReadTokenizeParse rtp;
@@ -166,7 +169,9 @@ Expression *readProc(Expression *args) {
     while (!expr) {
         rtp.readAndTokenize(ifs);
         expr = rtp.parseExpression(idx);
-        result = Evaluator::eval(expr);
+        //std::cout << "xxxx readProc:" << expr << " idx:" << idx << " buffer:" << rtp.getBuffer() << " readPos:" << rtp.getReadPos() << '\n';
+        //if (!expr) result = Evaluator::eval(expr);
+        if (expr) return expr;
     }
 
     return (result == nullptr) ? Expression::eof_object() : result;

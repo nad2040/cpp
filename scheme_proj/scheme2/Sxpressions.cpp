@@ -1,5 +1,6 @@
 #include <string>
 #include "Sxpressions.h"
+#include "output.h"
 
 Expression* car(Expression* expr) {
     return expr->getCar();
@@ -57,6 +58,7 @@ Expression* makeSymbol(std::string value) {
     /* create the symbol and add it to the symbol table */
     Expression *symbol = new Expression(Atom(Symbol{value}));
     symbol_table = cons(symbol, symbol_table);
+    //std::cout << "symbol_table:" << (Expression*)symbol_table << '\n';
     return symbol;
 }
 

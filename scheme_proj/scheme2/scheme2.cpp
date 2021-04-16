@@ -13,7 +13,7 @@ int main() {
         std::cout << "> ";
         rtp.readAndTokenize();
         expr = rtp.parseExpression(tokenIdx);
-        if (expr) std::cout << expr << '\n';
+        //if (expr) std::cout << expr << '\n';
         if (expr) std::cout << Evaluator::eval(expr) << '\n';
         expr = nullptr;
     }
