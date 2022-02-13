@@ -67,6 +67,6 @@ add
 
 (close-output-port out)
 
-(load "scm_files/stdlib.scm")
+(load "stdlib.scm")
 
 (error "bad move")

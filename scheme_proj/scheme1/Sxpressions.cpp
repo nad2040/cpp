@@ -67,7 +67,7 @@ Expression* makeSymbol(std::string value) {
             return car(element);
         }
         element = cdr(element);
-    };
+    }
     
     /* create the symbol and add it to the symbol table */
     symbol = new Expression(Atom(value));
