@@ -1,0 +1,13 @@
+*
+!*.*
+!*/
+
+*.txt
+*.t
+*.out
+
+bootstrap-scheme-0.21/
+*.dSYM/
+.vscode
+.DS_Store
+lib/
