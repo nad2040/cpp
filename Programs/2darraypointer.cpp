@@ -7,7 +7,7 @@ int nums[3][4] = {
     {9, 10, 11, 12}
 };
 
-long a = ((long)1 << 32) | 1;
+long a = (1l << 32) | 1;
 
 int main()
 {

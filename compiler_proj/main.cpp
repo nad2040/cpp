@@ -2,6 +2,7 @@
 #include <variant>
 #include <string>
 #include <vector>
+#include <regex>
 
 struct Token {
     std::variant<int, std::string> val;
@@ -102,19 +103,72 @@ Node *parse_exp_l(std::vector<Token>& tokens, Node *l, int min_precedence) {
     return l;
 }
 
+std::string nextStringToken(std::string &s) {
+    std::smatch match;
+    std::regex re;
+    std::string result;
+
+    re = std::regex(R"(^\s+)"); // match whitespace
+    if (std::regex_search(s, match, re)) {
+        result = match.str(0);
+        s = s.substr(result.size());
+        std::cout << "Whitespace: ";
+        return result;
+    }
+    re = std::regex(R"(^[A-Za-z]+)"); // match identifier
+    if (std::regex_search(s, match, re)) {
+        result = match.str(0);
+        s = s.substr(result.size());
+        std::cout << "Identifier: ";
+        return result;
+    }
+    re = std::regex(R"(^\d+)"); // match one or more digits
+    if (std::regex_search(s, match, re)) {
+        result = match.str(0);
+        s = s.substr(result.size());
+        std::cout << "IntegerLiteral: ";
+        return result;
+    }
+    
+    re = std::regex(R"(^\()"); // match (
+    if (std::regex_search(s, match, re)) {
+        result = match.str(0);
+        s = s.substr(result.size());
+        std::cout << "LeftP: ";
+        return result;
+    }
+    re = std::regex(R"(^\))"); // match )
+    if (std::regex_search(s, match, re)) {
+        result = match.str(0);
+        s = s.substr(result.size());
+        std::cout << "RightP: ";
+        return result;
+    }
+
+    s = s.substr(1);
+    return "NO MATCH";
+}
+
 // PRECEDENCE CLIMBING PARSER
 int main() {
-    std::string expr;
+    // std::string expr;
+    // while (1) {
+    //     std::getline (std::cin, expr);
+    //     if (expr.empty()) break;
+    //     std::vector<Token> tokens = read_string(expr);
+
+    //     // for (Token &t: tokens) std::cout << t << ' ';
+    //     // std::cout << std::endl;
+
+    //     Node *tree = parse_exp(tokens);
+    //     std::cout << tree << std::endl;
+    // }
+
+    std::string s;
+    
     while (1) {
-        std::getline (std::cin, expr);
-        if (expr.empty()) break;
-        std::vector<Token> tokens = read_string(expr);
-
-        // for (Token &t: tokens) std::cout << t << ' ';
-        // std::cout << std::endl;
-
-        Node *tree = parse_exp(tokens);
-        std::cout << tree << std::endl;
+        std::getline(std::cin, s);
+        while (!s.empty()) std::cout << nextStringToken(s) << '\n';
     }
 
     return 0;
