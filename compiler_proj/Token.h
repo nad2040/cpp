@@ -8,22 +8,22 @@ enum TokenType {
     SPACE = ' ',
     DOUBLE_QUOTE = '"',
     SINGLE_QUOTE = '\'',
-    OPEN_PAREN = '(',
-    CLOSE_PAREN = ')',
+    LEFT_PAREN = '(',
+    RIGHT_PAREN = ')',
     COMMA = ',',
-    PERIOD = '.',
-    FSLASH = '/',
-    BSLASH = '\\',
+    DOT = '.',
+    F_SLASH = '/',
+    B_SLASH = '\\',
     UNDERSCORE = '_',
     COLON = ':',
     SEMICOLON = ';',
-    OPEN_DIAMOND = '<',
-    CLOSE_DIAMOND = '>',
+    LEFT_ANGLE_B = '<',
+    RIGHT_ANGLE_B = '>',
     QUESTION = '?',
-    OPEN_BRAKET = '[',
-    CLOSE_BRAKET = ']',
-    OPEN_BRACE = '{',
-    CLOSE_BRACE = '}',
+    LEFT_SQUARE_B = '[',
+    RIGHT_SQUARE_B = ']',
+    LEFT_CURLY_B = '{',
+    RIGHT_CURLY_B = '}',
     
 
     IDENTIFIER = 256,
@@ -38,11 +38,11 @@ enum TokenType {
     // OPERATORS
     OPERATOR, // special keyword
     ASSIGN, // =
-    LT,GT,LEQ,GEQ,EQ, // < > <= >= ==
+    LT,GT,LEQ,GEQ,EQ,NEQ, // < > <= >= == !=
     ADD,SUB,NEG,MUL,DIV,MOD, // + - -() * / %
     INCREMENT,DECREMENT, // ++ --
     AND,OR,NOT,XOR, // && || ! ^
-    BITAND,BITOR,BITNOT,SHIFTL,SHIFTR, // & | ~ << >>
+    BITAND,BITOR,BITNOT,LSHF,RSHF, // & | ~ << >>
 
     // TYPES, CLASSES, MODIFIERS
     VAR,VOID, // special type
