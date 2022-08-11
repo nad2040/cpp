@@ -1,32 +1,37 @@
 #pragma once
 #include <string>
 #include <cassert>
+#include <iostream>
 
-enum TokenType {
+enum class TokenType : short {
     UNKNOWN = 0,
-    NEWLINE = '\n',
-    SPACE = ' ',
-    DOUBLE_QUOTE = '"',
-    SINGLE_QUOTE = '\'',
-    LEFT_PAREN = '(',
-    RIGHT_PAREN = ')',
-    COMMA = ',',
-    DOT = '.',
-    F_SLASH = '/',
-    B_SLASH = '\\',
-    UNDERSCORE = '_',
-    COLON = ':',
-    SEMICOLON = ';',
-    LEFT_ANGLE_B = '<',
-    RIGHT_ANGLE_B = '>',
-    QUESTION = '?',
-    LEFT_SQUARE_B = '[',
-    RIGHT_SQUARE_B = ']',
-    LEFT_CURLY_B = '{',
-    RIGHT_CURLY_B = '}',
-    
+    NEWLINE,
+    WHITESPACE,
+    FILE_END,
+    DOUBLE_QUOTE,
+    SINGLE_QUOTE,
+    LEFT_PAREN,
+    RIGHT_PAREN,
+    COMMA,
+    DOT,
+    F_SLASH,
+    B_SLASH,
+    UNDERSCORE,
+    COLON,
+    SEMICOLON,
+    LEFT_ANGLE_B,
+    RIGHT_ANGLE_B,
+    QUESTION,
+    LEFT_SQUARE_B,
+    RIGHT_SQUARE_B,
+    LEFT_CURLY_B,
+    RIGHT_CURLY_B,
 
     IDENTIFIER = 256,
+    LITERAL,
+    INT_LITERAL,
+    CHAR_LITERAL,
+    STRING_LITERAL,
 
     KEYWORD,
 
@@ -36,10 +41,11 @@ enum TokenType {
     LABEL,GOTO,BREAK,RETURN, // unconditional jumps
     
     // OPERATORS
+    OP,
     OPERATOR, // special keyword
     ASSIGN, // =
     LT,GT,LEQ,GEQ,EQ,NEQ, // < > <= >= == !=
-    ADD,SUB,NEG,MUL,DIV,MOD, // + - -() * / %
+    PLUS,MINUS,MUL,DIV,MOD, // + - -() * / %
     INCREMENT,DECREMENT, // ++ --
     AND,OR,NOT,XOR, // && || ! ^
     BITAND,BITOR,BITNOT,LSHF,RSHF, // & | ~ << >>
@@ -57,22 +63,26 @@ enum TokenType {
 
 class Token {
 public:
-    TokenType token_type;
     std::string token_value;
+    TokenType token_type;
 
     Token();
-    Token(const std::string&, TokenType);
+    Token(std::string, TokenType);
+    Token(char, TokenType);
 
     bool is_keyword();
     bool is_operator();
     bool is_identifier();
     bool is_type();
     bool is_type_modifier();
+    int precedence();
+
     void set_type(TokenType);
+
+    friend std::ostream& operator<<(std::ostream &out, Token token);
 };
 
-template<typename First, typename ... T>
-bool is_in(First &&first, T && ... t)
-{
-    return ((first == t) || ...);
+template<typename T, typename ...Ts>
+bool is_in(T &&check, Ts &&...list) {
+    return ((check == list) || ...);
 }

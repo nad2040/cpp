@@ -1,37 +1,40 @@
 #pragma once
 #include "Token.h"
-#include <iostream>
 
 class AST {
 public:
-	AST* left_;
-	AST* right_;
+	AST *left, *right;
+    Token value;
+    bool leaf;
 
-    AST() : value_(), left_(nullptr), right_(nullptr) {
-        //std::cout << "def construct" << std::endl;
-    }
+    // AST() : value_(), left_(nullptr), right_(nullptr), leaf(false) {
+    //     //std::cout << "def construct" << std::endl;
+    // }
 
-    AST(Token value) : value_(value), left_(nullptr), right_(nullptr) {
-        //std::cout << "val constructor" << std::endl;
-    }
-
-    AST(Token value, AST* left, AST* right) : value_(value), left_(left), right_(right) {
-        //std::cout << "branch constructor" << std::endl;
-    }
+    AST(Token t) : value(t), left(nullptr), right(nullptr), leaf(true) {}
+    AST(Token t, AST* l, AST* r) : value(t), left(l), right(r), leaf(false) {}
 
     ~AST() {
-        delete left_;
-        delete right_;
+        delete left;
+        delete right;
         //std::cout << "destruct AST " << toString(value_) << std::endl;
     }
 
-    Token getValue() {
-        return value_;
+    friend std::ostream & operator<<(std::ostream &out, AST *tree) {
+        static int depth = 0;
+        if (tree->leaf) {
+            for (int i=0; i<depth; i++) out << "  ";
+            out << tree->value << '\n';
+        } else {
+            for (int i=0; i<depth; i++) out << "  ";
+            out << tree->value << '\n';
+            depth++;
+            if (tree->left) out << tree->left;
+            if (tree->right) out << tree->right;
+            depth--;
+        }
+        return out;
     }
-
-private:
-    Token value_;
-
 };
 
 // template<typename T>
