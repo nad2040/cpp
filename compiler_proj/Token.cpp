@@ -29,20 +29,32 @@ bool Token::is_keyword() {
 bool Token::is_operator() {
     assert(token_type != TokenType::UNKNOWN);
     return is_in(token_type,
+        TokenType::OPERATOR,
+        TokenType::ADDRESS,
+        TokenType::DEREF,
+        TokenType::MEMBER,
+        TokenType::DEREF_MEMBER,
         TokenType::ASSIGN,
+        TokenType::ADD_ASSIGN,
+        TokenType::SUB_ASSIGN,
+        TokenType::MUL_ASSIGN,
+        TokenType::DIV_ASSIGN,
+        TokenType::MOD_ASSIGN,
+        TokenType::INCREMENT,
+        TokenType::DECREMENT,
+        TokenType::ADD,
+        TokenType::SUB,
+        TokenType::MUL,
+        TokenType::DIV,
+        TokenType::MOD,
+        TokenType::UNARY_PLUS,
+        TokenType::UNARY_MINUS,
         TokenType::LT,
         TokenType::GT,
         TokenType::LEQ,
         TokenType::GEQ,
         TokenType::EQ,
         TokenType::NEQ,
-        TokenType::PLUS,
-        TokenType::MINUS,
-        TokenType::MUL,
-        TokenType::DIV,
-        TokenType::MOD,
-        TokenType::INCREMENT,
-        TokenType::DECREMENT,
         TokenType::AND,
         TokenType::OR,
         TokenType::NOT,
@@ -86,14 +98,17 @@ bool Token::is_type_modifier() {
 }
 int Token::precedence() {
     switch (token_type) {
-        case TokenType::PLUS:
-        case TokenType::MINUS:
+        case TokenType::ADD:
+        case TokenType::SUB:
             return 1;
         case TokenType::MUL:
         case TokenType::DIV:
             return 2;
         default: return -1;
     }
+}
+Associative Token::associativity() {
+    
 }
  
 std::ostream& operator<<(std::ostream &out, Token token) {
@@ -110,17 +125,8 @@ std::ostream& operator<<(std::ostream &out, Token token) {
         case TokenType::INT_LITERAL:
             out << "IntLiteral: " << token.token_value;
             return out;
-        case TokenType::PLUS:
-            out << "Plus";
-            return out;
-        case TokenType::MINUS:
-            out << "Minus";
-            return out;
-        case TokenType::MUL:
-            out << "Mult";
-            return out;
-        case TokenType::DIV:
-            out << "Div";
+        case TokenType::IDENTIFIER:
+            out << "Identifier: " << token.token_value;
             return out;
         case TokenType::LEFT_PAREN:
             out << "LeftParen";
@@ -129,6 +135,7 @@ std::ostream& operator<<(std::ostream &out, Token token) {
             out << "RightParen";
             return out;
         default:
+            out << token.token_value;
             return out;
     }
 }

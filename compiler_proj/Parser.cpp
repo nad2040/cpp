@@ -1,6 +1,6 @@
 #include "Parser.h"
 
-Parser::Parser(std::queue<Token> t) : tokens(t) {}
+Parser::Parser(std::queue<Token> &t) : tokens(t) {}
 
 AST *Parser::parse() {
     Token t=tokens.front();

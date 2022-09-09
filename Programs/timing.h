@@ -7,7 +7,7 @@ class Timer {
 public:
 	using timing = std::chrono::high_resolution_clock;
 	using duration = std::chrono::duration<double>;
-	
+
 	Timer(const std::string& blockName) : blockName_(blockName) {
 		time_ = timing::now();
 		std::cout << "enter " << blockName_ << std::endl;

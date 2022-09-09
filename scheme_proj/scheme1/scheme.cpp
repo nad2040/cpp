@@ -73,7 +73,7 @@ int main() {
 
     //ifstream ifs("scm_files/testing_input.scm");
     //ofstream ofs("a.txt");
-    Reader r = Reader("scm_files/b.scm"); // allow repl to read from a file
+    Reader r = Reader("scm_files/run-meta-circular.scm"); // allow repl to read from a file
     //Reader r = Reader(); // allow repl to read from stdin
     Writer w = Writer(); // allow repl to print to stdout
     

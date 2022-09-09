@@ -6,7 +6,7 @@ class Parser {
 public:
     std::queue<Token> tokens;
 
-    Parser(std::queue<Token> t);
+    Parser(std::queue<Token> &t);
 
     AST *parse();
     AST *parse_expr();

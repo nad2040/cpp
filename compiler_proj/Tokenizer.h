@@ -6,12 +6,15 @@
 class Tokenizer {
 public:
     std::string expr;
+    std::queue<Token> tokens;
 
     Tokenizer(std::string &);
 
     std::queue<Token> tokenize();
 
-    Token nextToken(std::string &);
-    Token parseOperatorToken(std::string &);
+    Token nextToken();
+    Token parseOperatorToken(std::string);
     
+private:
+    enum class State {DEFAULT,POST,INFIXBINOP} state;
 };

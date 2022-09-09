@@ -13,7 +13,6 @@ enum class TokenType : short {
     LEFT_PAREN,
     RIGHT_PAREN,
     COMMA,
-    DOT,
     F_SLASH,
     B_SLASH,
     UNDERSCORE,
@@ -43,12 +42,14 @@ enum class TokenType : short {
     // OPERATORS
     OP,
     OPERATOR, // special keyword
-    ASSIGN, // =
+    ADDRESS,DEREF,MEMBER,DEREF_MEMBER, // & * . ->
+    ASSIGN,ADD_ASSIGN,SUB_ASSIGN,MUL_ASSIGN,DIV_ASSIGN,MOD_ASSIGN, // = += -+ *= /= %=
+    PRE_INCR,PRE_DECR,POST_INCR,POST_DECR, // ++ --
+    ADD,SUB,MUL,DIV,MOD, // + - * / %
+    UNARY_PLUS,UNARY_MINUS, // +() -()
     LT,GT,LEQ,GEQ,EQ,NEQ, // < > <= >= == !=
-    PLUS,MINUS,MUL,DIV,MOD, // + - -() * / %
-    INCREMENT,DECREMENT, // ++ --
-    AND,OR,NOT,XOR, // && || ! ^
-    BITAND,BITOR,BITNOT,LSHF,RSHF, // & | ~ << >>
+    AND,OR,NOT, // && || !
+    BITAND,BITOR,BITNOT,XOR,LSHF,RSHF, // & | ~ ^ << >>
 
     // TYPES, CLASSES, MODIFIERS
     VAR,VOID, // special type
@@ -59,6 +60,10 @@ enum class TokenType : short {
     FN, // function type
     CLASS, // class type
     CONST,STATIC,PRIVATE // type modifiers
+};
+
+enum class Associative {
+    UNKNOWN, LEFT, RIGHT
 };
 
 class Token {
@@ -76,6 +81,8 @@ public:
     bool is_type();
     bool is_type_modifier();
     int precedence();
+    Associative associativity();
+
 
     void set_type(TokenType);
 
