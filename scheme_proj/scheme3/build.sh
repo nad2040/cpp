@@ -1,0 +1,1 @@
+g++-12 -std=c++2a -g -o scheme scheme.cpp primitive_proc.cpp Expression.cpp env.cpp read.cpp eval.cpp write.cpp -Wall -Werror -Wpedantic
