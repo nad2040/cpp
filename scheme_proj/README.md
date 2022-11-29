@@ -1,2 +1,3 @@
+scheme uses std::variant for a cleaner data structure and type checking
 scheme1 is original version
-scheme uses atom for a cleaner data structure and type checking
+scheme3 uses C union's
