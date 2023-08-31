@@ -5,7 +5,6 @@
 
 enum class TokenType : short {
     UNKNOWN = 0,
-    NEWLINE,
     WHITESPACE,
     FILE_END,
     DOUBLE_QUOTE,
@@ -31,6 +30,7 @@ enum class TokenType : short {
     INT_LITERAL,
     CHAR_LITERAL,
     STRING_LITERAL,
+    COMMENT,
 
     KEYWORD,
 
@@ -44,7 +44,7 @@ enum class TokenType : short {
     OPERATOR, // special keyword
     ADDRESS,DEREF,MEMBER,DEREF_MEMBER, // & * . ->
     ASSIGN,ADD_ASSIGN,SUB_ASSIGN,MUL_ASSIGN,DIV_ASSIGN,MOD_ASSIGN, // = += -+ *= /= %=
-    PRE_INCR,PRE_DECR,POST_INCR,POST_DECR, // ++ --
+    INCREMENT,DECREMENT, // ++ --
     ADD,SUB,MUL,DIV,MOD, // + - * / %
     UNARY_PLUS,UNARY_MINUS, // +() -()
     LT,GT,LEQ,GEQ,EQ,NEQ, // < > <= >= == !=
@@ -82,7 +82,6 @@ public:
     bool is_type_modifier();
     int precedence();
     Associative associativity();
-
 
     void set_type(TokenType);
 

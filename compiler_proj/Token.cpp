@@ -108,9 +108,9 @@ int Token::precedence() {
     }
 }
 Associative Token::associativity() {
-    
+    return Associative::LEFT;
 }
- 
+
 std::ostream& operator<<(std::ostream &out, Token token) {
     switch (token.token_type) {
         case TokenType::UNKNOWN:

@@ -1,5 +1,5 @@
 #pragma once
-#include "Tokenizer.h"
+#include "Lexer.h"
 #include "AST.h"
 
 class Parser {
